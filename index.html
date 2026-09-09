@@ -8,6 +8,11 @@
 
 <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&family=Fraunces:opsz,wght@9..144,500&display=swap" rel="stylesheet"/>
 
+<!-- Importando React, ReactDOM e Babel para renderizar o componente de Funcionários -->
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
 <style>
 :root{--bg:#10140f;--surface:#1a2018;--elevated:#232b20;--fg:#f0ece2;--muted:#9a9a88;--subtle:#6e7264;--primary:#7a9b6e;--border:#2c3529;--ok:#8fbc7a;--warn:#c4a35a;--danger:#c46a5a;--font:Figtree,system-ui,sans-serif;--display:Fraunces,Georgia,serif;--radius:12px}
 *{box-sizing:border-box;border-color:var(--border)}
@@ -68,6 +73,16 @@ h1,h2,h3{font-family:var(--display);font-weight:500;margin:0}
 .toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:var(--primary);color:var(--bg);padding:.6rem 1.2rem;border-radius:999px;font-size:.85rem;font-weight:600;z-index:200;display:none;box-shadow:0 4px 12px rgba(0,0,0,0.4)}
 .search-box{background:var(--elevated);border:1px solid var(--border);border-radius:10px;padding:.5rem .75rem;width:100%;color:var(--fg);margin-bottom:.75rem}
 .coletivo-item{background:var(--elevated);padding:.6rem;border-radius:8px;margin-bottom:.5rem;border:1px solid var(--border)}
+
+/* Estilos adicionais para harmonizar o componente de funcionários com o CampoGestor */
+.func-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 0.75rem; overflow: hidden; }
+.func-header { padding: 1rem; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: var(--elevated); }
+.func-nome { margin: 0; font-size: 0.95rem; color: var(--primary); font-family: var(--font); font-weight: 600; }
+.func-cargo { font-size: 0.75rem; color: var(--muted); }
+.func-details { padding: 1rem; border-top: 1px solid var(--border); background: var(--surface); }
+.func-row { display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.825rem; }
+.func-row:last-child { margin-bottom: 0; }
+.func-highlight { color: var(--ok); font-weight: 600; }
 </style>
 </head>
 <body>
@@ -116,6 +131,224 @@ h1,h2,h3{font-family:var(--display);font-weight:500;margin:0}
 <div class="modal-bg" id="modal-bg">
   <div class="modal" id="modal-body"></div>
 </div>
+
+<!-- Componente React de Funcionários -->
+<script type="text/babel">
+  const funcionariosData = [
+    {
+      id: 1,
+      nome: "SEBASTIAO CLAUDIONOR REZENDE",
+      cargo: "MOTORISTA E",
+      cpf: "773.993.741-04",
+      admissao: "01/09/2024",
+      nascimento: "20/01/1972",
+      planoSaude: "02282205000069004"
+    },
+    {
+      id: 2,
+      nome: "JEFERSON LUIZ BOTIN",
+      cargo: "OPERADOR MAQ C",
+      cpf: "087.771.269-71",
+      admissao: "03/06/2026",
+      nascimento: "25/01/1993",
+      planoSaude: null
+    },
+    {
+      id: 3,
+      nome: "GENILTON GUSTAVO DE OLIVEIRA",
+      cargo: "OP DE MAQUINAS AGRIC JR E",
+      cpf: "098.644.111-28",
+      admissao: "06/02/2026",
+      nascimento: "13/04/2007",
+      planoSaude: "02282205000076000"
+    },
+    {
+      id: 4,
+      nome: "JOAO PEDRO VIEIRA ALMEIDA",
+      cargo: "OP DE MAQ AGRIC JR F",
+      cpf: "714.966.761-90",
+      admissao: "15/06/2026",
+      nascimento: "28/04/2008",
+      planoSaude: null
+    },
+    {
+      id: 5,
+      nome: "ANDRESSA LEAL FERREIRA",
+      cargo: "COZINHEIRA RURAL E",
+      cpf: "102.727.609-19",
+      admissao: "22/06/2026",
+      nascimento: "07/05/1995",
+      planoSaude: null
+    },
+    {
+      id: 6,
+      nome: "LEANDRO ALVES MORAES DE SOUZA",
+      cargo: "OP DE MAQUINAS AGRIC A",
+      cpf: "709.352.761-22",
+      admissao: "29/04/2026",
+      nascimento: "15/05/2003",
+      planoSaude: null
+    },
+    {
+      id: 7,
+      nome: "CELIO CARLOS CANEDO JUNIOR",
+      cargo: "GERENTE AGROP E",
+      cpf: "052.747.301-40",
+      admissao: "01/04/2025",
+      nascimento: "25/06/1994",
+      planoSaude: null
+    },
+    {
+      id: 8,
+      nome: "DILMAR ALVES KAYSER",
+      cargo: "OP DE MAQ AGRIC JR F",
+      cpf: "068.263.651-70",
+      admissao: "07/02/2026",
+      nascimento: "11/10/2003",
+      planoSaude: "02282205000077007"
+    },
+    {
+      id: 9,
+      nome: "GABRIEL PEREIRA DE FARIA",
+      cargo: "OP DE MAQUINAS AGRIC A",
+      cpf: "072.161.721-24",
+      admissao: "29/01/2026",
+      nascimento: "16/10/2003",
+      planoSaude: "02282205000078003"
+    },
+    {
+      id: 10,
+      nome: "MARCOS ANTONIO DA SILVA MORAIS",
+      cargo: "AUX ADMINISTRATIVO D",
+      cpf: "045.230.731-71",
+      admissao: "23/02/2026",
+      nascimento: "06/11/1993",
+      planoSaude: "02282205000075004"
+    },
+    {
+      id: 11,
+      nome: "JOSE ADAO CARDOSO",
+      cargo: "TRAB AGROP EM GERAL D",
+      cpf: "897.519.571-68",
+      admissao: "01/09/2024",
+      nascimento: "25/12/1973",
+      planoSaude: "02282205000068008"
+    }
+  ];
+
+  const calcularTempoTrabalhado = (dataAdmissaoStr) => {
+    const [dia, mes, ano] = dataAdmissaoStr.split('/').map(Number);
+    const dataAdmissao = new Date(ano, mes - 1, dia);
+    const hoje = new Date();
+
+    let anos = hoje.getFullYear() - dataAdmissao.getFullYear();
+    let meses = hoje.getMonth() - dataAdmissao.getMonth();
+    let dias = hoje.getDate() - dataAdmissao.getDate();
+
+    if (dias < 0) {
+      meses -= 1;
+      const ultimoDiaMesAnterior = new Date(hoje.getFullYear(), hoje.getMonth(), 0).getDate();
+      dias += ultimoDiaMesAnterior;
+    }
+
+    if (meses < 0) {
+      anos -= 1;
+      meses += 12;
+    }
+
+    const partes = [];
+    if (anos > 0) partes.push(`${anos} ${anos === 1 ? 'ano' : 'anos'}`);
+    if (meses > 0) partes.push(`${meses} ${meses === 1 ? 'mês' : 'meses'}`);
+    if (dias > 0) partes.push(`${dias} ${dias === 1 ? 'dia' : 'dias'}`);
+
+    return partes.length > 0 ? partes.join(', ') : 'Admitido hoje';
+  };
+
+  function FuncionariosList() {
+    const [abertoId, setAbertoId] = React.useState(null);
+    const [search, setSearch] = React.useState("");
+
+    const toggleAccordion = (id) => {
+      setAbertoId(abertoId === id ? null : id);
+    };
+
+    const filtrados = funcionariosData.filter(f => 
+      f.nome.toLowerCase().includes(search.toLowerCase()) || 
+      f.cargo.toLowerCase().includes(search.toLowerCase()) ||
+      f.cpf.includes(search)
+    );
+
+    return (
+      <div style={{ padding: '0 1rem' }}>
+        <div class="card" style={{ margin: '0 0 1rem 0' }}>
+          <input 
+            type="text" 
+            class="search-box" 
+            style={{ marginBottom: 0 }} 
+            placeholder="🔍 Buscar funcionário por nome, cargo ou CPF..." 
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <div class="muted" style={{ marginTop: '0.5rem' }}>
+            Total de colaboradores: <strong>{filtrados.length} ativos</strong>
+          </div>
+        </div>
+
+        <div class="sec" style={{ margin: '0 0 0.75rem 0' }}>Equipe Cadastrada</div>
+
+        {filtrados.map((f) => {
+          const isExpanded = abertoId === f.id;
+          const tempoTrabalhado = calcularTempoTrabalhado(f.admissao);
+
+          return (
+            <div key={f.id} class="func-card">
+              <div class="func-header" onClick={() => toggleAccordion(f.id)}>
+                <div>
+                  <h3 class="func-nome">{f.nome}</h3>
+                  <span class="func-cargo">{f.cargo}</span>
+                </div>
+                <span class="muted" style={{ fontSize: '0.8rem' }}>{isExpanded ? '▲' : '▼'}</span>
+              </div>
+
+              {isExpanded && (
+                <div class="func-details">
+                  <div class="func-row">
+                    <strong>CPF:</strong> <span>{f.cpf}</span>
+                  </div>
+                  <div class="func-row">
+                    <strong>Data de Nascimento:</strong> <span>{f.nascimento}</span>
+                  </div>
+                  <div class="func-row">
+                    <strong>Data de Admissão:</strong> <span>{f.admissao}</span>
+                  </div>
+                  <div class="func-row">
+                    <strong>Tempo de Empresa:</strong> <span class="func-highlight">{tempoTrabalhado}</span>
+                  </div>
+                  <div class="func-row">
+                    <strong>Plano de Saúde (Unimed):</strong>{' '}
+                    <span>{f.planoSaude ? f.planoSaude : 'Não cadastrado'}</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+
+  window.renderEquipeModule = function() {
+    const container = document.getElementById('content');
+    if (!container) return;
+    const rootDiv = document.createElement('div');
+    rootDiv.id = 'react-equipe-root';
+    container.innerHTML = '';
+    container.appendChild(rootDiv);
+    
+    const root = ReactDOM.createRoot(rootDiv);
+    root.render(<FuncionariosList />);
+  };
+</script>
 
 <script>
 const PRINCIPIOS_ATIVOS = [
@@ -305,8 +538,12 @@ function selectTab(tab) {
     pageTitle.textContent = "Equatorial / Energia";
     content.innerHTML = renderEquatorial();
   } else if (tab === 'pessoas') {
-    pageTitle.textContent = "Equipe";
-    content.innerHTML = `<div class="card">Módulo de Equipe</div>`;
+    pageTitle.textContent = "Equipe da Fazenda";
+    if (window.renderEquipeModule) {
+      window.renderEquipeModule();
+    } else {
+      content.innerHTML = `<div class="card">Carregando módulo de equipe...</div>`;
+    }
   }
   window.scrollTo(0, 0);
 }
@@ -314,7 +551,6 @@ function selectTab(tab) {
 // --- MÓDULO EQUATORIAL / ENERGIA ---
 function renderEquatorial() {
   const ucs = state.equatorialUCs || [];
-  // Ordenar do mais recente ao mais antigo
   const listaProtocolos = [...(state.protocolosEquatorial || [])].sort((a,b) => {
     const dtA = (a.data || '') + ' ' + (a.hora || '');
     const dtB = (b.data || '') + ' ' + (b.hora || '');
@@ -972,7 +1208,7 @@ function renderResumo() {
     </div>
     <div class="card">
       <div class="card-title">Resumo do Sistema</div>
-      <p class="muted">Painel operacional da Fazenda Santa Rita atualizado com controle completo de inventário, ingredientes ativos e boletim de calda.</p>
+      <p class="muted">Painel operacional da Fazenda Santa Rita atualizado com controle completo de inventário, equipe de colaboradores, ingredientes ativos e boletim de calda.</p>
     </div>
   `;
 }
