@@ -29,19 +29,10 @@ h1,h2,h3{font-family:var(--display);font-weight:500;margin:0}
 .list{list-style:none;margin:0;padding:0}
 .list li{display:flex;align-items:center;justify-content:space-between;gap:.75rem;padding:.75rem 0;border-bottom:1px solid var(--border)}
 .list li:last-child{border-bottom:none}
-.badge{display:inline-flex;border-radius:999px;padding:.15rem .55rem;font-size:.7rem;font-weight:500}
+.badge{display:inline-flex;border-radius:999px;padding:.2rem .65rem;font-size:.75rem;font-weight:600}
 .badge.ok{background:color-mix(in srgb,var(--ok) 20%,transparent);color:var(--ok)}
 .badge.warn{background:color-mix(in srgb,var(--warn) 20%,transparent);color:var(--warn)}
 .badge.muted{background:var(--elevated);color:var(--muted)}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:.35rem;border:1px solid var(--border);background:var(--elevated);color:var(--fg);border-radius:10px;padding:.55rem .85rem;font-size:.85rem;font-weight:500;text-decoration:none}
-.btn.primary{background:var(--primary);color:var(--bg);border-color:transparent}
-.btn.block{width:100%}
-.btn.sm{padding:.3rem .6rem;font-size:.75rem}
-.field{display:flex;flex-direction:column;gap:.3rem;margin-bottom:.75rem}
-.field label{font-size:.75rem;color:var(--muted)}
-.field input,.field select,.field textarea{background:var(--elevated);border:1px solid var(--border);border-radius:10px;padding:.55rem .7rem}
-.progress{height:6px;background:var(--elevated);border-radius:999px;overflow:hidden}
-.progress>span{display:block;height:100%;background:var(--primary)}
 
 .drawer-bg{position:fixed;inset:0;background:rgba(12, 16, 11, 0.75);backdrop-filter:blur(4px);z-index:90;display:none}
 .drawer-bg.open{display:flex}
@@ -56,9 +47,6 @@ h1,h2,h3{font-family:var(--display);font-weight:500;margin:0}
 .stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.75rem}
 .stat .lbl{font-size:.7rem;color:var(--muted)}.stat .val{font-size:.95rem;font-weight:500;margin-top:.2rem}
 .sec{margin:.75rem 1rem;font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
-
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:110;display:flex;align-items:center;justify-content:center;padding:1rem}
-.modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);width:100%;max-width:500px;padding:1.2rem;max-height:90vh;overflow-y:auto}
 
 .toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:var(--primary);color:var(--bg);padding:.6rem 1.2rem;border-radius:999px;font-size:.85rem;font-weight:600;z-index:200;display:none;box-shadow:0 4px 12px rgba(0,0,0,0.4)}
 .search-box{background:var(--elevated);border:1px solid var(--border);border-radius:10px;padding:.5rem .75rem;width:100%;color:var(--fg);margin-bottom:.75rem}
@@ -87,7 +75,6 @@ h1,h2,h3{font-family:var(--display);font-weight:500;margin:0}
       <button id="menu-equatorial" onclick="selectTab('equatorial')">⚡ Equatorial / Energia</button>
       <button id="menu-safra" onclick="selectTab('safra')">📖 Caderno de Campo</button>
       <button id="menu-pessoas" onclick="selectTab('pessoas')">👥 Equipe da Fazenda</button>
-      <button id="menu-nuvem" onclick="selectTab('nuvem')">☁️ Nuvem / Supabase</button>
     </div>
   </div>
 
@@ -109,19 +96,9 @@ h1,h2,h3{font-family:var(--display);font-weight:500;margin:0}
   <div id="content"></div>
 </div>
 
-<div id="modal-container"></div>
-
 <script>
 const SEED = {
   "farm": {"nome": "Fazenda Santa Rita", "municipio": "Grupo Segredo", "cargo": "Auxiliar administrativo", "safra": "2026/27", "areaTotal": 1581.0, "gerente": "Célio Carlos Canedo Júnior"},
-  "diesel": {"capacidade": 15000, "litros": 7400},
-  "rotinas": [
-    {"id": "r1", "texto": "Conferir nível do tanque de Diesel", "feita": false},
-    {"id": "r2", "texto": "Verificar boletins de aplicação nos talhões", "feita": false},
-    {"id": "r3", "texto": "Checar chamados e energia das UCs (Equatorial)", "feita": false},
-    {"id": "r4", "texto": "Lançar movimentações de estoque no sistema", "feita": false},
-    {"id": "r5", "texto": "Conferir escala e folgas da equipe", "feita": false}
-  ],
   "maquinas": [
     {"id": "mq-0102", "nome": "BAZUCA", "tipo": "Implemento", "modelo": "NINJA 32000 (2012)", "status": "operando", "placa": "-", "nr": "0102", "marca": "STARA"},
     {"id": "mq-0107", "nome": "BAZUCA TRATADORA SEMENTE", "tipo": "Implemento", "modelo": "REB6000TS (2006)", "status": "operando", "placa": "-", "nr": "0107", "marca": "STARA"},
@@ -183,17 +160,56 @@ const SEED = {
     {"id": "mq-2416", "nome": "TRATOR", "tipo": "Maquina", "modelo": "18.5 HP (2011)", "status": "operando", "placa": "-", "nr": "2416", "marca": "TRAPP MURRAY"},
     {"id": "mq-2420", "nome": "TRATOR", "tipo": "Maquina", "modelo": "6600 (1988)", "status": "operando", "placa": "-", "nr": "2420", "marca": "FORD"}
   ],
-  "insumos": [],
-  "historicoInsumos": [],
-  "pessoas": [],
-  "talhoes": [],
-  "equatorial": {"telefone": "0800-620-196", "claraWhats": "", "ucs": [], "protocolos": []}
+  "insumos": [
+    {"id": "ins-1242", "codigo": "1242", "nome": "2,4 D TECNOMYL", "unidade": "L", "quantidade": 900, "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-1003", "codigo": "1003", "nome": "ALMAX", "unidade": "L", "quantidade": 38, "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-219", "codigo": "219", "nome": "APROCH POWER", "unidade": "L", "quantidade": 262, "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-128", "codigo": "128", "nome": "TA35 ULTRA", "unidade": "L", "quantidade": 480, "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-318", "codigo": "318", "nome": "AURORA", "unidade": "L", "quantidade": 104.8, "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-222", "codigo": "222", "nome": "AZIMUT", "unidade": "L", "quantidade": 205, "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-1244", "codigo": "1244", "nome": "AZURE", "unidade": "L", "quantidade": 322.5, "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-1170", "codigo": "1170", "nome": "BIOMAX AZUM", "unidade": "L", "quantidade": 21.6, "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-321", "codigo": "321", "nome": "CALARIS", "unidade": "L", "quantidade": 30, "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-132", "codigo": "132", "nome": "CALCARIO", "unidade": "KG", "quantidade": 575400, "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-1246", "codigo": "1246", "nome": "CARNADINE", "unidade": "L", "quantidade": 76.5, "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-75", "codigo": "75", "nome": "CLORETO POTASSIO KCL", "unidade": "bags", "quantidade": 233, "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-262", "codigo": "262", "nome": "CLORFENAPIN", "unidade": "L", "quantidade": 342, "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-951", "codigo": "951", "nome": "CONCENTRAT FIX", "unidade": "L", "quantidade": 348, "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-952", "codigo": "952", "nome": "CONCORDE", "unidade": "L", "quantidade": 28.6, "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-264", "codigo": "264", "nome": "CONNECT", "unidade": "L", "quantidade": 15.2, "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-931", "codigo": "931", "nome": "CURBIX", "unidade": "L", "quantidade": 1324, "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-267", "codigo": "267", "nome": "CYPTRIN", "unidade": "L", "quantidade": 7, "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-113", "codigo": "113", "nome": "EXTRAVON", "unidade": "L", "quantidade": 280, "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-122", "codigo": "122", "nome": "FORSPRAY", "unidade": "L", "quantidade": 26, "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-1058", "codigo": "1058", "nome": "GRASIDIM", "unidade": "L", "quantidade": 920, "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-1236", "codigo": "1236", "nome": "GLUFOS WYN 880", "unidade": "KG", "quantidade": 780, "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-279", "codigo": "279", "nome": "INTREPID", "unidade": "L", "quantidade": 122, "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-111", "codigo": "111", "nome": "MAP PURIFICADO", "unidade": "KG", "quantidade": 616, "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-1065", "codigo": "1065", "nome": "MASTER", "unidade": "L", "quantidade": 10, "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-1161", "codigo": "1161", "nome": "META MUVI SOLIDO", "unidade": "KG", "quantidade": 243, "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-1220", "codigo": "1220", "nome": "NHT MANGANES", "unidade": "L", "quantidade": 93, "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-1006", "codigo": "1006", "nome": "NHT ZINCO", "unidade": "L", "quantidade": 7.7, "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-1216", "codigo": "1216", "nome": "NIMAXXA", "unidade": "L", "quantidade": 8, "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-939", "codigo": "939", "nome": "OLEO MINERAL DU FOL ADJUVANTE", "unidade": "L", "quantidade": 75, "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-1016", "codigo": "1016", "nome": "POLI FLEX", "unidade": "L", "quantidade": 76.5, "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-352", "codigo": "352", "nome": "PRIMOLEO", "unidade": "L", "quantidade": 97, "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-360", "codigo": "360", "nome": "SELECT", "unidade": "L", "quantidade": 200, "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-1042", "codigo": "1042", "nome": "SILKON", "unidade": "L", "quantidade": 266.9, "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-1144", "codigo": "1144", "nome": "SOLDIER", "unidade": "KG", "quantidade": 7784.5, "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-935", "codigo": "935", "nome": "SULFATO DE MAGNESIO", "unidade": "KG", "quantidade": 2041, "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-1188", "codigo": "1188", "nome": "SUPER SIMPLES", "unidade": "KG", "quantidade": 7010, "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-1046", "codigo": "1046", "nome": "YONON", "unidade": "L", "quantidade": 3, "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-1326", "codigo": "1326", "nome": "ASSIST EC", "unidade": "L", "quantidade": 640, "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-1365", "codigo": "1365", "nome": "NITRATO DE POTASSIO", "unidade": "KG", "quantidade": 6000, "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-375", "codigo": "375", "nome": "ZETHAMAXX", "unidade": "L", "quantidade": 152.5, "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-73", "codigo": "73", "nome": "DIESEL S500", "unidade": "L", "quantidade": 7400, "categoria": "Combustível"},
+    {"id": "ins-71", "codigo": "71", "nome": "DIESEL S10", "unidade": "L", "quantidade": 0, "categoria": "Combustível"}
+  ]
 };
 
 let state = JSON.parse(localStorage.getItem("campogestor_state"));
 
-// Atualizar frota caso o número de máquinas seja diferente da nova base (59 itens)
-if (!state || !state.maquinas || state.maquinas.length < 50) {
+if (!state || !state.insumos || state.insumos.length < 40) {
   state = JSON.parse(JSON.stringify(SEED));
   localStorage.setItem("campogestor_state", JSON.stringify(state));
 }
@@ -239,22 +255,19 @@ function selectTab(tab) {
     content.innerHTML = renderMaquinas();
   } else if (tab === 'insumos') {
     pageTitle.textContent = "Estoque de Insumos";
-    content.innerHTML = `<div class="card">Módulo de Insumos Pronto</div>`;
+    content.innerHTML = renderInsumos();
   } else if (tab === 'talhoes') {
     pageTitle.textContent = "Talhões e Áreas";
-    content.innerHTML = `<div class="card">Módulo de Talhões Pronto</div>`;
+    content.innerHTML = `<div class="card">Módulo de Talhões (Envie a planilha para preencher)</div>`;
   } else if (tab === 'equatorial') {
     pageTitle.textContent = "Equatorial / Energia";
-    content.innerHTML = `<div class="card">Módulo Equatorial Pronto</div>`;
+    content.innerHTML = `<div class="card">Módulo Equatorial (Envie os dados de UCs e faturas)</div>`;
   } else if (tab === 'safra') {
     pageTitle.textContent = "Caderno de Campo";
-    content.innerHTML = `<div class="card">Módulo Caderno de Campo Pronto</div>`;
+    content.innerHTML = `<div class="card">Módulo Caderno de Campo</div>`;
   } else if (tab === 'pessoas') {
     pageTitle.textContent = "Equipe";
-    content.innerHTML = `<div class="card">Módulo de Equipe Pronto</div>`;
-  } else if (tab === 'nuvem') {
-    pageTitle.textContent = "Sincronização Supabase";
-    content.innerHTML = `<div class="card">Estrutura Supabase Ativa</div>`;
+    content.innerHTML = `<div class="card">Módulo de Equipe (Envie a lista de funcionários)</div>`;
   }
   window.scrollTo(0, 0);
 }
@@ -278,16 +291,28 @@ function filtrarMaquinas() {
   });
 }
 
+function filtrarInsumos() {
+  const query = document.getElementById("search-ins").value.toLowerCase();
+  const itens = document.querySelectorAll(".ins-item");
+  itens.forEach(item => {
+    const text = item.innerText.toLowerCase();
+    item.style.display = text.includes(query) ? "flex" : "none";
+  });
+}
+
 function renderResumo() {
   const operando = state.maquinas.filter(m => m.status === 'operando').length;
+  const diesel = state.insumos.find(i => i.codigo === "73") || { quantidade: 7400 };
   return `
     <div class="grid2">
       <div class="stat"><div class="lbl">Total da Frota</div><div class="val">${state.maquinas.length} Itens</div></div>
       <div class="stat"><div class="lbl">Em Operação</div><div class="val" style="color:var(--ok);">${operando} Ativos</div></div>
+      <div class="stat"><div class="lbl">Estoque Diesel S500</div><div class="val" style="color:var(--warn);">${diesel.quantidade.toLocaleString('pt-BR')} L</div></div>
+      <div class="stat"><div class="lbl">Itens no Inventário</div><div class="val">${state.insumos.length} Produtos</div></div>
     </div>
     <div class="card">
-      <div class="card-title">Resumo Operacional</div>
-      <p class="muted">A frota completa do Excel foi importada com sucesso para o banco de dados interno.</p>
+      <div class="card-title">Resumo do Inventário (08/09/2026)</div>
+      <p class="muted">A frota de 59 máquinas e os 43 itens do inventário de insumos/combustível foram carregados no sistema.</p>
     </div>
   `;
 }
@@ -319,9 +344,39 @@ function renderMaquinas() {
   `;
 }
 
+function renderInsumos() {
+  return `
+    <div class="card" style="margin-bottom:.5rem;">
+      <input type="text" id="search-ins" class="search-box" placeholder="🔍 Buscar por insumo ou código..." onkeyup="filtrarInsumos()"/>
+      <div class="muted">Total cadastrado: <strong>${state.insumos.length} produtos em estoque</strong></div>
+    </div>
+
+    <div class="sec">Inventário de Produtos & Defensivos</div>
+    <div class="card">
+      <ul class="list">
+        ${state.insumos.map(i => `
+          <li class="ins-item">
+            <div>
+              <strong>${i.nome}</strong> <span class="muted">(Cód: ${i.codigo})</span>
+              <div class="muted" style="font-size:.7rem; text-transform:uppercase; margin-top:.1rem;">${i.categoria}</div>
+            </div>
+            <div class="badge ${i.quantidade > 0 ? 'ok' : 'warn'}">
+              ${typeof i.quantidade === 'number' ? i.quantidade.toLocaleString('pt-BR') : i.quantidade} ${i.unidade}
+            </div>
+          </li>
+        `).join('')}
+      </ul>
+    </div>
+  `;
+}
+
 document.addEventListener("DOMContentLoaded", () => {
-  selectTab('maquinas');
+  selectTab('resumo');
 });
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js');
+}
 </script>
 </body>
 </html>
