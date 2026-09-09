@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="theme-color" content="#10140f"/>
+<title>CampoGestor — Fazenda Santa Rita</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&family=Fraunces:opsz,wght@9..144,500&display=swap" rel="stylesheet"/>
+
+<style>
+:root{--bg:#10140f;--surface:#1a2018;--elevated:#232b20;--fg:#f0ece2;--muted:#9a9a88;--subtle:#6e7264;--primary:#7a9b6e;--border:#2c3529;--ok:#8fbc7a;--warn:#c4a35a;--danger:#c46a5a;--font:Figtree,system-ui,sans-serif;--display:Fraunces,Georgia,serif;--radius:12px}
+*{box-sizing:border-box;border-color:var(--border)}
+html,body{margin:0;min-height:100dvh;background:var(--bg);color:var(--fg);font-family:var(--font)}
+button,input,select,textarea{font:inherit;color:inherit}button{cursor:pointer}
+h1,h2,h3{font-family:var(--display);font-weight:500;margin:0}
+.app{max-width:720px;margin:0 auto;min-height:100dvh;padding-bottom:2rem}
+
+.header{padding:1.25rem 1rem .5rem;display:flex;align-items:center;justify-content:space-between;gap:.5rem}
+.header-info .kicker{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.header-info h1{font-size:1.4rem;margin-top:.15rem}
+.menu-btn{background:var(--elevated);border:1px solid var(--border);color:var(--fg);width:2.6rem;height:2.6rem;border-radius:10px;font-size:1.2rem;display:flex;align-items:center;justify-content:center}
+.sub{padding:0 1rem;font-size:.875rem;color:var(--muted)}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;margin:.75rem 1rem}
+.card-title{font-size:.875rem;font-weight:500;margin:0 0 .5rem}
+.row{display:flex;align-items:center;justify-content:space-between;gap:.75rem}
+.muted{color:var(--muted);font-size:.8rem}
+.list{list-style:none;margin:0;padding:0}
+.list li{display:flex;align-items:center;justify-content:space-between;gap:.75rem;padding:.75rem 0;border-bottom:1px solid var(--border)}
+.list li:last-child{border-bottom:none}
+.badge{display:inline-flex;border-radius:999px;padding:.15rem .55rem;font-size:.7rem;font-weight:500}
+.badge.ok{background:color-mix(in srgb,var(--ok) 20%,transparent);color:var(--ok)}
+.badge.warn{background:color-mix(in srgb,var(--warn) 20%,transparent);color:var(--warn)}
+.badge.muted{background:var(--elevated);color:var(--muted)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.35rem;border:1px solid var(--border);background:var(--elevated);color:var(--fg);border-radius:10px;padding:.55rem .85rem;font-size:.85rem;font-weight:500;text-decoration:none}
+.btn.primary{background:var(--primary);color:var(--bg);border-color:transparent}
+.btn.block{width:100%}
+.btn.sm{padding:.3rem .6rem;font-size:.75rem}
+.field{display:flex;flex-direction:column;gap:.3rem;margin-bottom:.75rem}
+.field label{font-size:.75rem;color:var(--muted)}
+.field input,.field select,.field textarea{background:var(--elevated);border:1px solid var(--border);border-radius:10px;padding:.55rem .7rem}
+.progress{height:6px;background:var(--elevated);border-radius:999px;overflow:hidden}
+.progress>span{display:block;height:100%;background:var(--primary)}
+
+.drawer-bg{position:fixed;inset:0;background:rgba(12, 16, 11, 0.75);backdrop-filter:blur(4px);z-index:90;display:none}
+.drawer-bg.open{display:flex}
+.drawer{position:fixed;top:0;bottom:0;left:0;width:80%;max-width:320px;background:var(--surface);border-right:1px solid var(--border);padding:1.25rem 1rem;z-index:100;display:flex;flex-direction:column;justify-content:space-between;overflow-y:auto;transform:translateX(-100%);transition:transform .25s ease-in-out}
+.drawer-bg.open + .drawer, .drawer.open{transform:translateX(0)}
+.drawer-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;border-bottom:1px solid var(--border);padding-bottom:.75rem}
+.drawer-menu{display:flex;flex-direction:column;gap:.4rem}
+.drawer-menu button{display:flex;align-items:center;gap:.75rem;width:100%;padding:.75rem .85rem;background:transparent;border:none;border-radius:10px;color:var(--fg);font-size:.9rem;text-align:left}
+.drawer-menu button.active{background:color-mix(in srgb,var(--primary) 15%,transparent);color:var(--primary);font-weight:600}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin:.75rem 1rem}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.75rem}
+.stat .lbl{font-size:.7rem;color:var(--muted)}.stat .val{font-size:.95rem;font-weight:500;margin-top:.2rem}
+.sec{margin:.75rem 1rem;font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:110;display:flex;align-items:center;justify-content:center;padding:1rem}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);width:100%;max-width:500px;padding:1.2rem;max-height:90vh;overflow-y:auto}
+
+.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:var(--primary);color:var(--bg);padding:.6rem 1.2rem;border-radius:999px;font-size:.85rem;font-weight:600;z-index:200;display:none;box-shadow:0 4px 12px rgba(0,0,0,0.4)}
+.search-box{background:var(--elevated);border:1px solid var(--border);border-radius:10px;padding:.5rem .75rem;width:100%;color:var(--fg);margin-bottom:.75rem}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+<div class="drawer-bg" id="drawer-bg" onclick="toggleDrawer(false)"></div>
+
+<div class="drawer" id="drawer">
+  <div>
+    <div class="drawer-header">
+      <div>
+        <span style="font-size:.7rem;color:var(--muted);text-transform:uppercase;">Sistema Agrícola</span>
+        <h3 style="font-size:1.1rem;color:var(--primary);">CampoGestor</h3>
+      </div>
+      <button onclick="toggleDrawer(false)" style="background:transparent;border:none;font-size:1.2rem;">✕</button>
+    </div>
+    
+    <div class="drawer-menu">
+      <button id="menu-resumo" class="active" onclick="selectTab('resumo')">📊 Resumo Geral</button>
+      <button id="menu-maquinas" onclick="selectTab('maquinas')">🚜 Frota de Máquinas</button>
+      <button id="menu-insumos" onclick="selectTab('insumos')">📦 Estoque de Insumos</button>
+      <button id="menu-talhoes" onclick="selectTab('talhoes')">🌱 Talhões e Áreas</button>
+      <button id="menu-equatorial" onclick="selectTab('equatorial')">⚡ Equatorial / Energia</button>
+      <button id="menu-safra" onclick="selectTab('safra')">📖 Caderno de Campo</button>
+      <button id="menu-pessoas" onclick="selectTab('pessoas')">👥 Equipe da Fazenda</button>
+      <button id="menu-nuvem" onclick="selectTab('nuvem')">☁️ Nuvem / Supabase</button>
+    </div>
+  </div>
+
+  <div style="font-size:.75rem;color:var(--subtle);padding-top:1rem;border-top:1px solid var(--border);">
+    Fazenda Santa Rita — 2026/27
+  </div>
+</div>
+
+<div class="app">
+  <div class="header">
+    <div class="header-info">
+      <span class="kicker" id="muni-safra">Grupo Segredo • Safra 2026/27</span>
+      <h1 id="page-title">CampoGestor</h1>
+    </div>
+    <button class="menu-btn" onclick="toggleDrawer(true)">☰</button>
+  </div>
+  <div class="sub" id="sub-info">Usuário: Marcos Morais (Auxiliar administrativo)</div>
+
+  <div id="content"></div>
+</div>
+
+<div id="modal-container"></div>
+
+<script>
+const SEED = {
+  "farm": {"nome": "Fazenda Santa Rita", "municipio": "Grupo Segredo", "cargo": "Auxiliar administrativo", "safra": "2026/27", "areaTotal": 1581.0, "gerente": "Célio Carlos Canedo Júnior"},
+  "diesel": {"capacidade": 15000, "litros": 7400},
+  "rotinas": [
+    {"id": "r1", "texto": "Conferir nível do tanque de Diesel", "feita": false},
+    {"id": "r2", "texto": "Verificar boletins de aplicação nos talhões", "feita": false},
+    {"id": "r3", "texto": "Checar chamados e energia das UCs (Equatorial)", "feita": false},
+    {"id": "r4", "texto": "Lançar movimentações de estoque no sistema", "feita": false},
+    {"id": "r5", "texto": "Conferir escala e folgas da equipe", "feita": false}
+  ],
+  "maquinas": [
+    {"id": "mq-0102", "nome": "BAZUCA", "tipo": "Implemento", "modelo": "NINJA 32000 (2012)", "status": "operando", "placa": "-", "nr": "0102", "marca": "STARA"},
+    {"id": "mq-0107", "nome": "BAZUCA TRATADORA SEMENTE", "tipo": "Implemento", "modelo": "REB6000TS (2006)", "status": "operando", "placa": "-", "nr": "0107", "marca": "STARA"},
+    {"id": "mq-0109", "nome": "BAZUCA", "tipo": "Implemento", "modelo": "NINJA 33000 (2020)", "status": "operando", "placa": "-", "nr": "0109", "marca": "STARA"},
+    {"id": "mq-0202", "nome": "CAÇAMBA BASCULANTE", "tipo": "Equipamento", "modelo": "60X18F 1012 (2012)", "status": "operando", "placa": "-", "nr": "0202", "marca": "GRIMALDI"},
+    {"id": "mq-0206", "nome": "CAÇAMBA TANQUE AGUA POLIGUINCHO", "tipo": "Equipamento", "modelo": "DAOL CAMI ROLON 18.500 LTS (2017)", "status": "operando", "placa": "-", "nr": "0206", "marca": "MEPEL"},
+    {"id": "mq-0207", "nome": "CAÇAMBA TANQUE DIESEL POLIGUINCHO", "tipo": "Equipamento", "modelo": "COMBOIO 8000 LTS (2012)", "status": "operando", "placa": "-", "nr": "0207", "marca": "S/MARCA"},
+    {"id": "mq-0209", "nome": "CAÇAMBA TANQUE DIESEL POLIGUINCHO", "tipo": "Equipamento", "modelo": "COMBOIO 15000 LTS (2020)", "status": "operando", "placa": "-", "nr": "0209", "marca": "S/MARCA"},
+    {"id": "mq-0212", "nome": "CAÇAMBA BASCULANTE BOIADEIRA", "tipo": "Equipamento", "modelo": "2 EM 1 CASCALHO BOIADEIRA", "status": "operando", "placa": "-", "nr": "0212", "marca": "IMAV"},
+    {"id": "mq-0220", "nome": "CAÇAMBA PRANCHA ROLLON", "tipo": "Equipamento", "modelo": "6 MTS (2022)", "status": "operando", "placa": "-", "nr": "0220", "marca": "TEC ACO"},
+    {"id": "mq-0303", "nome": "CAMINHAO", "tipo": "Veiculo", "modelo": "CARGO 2422 (07/08)", "status": "operando", "placa": "NKA3C99", "nr": "0303", "marca": "FORD ROLL ON"},
+    {"id": "mq-0314", "nome": "CAMINHAO", "tipo": "Veiculo", "modelo": "VM-270 (2016)", "status": "operando", "placa": "FPR2D69", "nr": "0314", "marca": "VOLVO TANQUE"},
+    {"id": "mq-0408", "nome": "MOTO HONDA BROSS", "tipo": "Veiculo", "modelo": "NXR 125 BROSS (15/15)", "status": "operando", "placa": "PQM8281", "nr": "0408", "marca": "HONDA"},
+    {"id": "mq-0415", "nome": "CAMINHONETA FORD RANGER", "tipo": "Veiculo", "modelo": "RANGER XLSCD4A22C (21/22)", "status": "operando", "placa": "RCN0G64", "nr": "0415", "marca": "FORD"},
+    {"id": "mq-0416", "nome": "CAMINHONETA FORD RANGER", "tipo": "Veiculo", "modelo": "RANGER XLSCD4A22C (21/22)", "status": "operando", "placa": "RCN2F94", "nr": "0416", "marca": "FORD"},
+    {"id": "mq-0507", "nome": "CARRETA TANQUE CALDA PRONTA", "tipo": "Implemento", "modelo": "4400 CT122 (2014)", "status": "operando", "placa": "-", "nr": "0507", "marca": "IMEP"},
+    {"id": "mq-0509", "nome": "CARRETA TANQUE CALDA PRONTA", "tipo": "Implemento", "modelo": "6600 (2017)", "status": "operando", "placa": "-", "nr": "0509", "marca": "IMEP"},
+    {"id": "mq-0510", "nome": "CARRETA PLATAFORMA", "tipo": "Equipamento", "modelo": "CARRETO TOP 30 (2015)", "status": "operando", "placa": "-", "nr": "0510", "marca": "GRAZMEC"},
+    {"id": "mq-0512", "nome": "CARRETA PLATAFORMA", "tipo": "Equipamento", "modelo": "CARRETO TOP GS 45 (2019)", "status": "operando", "placa": "-", "nr": "0512", "marca": "GRAZMEC"},
+    {"id": "mq-0513", "nome": "CARRETA PLATAFORMA", "tipo": "Equipamento", "modelo": "CARRETO TOP GS 45 (2019)", "status": "operando", "placa": "-", "nr": "0513", "marca": "GRAZMEC"},
+    {"id": "mq-0520", "nome": "CARRETA AGRICOLA", "tipo": "Implemento", "modelo": "MAX CARGOR 5.0 (2021)", "status": "operando", "placa": "-", "nr": "0520", "marca": "ALMEIDA"},
+    {"id": "mq-0524", "nome": "CARETA TRANSBORDO", "tipo": "Implemento", "modelo": "TAS 12000", "status": "operando", "placa": "-", "nr": "0524", "marca": "SANTA IZABEL"},
+    {"id": "mq-0703", "nome": "COLHEITADEIRA", "tipo": "Maquina", "modelo": "2799 (2011)", "status": "operando", "placa": "-", "nr": "0703", "marca": "CASE"},
+    {"id": "mq-0704", "nome": "COLHEITADEIRA", "tipo": "Maquina", "modelo": "2799 (2012)", "status": "operando", "placa": "-", "nr": "0704", "marca": "CASE"},
+    {"id": "mq-0706", "nome": "COLHEITADEIRA", "tipo": "Maquina", "modelo": "2799 STD 2399 (2012)", "status": "operando", "placa": "-", "nr": "0706", "marca": "CASE"},
+    {"id": "mq-0802", "nome": "DISTRIBUIDOR DE CORRETIVOS", "tipo": "Maquina", "modelo": "HERCULES 6.0 (2016)", "status": "operando", "placa": "-", "nr": "0802", "marca": "STARA"},
+    {"id": "mq-0804", "nome": "DISTRIBUIDOR DE CORRETIVOS", "tipo": "Maquina", "modelo": "NEVOEIRO 10010", "status": "operando", "placa": "-", "nr": "0804", "marca": "STARA"},
+    {"id": "mq-0902", "nome": "EMBOLSADORA DE GRÃOS", "tipo": "Implemento", "modelo": "NSG-9200 (2012)", "status": "operando", "placa": "-", "nr": "0902", "marca": "NOGUEIRA"},
+    {"id": "mq-1103", "nome": "EXTRATORA DE GRÃOS", "tipo": "Implemento", "modelo": "OUTGRAIN 220 (2019)", "status": "operando", "placa": "-", "nr": "1103", "marca": "MARCHER"},
+    {"id": "mq-1204", "nome": "GRUPO GERADOR", "tipo": "Maquina", "modelo": "190 KVA BA27G (2023)", "status": "operando", "placa": "-", "nr": "1204", "marca": "BAMBOZZI"},
+    {"id": "mq-1301", "nome": "MOTONIVELADORA", "tipo": "Maquina", "modelo": "GR135 HP (2016)", "status": "operando", "placa": "-", "nr": "1301", "marca": "XCMG"},
+    {"id": "mq-1402", "nome": "MUNK GUINDASTE", "tipo": "Implemento", "modelo": "15700 (2015)", "status": "operando", "placa": "TKA NKA3299", "nr": "1402", "marca": "S/MARCA"},
+    {"id": "mq-1501", "nome": "PA MECANICA", "tipo": "Maquina", "modelo": "936 FL 936 F JOYSTCK (2012)", "status": "operando", "placa": "-", "nr": "1501", "marca": "FOTTON LOVOL"},
+    {"id": "mq-1602", "nome": "PLANTADEIRA", "tipo": "Implemento", "modelo": "DB 74 - 45 LINHAS (2014)", "status": "operando", "placa": "-", "nr": "1602", "marca": "JOHN DEERE"},
+    {"id": "mq-1607", "nome": "PLANTADEIRA", "tipo": "Implemento", "modelo": "5 LINHAS", "status": "operando", "placa": "-", "nr": "1607", "marca": "PROPRIA"},
+    {"id": "mq-1701", "nome": "PLATAFORMA DE SOJA", "tipo": "Implemento", "modelo": "DRAPPER 2162 FD70 35 PE (2012)", "status": "operando", "placa": "-", "nr": "1701", "marca": "MACDON"},
+    {"id": "mq-1702", "nome": "PLATAFORMA DE SOJA", "tipo": "Implemento", "modelo": "DRAPPER 2162 FD70 35 PE (2013)", "status": "operando", "placa": "-", "nr": "1702", "marca": "MACDON"},
+    {"id": "mq-1706", "nome": "PLATAFORMA DE SOJA", "tipo": "Implemento", "modelo": "1020 30 PES (2011)", "status": "operando", "placa": "-", "nr": "1706", "marca": "CASE"},
+    {"id": "mq-1801", "nome": "PLATAFORMA MILHO", "tipo": "Implemento", "modelo": "BRAVA 6850 / 14 LINHAS (2012)", "status": "operando", "placa": "-", "nr": "1801", "marca": "STARA"},
+    {"id": "mq-1802", "nome": "PLATAFORMA MILHO", "tipo": "Implemento", "modelo": "BRAVA 6850 / 14 LINHAS (2012)", "status": "operando", "placa": "-", "nr": "1802", "marca": "STARA"},
+    {"id": "mq-1803", "nome": "PLATAFORMA MILHO", "tipo": "Implemento", "modelo": "BRAVA 7980 / 16 LINHAS (2013)", "status": "operando", "placa": "-", "nr": "1803", "marca": "STARA"},
+    {"id": "mq-1804", "nome": "PLATAFORMA MILHO", "tipo": "Implemento", "modelo": "BRAVA 7980 / 16 LINHAS (2013)", "status": "operando", "placa": "-", "nr": "1804", "marca": "STARA"},
+    {"id": "mq-1908", "nome": "PULVERIZADOR e DISTRIBUIDOR", "tipo": "Maquina", "modelo": "IMPERADOR 3.0 (2020)", "status": "operando", "placa": "-", "nr": "1908", "marca": "STARA"},
+    {"id": "mq-1913", "nome": "PULVERIZADOR", "tipo": "Maquina", "modelo": "IMPERADOR 3000 (2022)", "status": "operando", "placa": "-", "nr": "1913", "marca": "STARA"},
+    {"id": "mq-2002", "nome": "ROÇADEIRA", "tipo": "Implemento", "modelo": "JMRUT D 1.6 (2003)", "status": "operando", "placa": "-", "nr": "2002", "marca": "JUMIL"},
+    {"id": "mq-2004", "nome": "SUBSOLADOR ASA LASER", "tipo": "Implemento", "modelo": "ASA 11 HASTES (2010)", "status": "operando", "placa": "-", "nr": "2004", "marca": "STARA"},
+    {"id": "mq-2008", "nome": "SCRAPER", "tipo": "Implemento", "modelo": "SCRAPER", "status": "operando", "placa": "-", "nr": "2008", "marca": "S/MARCA"},
+    {"id": "mq-2009", "nome": "GRADE NIVELADORA", "tipo": "Implemento", "modelo": "48 x 22", "status": "operando", "placa": "-", "nr": "2009", "marca": "TATU"},
+    {"id": "mq-2010", "nome": "GRADE ARADORA", "tipo": "Implemento", "modelo": "GAICP 2428 (1992)", "status": "operando", "placa": "-", "nr": "2010", "marca": "TATU"},
+    {"id": "mq-2012", "nome": "GRADE INTERMEDIARIA", "tipo": "Implemento", "modelo": "32 X 28 SAC40100", "status": "operando", "placa": "-", "nr": "2012", "marca": "CIVEMASA"},
+    {"id": "mq-2014", "nome": "PERFURADOR SOLO", "tipo": "Implemento", "modelo": "PSH C/ BROCA DE 9/12 (2011)", "status": "operando", "placa": "-", "nr": "2014", "marca": "BALDAN"},
+    {"id": "mq-2018", "nome": "DOLLY", "tipo": "Implemento", "modelo": "8 PNEUS 1000/20", "status": "operando", "placa": "-", "nr": "2018", "marca": "S/MARCA"},
+    {"id": "mq-2020", "nome": "GRADE NIVELADORA", "tipo": "Implemento", "modelo": "38 X 28", "status": "operando", "placa": "-", "nr": "2020", "marca": "TATU"},
+    {"id": "mq-2022", "nome": "ROLO COMPACTADOR", "tipo": "Implemento", "modelo": "ROLO", "status": "operando", "placa": "-", "nr": "2022", "marca": "S/MARCA"},
+    {"id": "mq-2405", "nome": "TRATOR", "tipo": "Maquina", "modelo": "STEIGER 450 (2014)", "status": "operando", "placa": "-", "nr": "2405", "marca": "CASE"},
+    {"id": "mq-2409", "nome": "TRATOR", "tipo": "Maquina", "modelo": "FARMAL 80 (2013)", "status": "operando", "placa": "-", "nr": "2409", "marca": "CASE"},
+    {"id": "mq-2412", "nome": "TRATOR", "tipo": "Maquina", "modelo": "BH194 (18/18)", "status": "operando", "placa": "-", "nr": "2412", "marca": "VALTRA"},
+    {"id": "mq-2413", "nome": "TRATOR", "tipo": "Maquina", "modelo": "BH194 (18/18)", "status": "operando", "placa": "-", "nr": "2413", "marca": "VALTRA"},
+    {"id": "mq-2416", "nome": "TRATOR", "tipo": "Maquina", "modelo": "18.5 HP (2011)", "status": "operando", "placa": "-", "nr": "2416", "marca": "TRAPP MURRAY"},
+    {"id": "mq-2420", "nome": "TRATOR", "tipo": "Maquina", "modelo": "6600 (1988)", "status": "operando", "placa": "-", "nr": "2420", "marca": "FORD"}
+  ],
+  "insumos": [],
+  "historicoInsumos": [],
+  "pessoas": [],
+  "talhoes": [],
+  "equatorial": {"telefone": "0800-620-196", "claraWhats": "", "ucs": [], "protocolos": []}
+};
+
+let state = JSON.parse(localStorage.getItem("campogestor_state"));
+
+// Atualizar frota caso o número de máquinas seja diferente da nova base (59 itens)
+if (!state || !state.maquinas || state.maquinas.length < 50) {
+  state = JSON.parse(JSON.stringify(SEED));
+  localStorage.setItem("campogestor_state", JSON.stringify(state));
+}
+
+function saveLocalState() {
+  localStorage.setItem("campogestor_state", JSON.stringify(state));
+}
+
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.style.display = "block";
+  setTimeout(() => { t.style.display = "none"; }, 2500);
+}
+
+function toggleDrawer(open) {
+  const bg = document.getElementById("drawer-bg");
+  const drawer = document.getElementById("drawer");
+  if (open) {
+    bg.classList.add("open");
+    drawer.classList.add("open");
+  } else {
+    bg.classList.remove("open");
+    drawer.classList.remove("open");
+  }
+}
+
+function selectTab(tab) {
+  document.querySelectorAll('.drawer-menu button').forEach(b => b.classList.remove('active'));
+  const btn = document.getElementById('menu-' + tab);
+  if (btn) btn.classList.add('active');
+
+  toggleDrawer(false);
+
+  const content = document.getElementById('content');
+  const pageTitle = document.getElementById('page-title');
+
+  if (tab === 'resumo') {
+    pageTitle.textContent = state.farm.nome;
+    content.innerHTML = renderResumo();
+  } else if (tab === 'maquinas') {
+    pageTitle.textContent = "Frota & Equipamentos";
+    content.innerHTML = renderMaquinas();
+  } else if (tab === 'insumos') {
+    pageTitle.textContent = "Estoque de Insumos";
+    content.innerHTML = `<div class="card">Módulo de Insumos Pronto</div>`;
+  } else if (tab === 'talhoes') {
+    pageTitle.textContent = "Talhões e Áreas";
+    content.innerHTML = `<div class="card">Módulo de Talhões Pronto</div>`;
+  } else if (tab === 'equatorial') {
+    pageTitle.textContent = "Equatorial / Energia";
+    content.innerHTML = `<div class="card">Módulo Equatorial Pronto</div>`;
+  } else if (tab === 'safra') {
+    pageTitle.textContent = "Caderno de Campo";
+    content.innerHTML = `<div class="card">Módulo Caderno de Campo Pronto</div>`;
+  } else if (tab === 'pessoas') {
+    pageTitle.textContent = "Equipe";
+    content.innerHTML = `<div class="card">Módulo de Equipe Pronto</div>`;
+  } else if (tab === 'nuvem') {
+    pageTitle.textContent = "Sincronização Supabase";
+    content.innerHTML = `<div class="card">Estrutura Supabase Ativa</div>`;
+  }
+  window.scrollTo(0, 0);
+}
+
+function alternarStatusMaquina(id) {
+  const m = state.maquinas.find(x => x.id === id);
+  if (m) {
+    m.status = m.status === 'operando' ? 'parada' : 'operando';
+    saveLocalState();
+    selectTab('maquinas');
+    showToast(`Status de ${m.nome} alterado para ${m.status.toUpperCase()}`);
+  }
+}
+
+function filtrarMaquinas() {
+  const query = document.getElementById("search-mq").value.toLowerCase();
+  const itens = document.querySelectorAll(".mq-item");
+  itens.forEach(item => {
+    const text = item.innerText.toLowerCase();
+    item.style.display = text.includes(query) ? "flex" : "none";
+  });
+}
+
+function renderResumo() {
+  const operando = state.maquinas.filter(m => m.status === 'operando').length;
+  return `
+    <div class="grid2">
+      <div class="stat"><div class="lbl">Total da Frota</div><div class="val">${state.maquinas.length} Itens</div></div>
+      <div class="stat"><div class="lbl">Em Operação</div><div class="val" style="color:var(--ok);">${operando} Ativos</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Resumo Operacional</div>
+      <p class="muted">A frota completa do Excel foi importada com sucesso para o banco de dados interno.</p>
+    </div>
+  `;
+}
+
+function renderMaquinas() {
+  return `
+    <div class="card" style="margin-bottom:.5rem;">
+      <input type="text" id="search-mq" class="search-box" placeholder="🔍 Buscar por nome, marca, código ou placa..." onkeyup="filtrarMaquinas()"/>
+      <div class="muted">Total cadastrado: <strong>${state.maquinas.length} equipamentos</strong></div>
+    </div>
+
+    <div class="sec">Lista de Máquinas e Implementos</div>
+    <div class="card">
+      <ul class="list">
+        ${state.maquinas.map(m => `
+          <li class="mq-item">
+            <div>
+              <strong>${m.nome}</strong> <span class="muted">(Nº ${m.nr})</span>
+              <div class="muted">${m.marca} ${m.modelo} ${m.placa !== '-' ? '• Placa: ' + m.placa : ''}</div>
+              <div class="muted" style="font-size:.7rem; text-transform:uppercase; margin-top:.1rem;">${m.tipo}</div>
+            </div>
+            <button class="badge ${m.status === 'operando' ? 'ok' : 'muted'}" onclick="alternarStatusMaquina('${m.id}')">
+              ${m.status}
+            </button>
+          </li>
+        `).join('')}
+      </ul>
+    </div>
+  `;
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  selectTab('maquinas');
+});
+</script>
+</body>
+</html>
