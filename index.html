@@ -67,7 +67,7 @@ h1,h2,h3{font-family:var(--display);font-weight:500;margin:0}
 .modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);width:100%;max-width:500px;padding:1.2rem;max-height:90vh;overflow-y:auto}
 
 .toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:var(--primary);color:var(--bg);padding:.6rem 1.2rem;border-radius:999px;font-size:.85rem;font-weight:600;z-index:200;display:none;box-shadow:0 4px 12px rgba(0,0,0,0.4)}
-.search-box{background:var(--elevated);border:1px solid var(--border);border-radius:10px;padding:.5.rem .75rem;width:100%;color:var(--fg);margin-bottom:.75rem}
+.search-box{background:var(--elevated);border:1px solid var(--border);border-radius:10px;padding:.5rem .75rem;width:100%;color:var(--fg);margin-bottom:.75rem}
 </style>
 </head>
 <body>
@@ -119,6 +119,53 @@ h1,h2,h3{font-family:var(--display);font-weight:500;margin:0}
 </div>
 
 <script>
+// Dicionário de Ingredientes Ativos Conhecidos
+const PRINCIPIOS_ATIVOS = [
+  {"comercial": "2,4 D TECNOMYL", "ativo": "2,4-D (Sal Dimetilamina)"},
+  {"comercial": "ALMAX", "ativo": "Glifosato de Amônio"},
+  {"comercial": "APROCH POWER", "ativo": "Ciproconazol + Azoxistrobina"},
+  {"comercial": "TA35 ULTRA", "ativo": "Óleo Mineral Emulsionável"},
+  {"comercial": "AURORA", "ativo": "Carfentrazona-etílica"},
+  {"comercial": "AZIMUT", "ativo": "Azoxistrobina + Tebuconazol"},
+  {"comercial": "AZURE", "ativo": "Clorotalonil + Tebuconazol"},
+  {"comercial": "BIOMAX AZUM", "ativo": "Inoculante Azospirillum brasilense"},
+  {"comercial": "CALARIS", "ativo": "Atrazina + Mesotriona"},
+  {"comercial": "CALCARIO", "ativo": "Carbonato de Cálcio e Magnésio (Corretivo)"},
+  {"comercial": "CARNADINE", "ativo": "Acetamiprido"},
+  {"comercial": "CLORETO POTASSIO KCL", "ativo": "Cloreto de Potássio 60% K2O"},
+  {"comercial": "CLORFENAPIN", "ativo": "Clorfenapir"},
+  {"comercial": "CONCENTRAT FIX", "ativo": "Espalhante / Adjuvante Siliconado"},
+  {"comercial": "CONCORDE", "ativo": "Cipermetrina"},
+  {"comercial": "CONNECT", "ativo": "Imidacloprido + Beta-ciflutrina"},
+  {"comercial": "CURBIX", "ativo": "Etiprole"},
+  {"comercial": "CYPTRIN", "ativo": "Cipermetrina 250 EC"},
+  {"comercial": "EXTRAVON", "ativo": "Adjuvante / Espalhante"},
+  {"comercial": "FORSPRAY", "ativo": "Óleo Vegetal / Adjuvante"},
+  {"comercial": "GRASIDIM", "ativo": "Clethodim"},
+  {"comercial": "GLUFOS WYN 880", "ativo": "Glufosinato de Amônio"},
+  {"comercial": "INTREPID", "ativo": "Metoxifenozida"},
+  {"comercial": "MAP PURIFICADO", "ativo": "Fosfato Monoamônico 12-61-00"},
+  {"comercial": "MASTER", "ativo": "Adjuvante Redutor de pH"},
+  {"comercial": "META MUVI SOLIDO", "ativo": "Metalaxil-M"},
+  {"comercial": "NHT MANGANES", "ativo": "Manganês Quelatado (Fertilizante Foliar)"},
+  {"comercial": "NHT ZINCO", "ativo": "Zinco Quelatado (Fertilizante Foliar)"},
+  {"comercial": "NIMAXXA", "ativo": "Tiametoxam"},
+  {"comercial": "OLEO MINERAL DU FOL", "ativo": "Óleo Mineral AL 80%"},
+  {"comercial": "POLI FLEX", "ativo": "Fertilizante Foliar Micronutrientes"},
+  {"comercial": "PRIMOLEO", "ativo": "Atrazina + Óleo Mineral"},
+  {"comercial": "SELECT", "ativo": "Clethodim 240 EC"},
+  {"comercial": "SILKON", "ativo": "Adjuvante Organossiliconado"},
+  {"comercial": "SOLDIER", "ativo": "Glifosato Sal de Amônio SG"},
+  {"comercial": "SULFATO DE MAGNESIO", "ativo": "Sulfato de Magnésio Hexahidratado"},
+  {"comercial": "SUPER SIMPLES", "ativo": "Superfosfato Simples 18% P2O5"},
+  {"comercial": "YONON", "ativo": "Tiametoxam + Lambda-Cialotrina"},
+  {"comercial": "ASSIST EC", "ativo": "Óleo Mineral Parafínico"},
+  {"comercial": "NITRATO DE POTASSIO", "ativo": "Nitrato de Potássio 13-00-44"},
+  {"comercial": "ZETHAMAXX", "ativo": "Imazetapir + Flumioxazina"},
+  {"comercial": "DIESEL S500", "ativo": "Óleo Diesel S500 (Combustível)"},
+  {"comercial": "DIESEL S10", "ativo": "Óleo Diesel S10 (Combustível)"}
+];
+
 const SEED = {
   "farm": {"nome": "Fazenda Santa Rita", "municipio": "Grupo Segredo", "cargo": "Auxiliar administrativo", "safra": "2026/27"},
   "maquinas": [
@@ -133,21 +180,32 @@ const SEED = {
     {"id": "mq-2405", "nome": "TRATOR", "tipo": "Maquina", "modelo": "STEIGER 450 (2014)", "status": "operando", "placa": "-", "nr": "2405", "marca": "CASE"}
   ],
   "insumos": [
-    {"id": "ins-1242", "codigo": "1242", "nome": "2,4 D TECNOMYL", "unidade": "L", "quantidade": 900, "vencimento": "2027-05-20", "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-1003", "codigo": "1003", "nome": "ALMAX", "unidade": "L", "quantidade": 38, "vencimento": "2026-03-10", "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-219", "codigo": "219", "nome": "APROCH POWER", "unidade": "L", "quantidade": 262, "vencimento": "2026-11-15", "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-132", "codigo": "132", "nome": "CALCARIO", "unidade": "KG", "quantidade": 575400, "vencimento": "", "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-75", "codigo": "75", "nome": "CLORETO POTASSIO KCL", "unidade": "bags", "quantidade": 233, "vencimento": "", "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-73", "codigo": "73", "nome": "DIESEL S500", "unidade": "L", "quantidade": 7400, "vencimento": "", "categoria": "Combustível"}
+    {"id": "ins-1242", "codigo": "1242", "nome": "2,4 D TECNOMYL", "ativo": "2,4-D (Sal Dimetilamina)", "unidade": "L", "quantidade": 900, "vencimento": "2027-05-20", "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-1003", "codigo": "1003", "nome": "ALMAX", "ativo": "Glifosato de Amônio", "unidade": "L", "quantidade": 38, "vencimento": "2026-03-10", "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-219", "codigo": "219", "nome": "APROCH POWER", "ativo": "Ciproconazol + Azoxistrobina", "unidade": "L", "quantidade": 262, "vencimento": "2026-11-15", "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-262", "codigo": "262", "nome": "CLORFENAPIN", "ativo": "Clorfenapir", "unidade": "L", "quantidade": 342, "vencimento": "2027-01-20", "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-132", "codigo": "132", "nome": "CALCARIO", "ativo": "Carbonato de Cálcio e Magnésio (Corretivo)", "unidade": "KG", "quantidade": 575400, "vencimento": "", "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-75", "codigo": "75", "nome": "CLORETO POTASSIO KCL", "ativo": "Cloreto de Potássio 60% K2O", "unidade": "bags", "quantidade": 233, "vencimento": "", "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-73", "codigo": "73", "nome": "DIESEL S500", "ativo": "Óleo Diesel S500 (Combustível)", "unidade": "L", "quantidade": 7400, "vencimento": "", "categoria": "Combustível"}
   ],
   "historicoInsumos": []
 };
 
 let state = JSON.parse(localStorage.getItem("campogestor_state"));
 
+// Atualização de estado para incluir ativos se não existirem
 if (!state || !state.insumos) {
   state = JSON.parse(JSON.stringify(SEED));
   localStorage.setItem("campogestor_state", JSON.stringify(state));
+} else {
+  // Garantir que os insumos existentes recebam os ativos padrão se faltar
+  state.insumos.forEach(ins => {
+    if (!ins.ativo) {
+      const match = PRINCIPIOS_ATIVOS.find(p => p.comercial.toLowerCase() === ins.nome.toLowerCase());
+      ins.ativo = match ? match.ativo : ins.nome;
+    }
+  });
+  saveLocalState();
 }
 
 function saveLocalState() {
@@ -255,12 +313,12 @@ function renderMaquinas() {
                 <div class="muted">${m.marca} ${m.modelo} ${m.placa !== '-' ? '• Placa: ' + m.placa : ''}</div>
                 <div class="muted" style="font-size:.7rem; text-transform:uppercase; margin-top:.1rem;">${m.tipo}</div>
               </div>
-              <button class="badge ${m.status === 'operando' ? 'ok' : 'muted'}" onclick="alternarStatusMaquina('${m.id}')">
-                ${m.status}
-              </button>
-            </div>
-            <div class="item-actions">
-              <button class="btn sm" onclick="modalEditarMaquina('${m.id}')">✏️ Editar</button>
+              <div style="display:flex; align-items:center; gap:.4rem;">
+                <button class="badge ${m.status === 'operando' ? 'ok' : 'muted'}" onclick="alternarStatusMaquina('${m.id}')">
+                  ${m.status}
+                </button>
+                <button class="btn sm" onclick="modalEditarMaquina('${m.id}')">✏️ Editar</button>
+              </div>
             </div>
           </li>
         `).join('')}
@@ -346,7 +404,7 @@ function renderInsumos() {
   return `
     <div class="card" style="margin-bottom:.5rem;">
       <div class="row" style="margin-bottom:.75rem;">
-        <input type="text" id="search-ins" class="search-box" style="margin-bottom:0;" placeholder="🔍 Buscar insumo ou código..." onkeyup="filtrarInsumos()"/>
+        <input type="text" id="search-ins" class="search-box" style="margin-bottom:0;" placeholder="🔍 Buscar por nome comercial ou princípio ativo (ex: Clorfenapir)..." onkeyup="filtrarInsumos()"/>
         <button class="btn primary" onclick="modalEditarInsumo()">＋ Novo Insumo</button>
       </div>
       <div class="muted">Total em estoque: <strong>${state.insumos.length} produtos</strong></div>
@@ -366,9 +424,12 @@ function renderInsumos() {
               <div class="item-main">
                 <div>
                   <strong>${i.nome}</strong> <span class="muted">(Cód: ${i.codigo})</span>
+                  <div style="font-size:.78rem; color:var(--primary); font-weight:600; margin-top:.15rem;">
+                    🧪 Ativo: ${i.ativo || 'Não informado'}
+                  </div>
                   <div class="muted" style="font-size:.75rem; margin-top:.1rem;">
                     Categoria: ${i.categoria}
-                    ${v.texto ? `<br><strong class="${v.status === 'vencido' ? 'style="color:var(--danger)"' : ''}">${v.texto}</strong>` : ''}
+                    ${v.texto ? `<br><strong ${v.status === 'vencido' ? 'style="color:var(--danger)"' : ''}>${v.texto}</strong>` : ''}
                   </div>
                 </div>
                 <div class="badge ${badgeClass}">
@@ -387,13 +448,46 @@ function renderInsumos() {
   `;
 }
 
+function autoSugerirAtivo() {
+  const nomeComercial = document.getElementById("f-nome").value.trim().toLowerCase();
+  const fieldAtivo = document.getElementById("f-ativo");
+  const alertDiv = document.getElementById("f-alerta-ativo");
+  
+  if (!nomeComercial) {
+    alertDiv.innerHTML = '';
+    return;
+  }
+
+  // Buscar sugestão no dicionário
+  const match = PRINCIPIOS_ATIVOS.find(p => p.comercial.toLowerCase() === nomeComercial || nomeComercial.includes(p.comercial.toLowerCase()));
+  if (match && !fieldAtivo.value) {
+    fieldAtivo.value = match.ativo;
+  }
+
+  // Verificar se o Princípio Ativo já existe no estoque da fazenda
+  const ativoAtual = fieldAtivo.value.trim().toLowerCase();
+  if (ativoAtual) {
+    const estoqueExistente = state.insumos.find(i => i.ativo && i.ativo.toLowerCase().includes(ativoAtual));
+    if (estoqueExistente) {
+      alertDiv.innerHTML = `<div style="font-size:.75rem; color:var(--warn); margin-top:.3rem;">💡 <strong>Atenção:</strong> Você já possui o produto <strong>${estoqueExistente.nome}</strong> com esse ativo no estoque!</div>`;
+    } else {
+      alertDiv.innerHTML = '';
+    }
+  }
+}
+
 function modalEditarInsumo(id = null) {
-  const i = id ? state.insumos.find(x => x.id === id) : { codigo: '', nome: '', unidade: 'L', quantidade: 0, vencimento: '', categoria: 'Defensivos / Nutrição' };
+  const i = id ? state.insumos.find(x => x.id === id) : { codigo: '', nome: '', ativo: '', unidade: 'L', quantidade: 0, vencimento: '', categoria: 'Defensivos / Nutrição' };
   
   openModal(`
     <h3 style="margin-bottom:1rem;">${id ? '✏️ Editar Insumo' : '＋ Adicionar Novo Insumo'}</h3>
     <div class="field"><label>Código do Produto</label><input type="text" id="f-cod" value="${i.codigo}"></div>
-    <div class="field"><label>Nome do Insumo / Defensivo</label><input type="text" id="f-nome" value="${i.nome}"></div>
+    <div class="field"><label>Nome Comercial</label><input type="text" id="f-nome" value="${i.nome}" onkeyup="autoSugerirAtivo()"></div>
+    <div class="field">
+      <label>Princípio Ativo (Nome Científico / Ingrediente Ativo)</label>
+      <input type="text" id="f-ativo" value="${i.ativo}" placeholder="Ex: Clorfenapir ou 2,4-D" onkeyup="autoSugerirAtivo()">
+      <div id="f-alerta-ativo"></div>
+    </div>
     <div class="field">
       <label>Unidade de Medida</label>
       <select id="f-unidade">
@@ -415,12 +509,16 @@ function modalEditarInsumo(id = null) {
 
 function salvarInsumo(id) {
   const nome = document.getElementById("f-nome").value.trim();
-  if (!nome) return alert("Informe o nome do insumo.");
+  const ativo = document.getElementById("f-ativo").value.trim();
+
+  if (!nome) return alert("Informe o nome comercial do insumo.");
+  if (!ativo) return alert("Informe o Princípio Ativo / Nome Científico.");
 
   const item = {
     id: id || 'ins-' + Date.now(),
     codigo: document.getElementById("f-cod").value.trim(),
     nome: nome,
+    ativo: ativo,
     unidade: document.getElementById("f-unidade").value,
     quantidade: parseFloat(document.getElementById("f-qtd").value) || 0,
     vencimento: document.getElementById("f-venc").value,
@@ -437,7 +535,7 @@ function salvarInsumo(id) {
   saveLocalState();
   closeModal();
   selectTab('insumos');
-  showToast("Insumo salvo!");
+  showToast("Insumo salvo com sucesso!");
 }
 
 function modalMovimentacao(insumoId) {
@@ -448,7 +546,7 @@ function modalMovimentacao(insumoId) {
 
   openModal(`
     <h3 style="margin-bottom:.5rem;">🔄 Movimentação de Insumo</h3>
-    <div class="muted" style="margin-bottom:1rem;">Produto: <strong>${ins.nome}</strong> (Atual: ${ins.quantidade} ${ins.unidade})</div>
+    <div class="muted" style="margin-bottom:1rem;">Produto: <strong>${ins.nome}</strong> (Ativo: ${ins.ativo})<br>Estoque Atual: ${ins.quantidade} ${ins.unidade}</div>
     
     <div class="field">
       <label>Tipo de Operação</label>
@@ -507,6 +605,7 @@ function confirmarMovimentacao(insumoId) {
     id: 'hist-' + Date.now(),
     insumoId: ins.id,
     insumoNome: ins.nome,
+    insumoAtivo: ins.ativo,
     unidade: ins.unidade,
     tipo: tipo,
     quantidade: qtd,
@@ -541,7 +640,7 @@ function renderHistorico() {
               <li>
                 <div class="item-main">
                   <div>
-                    <strong>${h.insumoNome}</strong>
+                    <strong>${h.insumoNome}</strong> <span class="muted">(Ativo: ${h.insumoAtivo || 'N/I'})</span>
                     <div class="muted" style="font-size:.8rem; margin-top:.1rem;">
                       ${isSaida ? '🔴' : '🟢'} ${h.tipo.replace('_', ' ').toUpperCase()}<br>
                       📍 Destino: <strong>${h.destino}</strong> | 👤 Resp: ${h.responsavel}<br>
@@ -587,7 +686,7 @@ function renderResumo() {
     </div>
     <div class="card">
       <div class="card-title">Resumo do Sistema</div>
-      <p class="muted">Painel operacional da Fazenda Santa Rita atualizado com controle completo de inventário, transferências e frota.</p>
+      <p class="muted">Painel operacional da Fazenda Santa Rita atualizado com controle completo de inventário, ingredientes ativos e frota.</p>
     </div>
   `;
 }
