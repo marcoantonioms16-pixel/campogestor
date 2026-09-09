@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="theme-color" content="#10140f"/>
+<title>CampoGestor — Fazenda Santa Rita</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&family=Fraunces:opsz,wght@9..144,500&display=swap" rel="stylesheet"/>
+
+<!-- Importando React, ReactDOM e Babel para renderizar o componente de Funcionários -->
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<style>
+:root{--bg:#10140f;--surface:#1a2018;--elevated:#232b20;--fg:#f0ece2;--muted:#9a9a88;--subtle:#6e7264;--primary:#7a9b6e;--border:#2c3529;--ok:#8fbc7a;--warn:#c4a35a;--danger:#c46a5a;--font:Figtree,system-ui,sans-serif;--display:Fraunces,Georgia,serif;--radius:12px}
+*{box-sizing:border-box;border-color:var(--border)}
+html,body{margin:0;min-height:100dvh;background:var(--bg);color:var(--fg);font-family:var(--font)}
+button,input,select,textarea{font:inherit;color:inherit}button{cursor:pointer}
+h1,h2,h3{font-family:var(--display);font-weight:500;margin:0}
+.app{max-width:720px;margin:0 auto;min-height:100dvh;padding-bottom:2rem}
+
+.header{padding:1.25rem 1rem .5rem;display:flex;align-items:center;justify-content:space-between;gap:.5rem}
+.header-info .kicker{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.header-info h1{font-size:1.4rem;margin-top:.15rem}
+.menu-btn{background:var(--elevated);border:1px solid var(--border);color:var(--fg);width:2.6rem;height:2.6rem;border-radius:10px;font-size:1.2rem;display:flex;align-items:center;justify-content:center}
+.sub{padding:0 1rem;font-size:.875rem;color:var(--muted)}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;margin:.75rem 1rem}
+.card-title{font-size:.875rem;font-weight:500;margin:0 0 .5rem}
+.row{display:flex;align-items:center;justify-content:space-between;gap:.75rem}
+.muted{color:var(--muted);font-size:.8rem}
+.list{list-style:none;margin:0;padding:0}
+.list li{display:flex;flex-direction:column;gap:.5rem;padding:.85rem 0;border-bottom:1px solid var(--border)}
+.list li:last-child{border-bottom:none}
+
+.item-main{display:flex;align-items:center;justify-content:space-between;gap:.5rem;width:100%}
+.badge{display:inline-flex;border-radius:999px;padding:.2rem .65rem;font-size:.75rem;font-weight:600}
+.badge.ok{background:color-mix(in srgb,var(--ok) 20%,transparent);color:var(--ok)}
+.badge.warn{background:color-mix(in srgb,var(--warn) 20%,transparent);color:var(--warn)}
+.badge.danger{background:color-mix(in srgb,var(--danger) 30%,transparent);color:var(--danger);border:1px solid var(--danger)}
+.badge.muted{background:var(--elevated);color:var(--muted)}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.35rem;border:1px solid var(--border);background:var(--elevated);color:var(--fg);border-radius:8px;padding:.45rem .75rem;font-size:.8rem;font-weight:500;text-decoration:none}
+.btn.primary{background:var(--primary);color:var(--bg);border-color:transparent;font-weight:600}
+.btn.whatsapp{background:#25d366;color:#000;font-weight:700;border-color:transparent}
+.btn.block{width:100%}
+.btn.sm{padding:.25rem .5rem;font-size:.75rem}
+
+.field{display:flex;flex-direction:column;gap:.3rem;margin-bottom:.75rem}
+.field label{font-size:.75rem;color:var(--muted)}
+.field input,.field select,.field textarea{background:var(--elevated);border:1px solid var(--border);border-radius:8px;padding:.55rem .7rem;color:var(--fg)}
+
+.drawer-bg{position:fixed;inset:0;background:rgba(12, 16, 11, 0.75);backdrop-filter:blur(4px);z-index:90;display:none}
+.drawer-bg.open{display:flex}
+.drawer{position:fixed;top:0;bottom:0;left:0;width:80%;max-width:320px;background:var(--surface);border-right:1px solid var(--border);padding:1.25rem 1rem;z-index:100;display:flex;flex-direction:column;justify-content:space-between;overflow-y:auto;transform:translateX(-100%);transition:transform .25s ease-in-out}
+.drawer-bg.open + .drawer, .drawer.open{transform:translateX(0)}
+.drawer-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;border-bottom:1px solid var(--border);padding-bottom:.75rem}
+.drawer-menu{display:flex;flex-direction:column;gap:.4rem}
+.drawer-menu button{display:flex;align-items:center;gap:.75rem;width:100%;padding:.75rem .85rem;background:transparent;border:none;border-radius:10px;color:var(--fg);font-size:.9rem;text-align:left}
+.drawer-menu button.active{background:color-mix(in srgb,var(--primary) 15%,transparent);color:var(--primary);font-weight:600}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin:.75rem 1rem}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.75rem}
+.stat .lbl{font-size:.7rem;color:var(--muted)}.stat .val{font-size:.95rem;font-weight:500;margin-top:.2rem}
+.sec{margin:.75rem 1rem;font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:110;display:none;align-items:center;justify-content:center;padding:1rem}
+.modal-bg.open{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);width:100%;max-width:520px;padding:1.2rem;max-height:90vh;overflow-y:auto}
+
+.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:var(--primary);color:var(--bg);padding:.6rem 1.2rem;border-radius:999px;font-size:.85rem;font-weight:600;z-index:200;display:none;box-shadow:0 4px 12px rgba(0,0,0,0.4)}
+.search-box{background:var(--elevated);border:1px solid var(--border);border-radius:10px;padding:.5rem .75rem;width:100%;color:var(--fg);margin-bottom:.75rem}
+.coletivo-item{background:var(--elevated);padding:.6rem;border-radius:8px;margin-bottom:.5rem;border:1px solid var(--border)}
+
+/* Estilos adicionais para harmonizar o componente de funcionários com o CampoGestor */
+.func-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 0.75rem; overflow: hidden; }
+.func-header { padding: 1rem; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: var(--elevated); }
+.func-nome { margin: 0; font-size: 0.95rem; color: var(--primary); font-family: var(--font); font-weight: 600; }
+.func-cargo { font-size: 0.75rem; color: var(--muted); }
+.func-details { padding: 1rem; border-top: 1px solid var(--border); background: var(--surface); }
+.func-row { display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.825rem; }
+.func-row:last-child { margin-bottom: 0; }
+.func-highlight { color: var(--ok); font-weight: 600; }
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+<div class="drawer-bg" id="drawer-bg" onclick="toggleDrawer(false)"></div>
+
+<div class="drawer" id="drawer">
+  <div>
+    <div class="drawer-header">
+      <div>
+        <span style="font-size:.7rem;color:var(--muted);text-transform:uppercase;">Sistema Agrícola</span>
+        <h3 style="font-size:1.1rem;color:var(--primary);">CampoGestor</h3>
+      </div>
+      <button onclick="toggleDrawer(false)" style="background:transparent;border:none;font-size:1.2rem;">✕</button>
+    </div>
+    
+    <div class="drawer-menu">
+      <button id="menu-resumo" class="active" onclick="selectTab('resumo')">📊 Resumo Geral</button>
+      <button id="menu-maquinas" onclick="selectTab('maquinas')">🚜 Frota de Máquinas</button>
+      <button id="menu-insumos" onclick="selectTab('insumos')">📦 Estoque de Insumos</button>
+      <button id="menu-talhoes" onclick="selectTab('talhoes')">🌱 Talhões e Áreas</button>
+      <button id="menu-equatorial" onclick="selectTab('equatorial')">⚡ Equatorial / Energia</button>
+      <button id="menu-pessoas" onclick="selectTab('pessoas')">👥 Equipe da Fazenda</button>
+    </div>
+  </div>
+
+  <div style="font-size:.75rem;color:var(--subtle);padding-top:1rem;border-top:1px solid var(--border);">
+    Fazenda Santa Rita — Safra 2026/27
+  </div>
+</div>
+
+<div class="app">
+  <div class="header">
+    <div class="header-info">
+      <span class="kicker" id="muni-safra">Grupo Segredo • Safra 2026/27</span>
+      <h1 id="page-title">CampoGestor</h1>
+    </div>
+    <button class="menu-btn" onclick="toggleDrawer(true)">☰</button>
+  </div>
+  <div class="sub" id="sub-info">Usuário: Marcos Morais (Auxiliar administrativo)</div>
+
+  <div id="content"></div>
+</div>
+
+<div class="modal-bg" id="modal-bg">
+  <div class="modal" id="modal-body"></div>
+</div>
+
+<!-- Componente React de Funcionários -->
+<script type="text/babel">
+  const funcionariosData = [
+    {
+      id: 1,
+      nome: "SEBASTIAO CLAUDIONOR REZENDE",
+      cargo: "MOTORISTA E",
+      cpf: "773.993.741-04",
+      admissao: "01/09/2024",
+      nascimento: "20/01/1972",
+      planoSaude: "02282205000069004"
+    },
+    {
+      id: 2,
+      nome: "JEFERSON LUIZ BOTIN",
+      cargo: "OPERADOR MAQ C",
+      cpf: "087.771.269-71",
+      admissao: "03/06/2026",
+      nascimento: "25/01/1993",
+      planoSaude: null
+    },
+    {
+      id: 3,
+      nome: "GENILTON GUSTAVO DE OLIVEIRA",
+      cargo: "OP DE MAQUINAS AGRIC JR E",
+      cpf: "098.644.111-28",
+      admissao: "06/02/2026",
+      nascimento: "13/04/2007",
+      planoSaude: "02282205000076000"
+    },
+    {
+      id: 4,
+      nome: "JOAO PEDRO VIEIRA ALMEIDA",
+      cargo: "OP DE MAQ AGRIC JR F",
+      cpf: "714.966.761-90",
+      admissao: "15/06/2026",
+      nascimento: "28/04/2008",
+      planoSaude: null
+    },
+    {
+      id: 5,
+      nome: "ANDRESSA LEAL FERREIRA",
+      cargo: "COZINHEIRA RURAL E",
+      cpf: "102.727.609-19",
+      admissao: "22/06/2026",
+      nascimento: "07/05/1995",
+      planoSaude: null
+    },
+    {
+      id: 6,
+      nome: "LEANDRO ALVES MORAES DE SOUZA",
+      cargo: "OP DE MAQUINAS AGRIC A",
+      cpf: "709.352.761-22",
+      admissao: "29/04/2026",
+      nascimento: "15/05/2003",
+      planoSaude: null
+    },
+    {
+      id: 7,
+      nome: "CELIO CARLOS CANEDO JUNIOR",
+      cargo: "GERENTE AGROP E",
+      cpf: "052.747.301-40",
+      admissao: "01/04/2025",
+      nascimento: "25/06/1994",
+      planoSaude: null
+    },
+    {
+      id: 8,
+      nome: "DILMAR ALVES KAYSER",
+      cargo: "OP DE MAQ AGRIC JR F",
+      cpf: "068.263.651-70",
+      admissao: "07/02/2026",
+      nascimento: "11/10/2003",
+      planoSaude: "02282205000077007"
+    },
+    {
+      id: 9,
+      nome: "GABRIEL PEREIRA DE FARIA",
+      cargo: "OP DE MAQUINAS AGRIC A",
+      cpf: "072.161.721-24",
+      admissao: "29/01/2026",
+      nascimento: "16/10/2003",
+      planoSaude: "02282205000078003"
+    },
+    {
+      id: 10,
+      nome: "MARCOS ANTONIO DA SILVA MORAIS",
+      cargo: "AUX ADMINISTRATIVO D",
+      cpf: "045.230.731-71",
+      admissao: "23/02/2026",
+      nascimento: "06/11/1993",
+      planoSaude: "02282205000075004"
+    },
+    {
+      id: 11,
+      nome: "JOSE ADAO CARDOSO",
+      cargo: "TRAB AGROP EM GERAL D",
+      cpf: "897.519.571-68",
+      admissao: "01/09/2024",
+      nascimento: "25/12/1973",
+      planoSaude: "02282205000068008"
+    }
+  ];
+
+  const calcularTempoTrabalhado = (dataAdmissaoStr) => {
+    const [dia, mes, ano] = dataAdmissaoStr.split('/').map(Number);
+    const dataAdmissao = new Date(ano, mes - 1, dia);
+    const hoje = new Date();
+
+    let anos = hoje.getFullYear() - dataAdmissao.getFullYear();
+    let meses = hoje.getMonth() - dataAdmissao.getMonth();
+    let dias = hoje.getDate() - dataAdmissao.getDate();
+
+    if (dias < 0) {
+      meses -= 1;
+      const ultimoDiaMesAnterior = new Date(hoje.getFullYear(), hoje.getMonth(), 0).getDate();
+      dias += ultimoDiaMesAnterior;
+    }
+
+    if (meses < 0) {
+      anos -= 1;
+      meses += 12;
+    }
+
+    const partes = [];
+    if (anos > 0) partes.push(`${anos} ${anos === 1 ? 'ano' : 'anos'}`);
+    if (meses > 0) partes.push(`${meses} ${meses === 1 ? 'mês' : 'meses'}`);
+    if (dias > 0) partes.push(`${dias} ${dias === 1 ? 'dia' : 'dias'}`);
+
+    return partes.length > 0 ? partes.join(', ') : 'Admitido hoje';
+  };
+
+  function FuncionariosList() {
+    const [abertoId, setAbertoId] = React.useState(null);
+    const [search, setSearch] = React.useState("");
+
+    const toggleAccordion = (id) => {
+      setAbertoId(abertoId === id ? null : id);
+    };
+
+    const filtrados = funcionariosData.filter(f => 
+      f.nome.toLowerCase().includes(search.toLowerCase()) || 
+      f.cargo.toLowerCase().includes(search.toLowerCase()) ||
+      f.cpf.includes(search)
+    );
+
+    return (
+      <div style={{ padding: '0 1rem' }}>
+        <div class="card" style={{ margin: '0 0 1rem 0' }}>
+          <input 
+            type="text" 
+            class="search-box" 
+            style={{ marginBottom: 0 }} 
+            placeholder="🔍 Buscar funcionário por nome, cargo ou CPF..." 
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <div class="muted" style={{ marginTop: '0.5rem' }}>
+            Total de colaboradores: <strong>{filtrados.length} ativos</strong>
+          </div>
+        </div>
+
+        <div class="sec" style={{ margin: '0 0 0.75rem 0' }}>Equipe Cadastrada</div>
+
+        {filtrados.map((f) => {
+          const isExpanded = abertoId === f.id;
+          const tempoTrabalhado = calcularTempoTrabalhado(f.admissao);
+
+          return (
+            <div key={f.id} class="func-card">
+              <div class="func-header" onClick={() => toggleAccordion(f.id)}>
+                <div>
+                  <h3 class="func-nome">{f.nome}</h3>
+                  <span class="func-cargo">{f.cargo}</span>
+                </div>
+                <span class="muted" style={{ fontSize: '0.8rem' }}>{isExpanded ? '▲' : '▼'}</span>
+              </div>
+
+              {isExpanded && (
+                <div class="func-details">
+                  <div class="func-row">
+                    <strong>CPF:</strong> <span>{f.cpf}</span>
+                  </div>
+                  <div class="func-row">
+                    <strong>Data de Nascimento:</strong> <span>{f.nascimento}</span>
+                  </div>
+                  <div class="func-row">
+                    <strong>Data de Admissão:</strong> <span>{f.admissao}</span>
+                  </div>
+                  <div class="func-row">
+                    <strong>Tempo de Empresa:</strong> <span class="func-highlight">{tempoTrabalhado}</span>
+                  </div>
+                  <div class="func-row">
+                    <strong>Plano de Saúde (Unimed):</strong>{' '}
+                    <span>{f.planoSaude ? f.planoSaude : 'Não cadastrado'}</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+
+  window.renderEquipeModule = function() {
+    const container = document.getElementById('content');
+    if (!container) return;
+    const rootDiv = document.createElement('div');
+    rootDiv.id = 'react-equipe-root';
+    container.innerHTML = '';
+    container.appendChild(rootDiv);
+    
+    const root = ReactDOM.createRoot(rootDiv);
+    root.render(<FuncionariosList />);
+  };
+</script>
+
+<script>
+const PRINCIPIOS_ATIVOS = [
+  {"comercial": "2,4 D TECNOMYL", "ativo": "2,4-D (Sal Dimetilamina)"},
+  {"comercial": "ALMAX", "ativo": "Glifosato de Amônio"},
+  {"comercial": "APROCH POWER", "ativo": "Ciproconazol + Azoxistrobina"},
+  {"comercial": "TA35 ULTRA", "ativo": "Óleo Mineral Emulsionável"},
+  {"comercial": "AURORA", "ativo": "Carfentrazona-etílica"},
+  {"comercial": "AZIMUT", "ativo": "Azoxistrobina + Tebuconazol"},
+  {"comercial": "AZURE", "ativo": "Clorotalonil + Tebuconazol"},
+  {"comercial": "CALCARIO", "ativo": "Carbonato de Cálcio e Magnésio"},
+  {"comercial": "CLORETO POTASSIO KCL", "ativo": "Cloreto de Potássio 60% K2O"},
+  {"comercial": "CLORFENAPIN", "ativo": "Clorfenapir"},
+  {"comercial": "DIESEL S500", "ativo": "Óleo Diesel S500 (Combustível)"},
+  {"comercial": "DIESEL S10", "ativo": "Óleo Diesel S10 (Combustível)"}
+];
+
+const SEED = {
+  "farm": {"nome": "Fazenda Santa Rita", "municipio": "Grupo Segredo", "cargo": "Auxiliar administrativo", "safra": "2026/27"},
+  "talhoes": [
+    {"nome": "Entrada", "area": 91.35},
+    {"nome": "Jaime", "area": 132.00},
+    {"nome": "Duilio", "area": 136.67},
+    {"nome": "Mato", "area": 12.88},
+    {"nome": "Sede", "area": 109.13},
+    {"nome": "Pista Tapera", "area": 130.14},
+    {"nome": "Tapera", "area": 94.76},
+    {"nome": "Luizinho", "area": 153.13},
+    {"nome": "Amargoso", "area": 102.33},
+    {"nome": "110", "area": 109.00},
+    {"nome": "190", "area": 186.36},
+    {"nome": "Cascalheira", "area": 59.38},
+    {"nome": "Pivo 1", "area": 112.00},
+    {"nome": "Pivo 2", "area": 152.00}
+  ],
+  "maquinas": [
+    {"id": "mq-0102", "nome": "BAZUCA", "tipo": "Implemento", "modelo": "NINJA 32000 (2012)", "status": "operando", "placa": "-", "nr": "0102", "marca": "STARA"},
+    {"id": "mq-0107", "nome": "BAZUCA TRATADORA SEMENTE", "tipo": "Implemento", "modelo": "REB6000TS (2006)", "status": "operando", "placa": "-", "nr": "0107", "marca": "STARA"},
+    {"id": "mq-0109", "nome": "BAZUCA", "tipo": "Implemento", "modelo": "NINJA 33000 (2020)", "status": "operando", "placa": "-", "nr": "0109", "marca": "STARA"},
+    {"id": "mq-0202", "nome": "CAÇAMBA BASCULANTE", "tipo": "Equipamento", "modelo": "60X18F 1012 (2012)", "status": "operando", "placa": "-", "nr": "0202", "marca": "GRIMALDI"},
+    {"id": "mq-0303", "nome": "CAMINHAO", "tipo": "Veiculo", "modelo": "CARGO 2422 (07/08)", "status": "operando", "placa": "NKA3C99", "nr": "0303", "marca": "FORD ROLL ON"},
+    {"id": "mq-0314", "nome": "CAMINHAO", "tipo": "Veiculo", "modelo": "VM-270 (2016)", "status": "operando", "placa": "FPR2D69", "nr": "0314", "marca": "VOLVO TANQUE"},
+    {"id": "mq-0703", "nome": "COLHEITADEIRA", "tipo": "Maquina", "modelo": "2799 (2011)", "status": "operando", "placa": "-", "nr": "0703", "marca": "CASE"},
+    {"id": "mq-1908", "nome": "PULVERIZADOR e DISTRIBUIDOR", "tipo": "Maquina", "modelo": "IMPERADOR 3.0 (2020)", "status": "operando", "placa": "-", "nr": "1908", "marca": "STARA"},
+    {"id": "mq-2405", "nome": "TRATOR", "tipo": "Maquina", "modelo": "STEIGER 450 (2014)", "status": "operando", "placa": "-", "nr": "2405", "marca": "CASE"}
+  ],
+  "insumos": [
+    {"id": "ins-1242", "codigo": "1242", "nome": "2,4 D TECNOMYL", "ativo": "2,4-D (Sal Dimetilamina)", "unidade": "L", "quantidade": 900, "vencimento": "2027-05-20", "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-1003", "codigo": "1003", "nome": "ALMAX", "ativo": "Glifosato de Amônio", "unidade": "L", "quantidade": 38, "vencimento": "2026-03-10", "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-219", "codigo": "219", "nome": "APROCH POWER", "ativo": "Ciproconazol + Azoxistrobina", "unidade": "L", "quantidade": 262, "vencimento": "2026-11-15", "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-128", "codigo": "128", "nome": "TA35 ULTRA", "ativo": "Óleo Mineral Emulsionável", "unidade": "L", "quantidade": 480, "vencimento": "", "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-318", "codigo": "318", "nome": "AURORA", "ativo": "Carfentrazona-etílica", "unidade": "L", "quantidade": 104.8, "vencimento": "", "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-262", "codigo": "262", "nome": "CLORFENAPIN", "ativo": "Clorfenapir", "unidade": "L", "quantidade": 342, "vencimento": "2027-01-20", "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-132", "codigo": "132", "nome": "CALCARIO", "ativo": "Carbonato de Cálcio e Magnésio", "unidade": "KG", "quantidade": 575400, "vencimento": "", "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-75", "codigo": "75", "nome": "CLORETO POTASSIO KCL", "ativo": "Cloreto de Potássio 60% K2O", "unidade": "bags", "quantidade": 233, "vencimento": "", "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-73", "codigo": "73", "nome": "DIESEL S500", "ativo": "Óleo Diesel S500 (Combustível)", "unidade": "L", "quantidade": 7400, "vencimento": "", "categoria": "Combustível"}
+  ],
+  "historicoInsumos": [],
+  "equatorialUCs": [
+    {
+      "id": "uc-campo-alegre",
+      "descricao": "FAZ CAMPO ALEGRE (Sede, Alojamento, Célio)",
+      "unidadeProd": "SANTA RITA",
+      "uc": "10026027184",
+      "ucAtualizada": "0.003.587.008.012-27",
+      "titular": "ADRIANO 597.573.291-34",
+      "inscricao": "11.563.523-8"
+    },
+    {
+      "id": "uc-pouso-alegre",
+      "descricao": "ENEL FAZ POUSO ALEGRE",
+      "unidadeProd": "SANTA RITA",
+      "uc": "980046051",
+      "ucAtualizada": "0.001.626.932.012-63",
+      "titular": "JAYME ACACIO - 328.043.188-34",
+      "inscricao": "11.243.742-7"
+    }
+  ],
+  "protocolosEquatorial": [
+    {"id": 1, "data": "2026-03-23", "hora": "07:26", "uc": "10026027184", "protocolo": "476513825", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "SANTA RITA"},
+    {"id": 2, "data": "2026-03-23", "hora": "09:33", "uc": "10026027184", "protocolo": "476544256", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "SANTA RITA"},
+    {"id": 3, "data": "2026-04-15", "hora": "08:11", "uc": "0.001.626.932.012-63", "protocolo": "480215339", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "POUSO ALEGRE"},
+    {"id": 4, "data": "2026-04-22", "hora": "09:51", "uc": "0.003.587.008.0122-7", "protocolo": "481135486", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "SANTA RITA"},
+    {"id": 5, "data": "2026-05-19", "hora": "07:35", "uc": "10026027184", "protocolo": "485573798", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "SANTA RITA"},
+    {"id": 6, "data": "2026-05-19", "hora": "20:30", "uc": "10026027184", "protocolo": "48575720", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "SANTA RITA"},
+    {"id": 7, "data": "2026-05-20", "hora": "07:27", "uc": "10026027184", "protocolo": "485780385", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "SANTA RITA"},
+    {"id": 8, "data": "2026-07-10", "hora": "07:00", "uc": "10026027184", "protocolo": "493018848", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "SANTA RITA"},
+    {"id": 9, "data": "2026-07-21", "hora": "00:00", "uc": "10026027184", "protocolo": "494397090", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "SANTA RITA"},
+    {"id": 10, "data": "2026-07-27", "hora": "08:43", "uc": "10026027184", "protocolo": "495090858", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "SANTA RITA"},
+    {"id": 11, "data": "2026-07-27", "hora": "19:22", "uc": "10026027184", "protocolo": "495232772", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "SANTA RITA"},
+    {"id": 12, "data": "2026-07-28", "hora": "09:45", "uc": "10026027184", "protocolo": "495292116", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "SANTA RITA"},
+    {"id": 13, "data": "2026-08-05", "hora": "09:50", "uc": "10026027184", "protocolo": "496390441", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "SANTA RITA"},
+    {"id": 14, "data": "2026-08-10", "hora": "07:13", "uc": "10026027184", "protocolo": "499679147", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "SANTA RITA"},
+    {"id": 15, "data": "2026-08-10", "hora": "14:42", "uc": "10026027184", "protocolo": "497092477", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "SANTA RITA"},
+    {"id": 16, "data": "2026-08-19", "hora": "07:15", "uc": "980046051", "protocolo": "498250408", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "POUSO ALEGRE"},
+    {"id": 17, "data": "2026-08-19", "hora": "09:41", "uc": "10026027184", "protocolo": "498274640", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "SANTA RITA"},
+    {"id": 18, "data": "2026-09-09", "hora": "07:07", "uc": "10026027184", "protocolo": "501085528", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "SANTA RITA"},
+    {"id": 19, "data": "2026-09-09", "hora": "08:26", "uc": "980046051", "protocolo": "501097429", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "POUSO ALEGRE"}
+  ]
+};
+
+let state = JSON.parse(localStorage.getItem("campogestor_state"));
+
+if (!state || !state.insumos) {
+  state = JSON.parse(JSON.stringify(SEED));
+  localStorage.setItem("campogestor_state", JSON.stringify(state));
+} else {
+  state.talhoes = SEED.talhoes;
+  if (!state.equatorialUCs) state.equatorialUCs = SEED.equatorialUCs;
+  if (!state.protocolosEquatorial) state.protocolosEquatorial = SEED.protocolosEquatorial;
+  state.insumos.forEach(ins => {
+    if (!ins.ativo) {
+      const match = PRINCIPIOS_ATIVOS.find(p => p.comercial.toLowerCase() === ins.nome.toLowerCase());
+      ins.ativo = match ? match.ativo : ins.nome;
+    }
+  });
+  saveLocalState();
+}
+
+function saveLocalState() {
+  localStorage.setItem("campogestor_state", JSON.stringify(state));
+}
+
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.style.display = "block";
+  setTimeout(() => { t.style.display = "none"; }, 2500);
+}
+
+function toggleDrawer(open) {
+  const bg = document.getElementById("drawer-bg");
+  const drawer = document.getElementById("drawer");
+  if (open) {
+    bg.classList.add("open");
+    drawer.classList.add("open");
+  } else {
+    bg.classList.remove("open");
+    drawer.classList.remove("open");
+  }
+}
+
+function closeModal() {
+  document.getElementById("modal-bg").classList.remove("open");
+}
+
+function openModal(html) {
+  document.getElementById("modal-body").innerHTML = html;
+  document.getElementById("modal-bg").classList.add("open");
+}
+
+function checarVencimento(dataStr) {
+  if (!dataStr) return { status: 'normal', texto: '' };
+  const hoje = new Date();
+  hoje.setHours(0,0,0,0);
+  const venc = new Date(dataStr + "T00:00:00");
+  const diffDias = Math.ceil((venc - hoje) / (1000 * 60 * 60 * 24));
+  
+  if (diffDias < 0) return { status: 'vencido', texto: `VENCIDO (${dataStr.split('-').reverse().join('/')})` };
+  if (diffDias <= 30) return { status: 'alerta', texto: `Vence em ${diffDias} dias (${dataStr.split('-').reverse().join('/')})` };
+  return { status: 'ok', texto: `Venc: ${dataStr.split('-').reverse().join('/')}` };
+}
+
+function selectTab(tab) {
+  document.querySelectorAll('.drawer-menu button').forEach(b => b.classList.remove('active'));
+  const btn = document.getElementById('menu-' + tab);
+  if (btn) btn.classList.add('active');
+
+  toggleDrawer(false);
+
+  const content = document.getElementById('content');
+  const pageTitle = document.getElementById('page-title');
+
+  if (tab === 'resumo') {
+    pageTitle.textContent = state.farm.nome;
+    content.innerHTML = renderResumo();
+  } else if (tab === 'maquinas') {
+    pageTitle.textContent = "Frota & Equipamentos";
+    content.innerHTML = renderMaquinas();
+  } else if (tab === 'insumos') {
+    pageTitle.textContent = "Estoque de Insumos";
+    content.innerHTML = renderInsumos();
+  } else if (tab === 'talhoes') {
+    pageTitle.textContent = "Talhões — Fazenda Santa Rita";
+    content.innerHTML = renderTalhoes();
+  } else if (tab === 'equatorial') {
+    pageTitle.textContent = "Equatorial / Energia";
+    content.innerHTML = renderEquatorial();
+  } else if (tab === 'pessoas') {
+    pageTitle.textContent = "Equipe da Fazenda";
+    if (window.renderEquipeModule) {
+      window.renderEquipeModule();
+    } else {
+      content.innerHTML = `<div class="card">Carregando módulo de equipe...</div>`;
+    }
+  }
+  window.scrollTo(0, 0);
+}
+
+// --- MÓDULO EQUATORIAL / ENERGIA ---
+function renderEquatorial() {
+  const ucs = state.equatorialUCs || [];
+  const listaProtocolos = [...(state.protocolosEquatorial || [])].sort((a,b) => {
+    const dtA = (a.data || '') + ' ' + (a.hora || '');
+    const dtB = (b.data || '') + ' ' + (b.hora || '');
+    return dtB.localeCompare(dtA);
+  });
+
+  return `
+    <div class="card" style="margin-bottom:.5rem; background:color-mix(in srgb, #25d366 10%, var(--surface)); border-color:#25d366;">
+      <a href="https://wa.me/556232432020" target="_blank" class="btn whatsapp block" style="font-size:.95rem; padding:.7rem;">
+        💬 Abrir Atendimento Clara no WhatsApp
+      </a>
+      <div class="muted" style="text-align:center; margin-top:.4rem; font-size:.75rem;">Equatorial Goiás • WhatsApp: (62) 3243-2020</div>
+    </div>
+
+    <div class="sec">Unidades Consumidoras (UCs Ativas)</div>
+    
+    ${ucs.map(u => `
+      <div class="card" style="margin-bottom:.75rem;">
+        <div class="row" style="margin-bottom:.5rem;">
+          <strong style="font-size:.9rem; color:var(--primary);">${u.descricao}</strong>
+          <span class="badge ok">${u.unidadeProd}</span>
+        </div>
+        <div class="muted" style="font-size:.8rem; display:flex; flex-direction:column; gap:.25rem;">
+          <div>⚡ <strong>UC Padrão:</strong> <code style="color:var(--fg); font-size:.9rem;">${u.uc}</code></div>
+          ${u.ucAtualizada ? `<div>⚡ <strong>UC Atualizada:</strong> <code style="color:var(--fg); font-size:.9rem;">${u.ucAtualizada}</code></div>` : ''}
+          <div>👤 <strong>Titular / CPF:</strong> ${u.titular}</div>
+          <div>📄 <strong>Inscrição Estadual:</strong> ${u.inscricao}</div>
+        </div>
+        <div style="display:flex; gap:.5rem; margin-top:.75rem;">
+          <button class="btn primary sm block" onclick="copiarTexto('${u.uc}', 'UC ${u.uc}')">📋 Copiar UC</button>
+          ${u.ucAtualizada ? `<button class="btn sm block" onclick="copiarTexto('${u.ucAtualizada}', 'UC Atualizada ${u.ucAtualizada}')">📋 Copiar UC Nova</button>` : ''}
+        </div>
+      </div>
+    `).join('')}
+
+    <div class="sec" style="margin-top:1.5rem; display:flex; justify-content:space-between; align-items:center;">
+      <span>📜 Histórico de Protocolos</span>
+      <button class="btn primary sm" onclick="modalNovoProtocolo()">＋ Registar Protocolo</button>
+    </div>
+
+    <div class="card">
+      ${listaProtocolos.length === 0 ? '<div class="muted">Nenhum protocolo registrado.</div>' : `
+        <ul class="list">
+          ${listaProtocolos.map(p => `
+            <li>
+              <div class="item-main">
+                <div>
+                  <strong>Protocolo: ${p.protocolo}</strong>
+                  <div class="muted" style="font-size:.8rem; margin-top:.2rem;">
+                    📍 UC: <strong>${p.uc}</strong> (${p.contato})<br>
+                    📝 Histórico: ${p.historico}<br>
+                    👤 Solicitante: ${p.solicitante} | Canal: ${p.canal}
+                  </div>
+                </div>
+                <div style="text-align:right;">
+                  <span class="badge warn" style="font-size:.7rem;">${p.data.split('-').reverse().join('/')}</span>
+                  <div class="muted" style="font-size:.75rem; margin-top:.2rem;">⏰ ${p.hora}</div>
+                </div>
+              </div>
+            </li>
+          `).join('')}
+        </ul>
+      `}
+    </div>
+  `;
+}
+
+function copiarTexto(texto, nome) {
+  navigator.clipboard.writeText(texto).then(() => {
+    showToast(`${nome} copiada para a área de transferência!`);
+  }).catch(() => {
+    prompt("Copie o código abaixo:", texto);
+  });
+}
+
+function modalNovoProtocolo() {
+  const hoje = new Date().toISOString().split('T')[0];
+  const agora = new Date().toTimeString().split(' ')[0].substring(0, 5);
+
+  openModal(`
+    <h3 style="margin-bottom:1rem;">⚡ Registar Novo Protocolo</h3>
+    <div class="field"><label>Data</label><input type="date" id="p-data" value="${hoje}"></div>
+    <div class="field"><label>Hora</label><input type="time" id="p-hora" value="${agora}"></div>
+    <div class="field">
+      <label>Unidade Consumidora (UC)</label>
+      <select id="p-uc">
+        <option value="10026027184">10026027184 — FAZ CAMPO ALEGRE (Sede, Alojamento)</option>
+        <option value="980046051">980046051 — ENEL FAZ POUSO ALEGRE</option>
+        <option value="0.003.587.008.012-27">0.003.587.008.012-27 — CAMPO ALEGRE (Nova UC)</option>
+        <option value="0.001.626.932.012-63">0.001.626.932.012-63 — POUSO ALEGRE (Nova UC)</option>
+      </select>
+    </div>
+    <div class="field"><label>Número do Protocolo</label><input type="text" id="p-nr" placeholder="Ex: 501097429"></div>
+    <div class="field">
+      <label>Canal de Atendimento</label>
+      <select id="p-canal">
+        <option value="WHATSAPP">WHATSAPP (Clara)</option>
+        <option value="TELEFONE 0800">TELEFONE 0800-620196</option>
+        <option value="APP / SITE">APP / SITE</option>
+      </select>
+    </div>
+    <div class="field"><label>Histórico do Acontecimento</label><input type="text" id="p-hist" value="FALTA DE ENERGIA"></div>
+    <div class="field"><label>Solicitante</label><input type="text" id="p-solic" value="MARCOS"></div>
+    <div class="field">
+      <label>Contato / Local para ENEL</label>
+      <select id="p-contato">
+        <option value="SANTA RITA">SANTA RITA</option>
+        <option value="POUSO ALEGRE">POUSO ALEGRE</option>
+        <option value="CAMPO ALEGRE">CAMPO ALEGRE</option>
+      </select>
+    </div>
+
+    <div class="row" style="margin-top:1.25rem;">
+      <button class="btn block" onclick="closeModal()">Cancelar</button>
+      <button class="btn primary block" onclick="salvarProtocolo()">Salvar Protocolo</button>
+    </div>
+  `);
+}
+
+function salvarProtocolo() {
+  const nr = document.getElementById("p-nr").value.trim();
+  if (!nr) return alert("Informe o número do protocolo gerado.");
+
+  if (!state.protocolosEquatorial) state.protocolosEquatorial = [];
+
+  const item = {
+    id: Date.now(),
+    data: document.getElementById("p-data").value,
+    hora: document.getElementById("p-hora").value,
+    uc: document.getElementById("p-uc").value,
+    protocolo: nr,
+    canal: document.getElementById("p-canal").value,
+    historico: document.getElementById("p-hist").value.trim() || 'FALTA DE ENERGIA',
+    solicitante: document.getElementById("p-solic").value.trim() || 'MARCOS',
+    contato: document.getElementById("p-contato").value
+  };
+
+  state.protocolosEquatorial.unshift(item);
+  saveLocalState();
+  closeModal();
+  selectTab('equatorial');
+  showToast("Protocolo registrado com sucesso!");
+}
+
+// --- MÓDULO FROTA DE MÁQUINAS ---
+function renderMaquinas() {
+  return `
+    <div class="card" style="margin-bottom:.5rem;">
+      <div class="row" style="margin-bottom:.75rem;">
+        <input type="text" id="search-mq" class="search-box" style="margin-bottom:0;" placeholder="🔍 Buscar máquina, placa ou código..." onkeyup="filtrarMaquinas()"/>
+        <button class="btn primary" onclick="modalEditarMaquina()">＋ Adicionar</button>
+      </div>
+      <div class="muted">Total cadastrado: <strong>${state.maquinas.length} equipamentos</strong></div>
+    </div>
+
+    <div class="sec">Lista de Máquinas e Implementos</div>
+    <div class="card">
+      <ul class="list">
+        ${state.maquinas.map(m => `
+          <li class="mq-item">
+            <div class="item-main">
+              <div>
+                <strong>${m.nome}</strong> <span class="muted">(Nº ${m.nr})</span>
+                <div class="muted">${m.marca} ${m.modelo} ${m.placa !== '-' ? '• Placa: ' + m.placa : ''}</div>
+                <div class="muted" style="font-size:.7rem; text-transform:uppercase; margin-top:.1rem;">${m.tipo}</div>
+              </div>
+              <div style="display:flex; align-items:center; gap:.4rem;">
+                <button class="badge ${m.status === 'operando' ? 'ok' : 'muted'}" onclick="alternarStatusMaquina('${m.id}')">
+                  ${m.status}
+                </button>
+                <button class="btn sm" onclick="modalEditarMaquina('${m.id}')">✏️ Editar</button>
+              </div>
+            </div>
+          </li>
+        `).join('')}
+      </ul>
+    </div>
+  `;
+}
+
+function alternarStatusMaquina(id) {
+  const m = state.maquinas.find(x => x.id === id);
+  if (m) {
+    m.status = m.status === 'operando' ? 'parada' : 'operando';
+    saveLocalState();
+    selectTab('maquinas');
+    showToast(`Status de ${m.nome} alterado`);
+  }
+}
+
+function modalEditarMaquina(id = null) {
+  const m = id ? state.maquinas.find(x => x.id === id) : { nome: '', nr: '', marca: '', modelo: '', placa: '-', tipo: 'Maquina', status: 'operando' };
+  
+  openModal(`
+    <h3 style="margin-bottom:1rem;">${id ? '✏️ Editar Máquina' : '＋ Adicionar Nova Máquina'}</h3>
+    <div class="field"><label>Nome do Equipamento</label><input type="text" id="f-nome" value="${m.nome}"></div>
+    <div class="field"><label>Número / Código (NR)</label><input type="text" id="f-nr" value="${m.nr}"></div>
+    <div class="field"><label>Marca</label><input type="text" id="f-marca" value="${m.marca}"></div>
+    <div class="field"><label>Modelo / Ano</label><input type="text" id="f-modelo" value="${m.modelo}"></div>
+    <div class="field"><label>Placa (se houver)</label><input type="text" id="f-placa" value="${m.placa}"></div>
+    <div class="field">
+      <label>Tipo</label>
+      <select id="f-tipo">
+        <option value="Maquina" ${m.tipo === 'Maquina' ? 'selected' : ''}>Máquina</option>
+        <option value="Implemento" ${m.tipo === 'Implemento' ? 'selected' : ''}>Implemento</option>
+        <option value="Veiculo" ${m.tipo === 'Veiculo' ? 'selected' : ''}>Veículo</option>
+        <option value="Equipamento" ${m.tipo === 'Equipamento' ? 'selected' : ''}>Equipamento</option>
+      </select>
+    </div>
+    <div class="row" style="margin-top:1.25rem;">
+      <button class="btn block" onclick="closeModal()">Cancelar</button>
+      <button class="btn primary block" onclick="salvarMaquina('${id || ''}')">Salvar</button>
+    </div>
+  `);
+}
+
+function salvarMaquina(id) {
+  const nome = document.getElementById("f-nome").value.trim();
+  if (!nome) return alert("Informe o nome da máquina.");
+
+  const item = {
+    id: id || 'mq-' + Date.now(),
+    nome: nome,
+    nr: document.getElementById("f-nr").value.trim(),
+    marca: document.getElementById("f-marca").value.trim(),
+    modelo: document.getElementById("f-modelo").value.trim(),
+    placa: document.getElementById("f-placa").value.trim() || '-',
+    tipo: document.getElementById("f-tipo").value,
+    status: 'operando'
+  };
+
+  if (id) {
+    const idx = state.maquinas.findIndex(x => x.id === id);
+    if (idx !== -1) state.maquinas[idx] = item;
+  } else {
+    state.maquinas.unshift(item);
+  }
+
+  saveLocalState();
+  closeModal();
+  selectTab('maquinas');
+  showToast("Máquina salva com sucesso!");
+}
+
+function filtrarMaquinas() {
+  const query = document.getElementById("search-mq").value.toLowerCase();
+  document.querySelectorAll(".mq-item").forEach(item => {
+    item.style.display = item.innerText.toLowerCase().includes(query) ? "flex" : "none";
+  });
+}
+
+// --- MÓDULO INSUMOS & HISTÓRICO INTEGRADO ---
+function renderInsumos() {
+  const listHist = state.historicoInsumos || [];
+  return `
+    <div class="card" style="margin-bottom:.5rem;">
+      <input type="text" id="search-ins" class="search-box" placeholder="🔍 Buscar por marca ou princípio ativo (ex: Clorfenapir)..." onkeyup="filtrarInsumos()"/>
+      <div style="display:flex; flex-direction:column; gap:.5rem;">
+        <button class="btn primary block" onclick="modalEditarInsumo()">＋ Novo Insumo</button>
+        <button class="btn block" style="background:var(--primary); color:var(--bg); font-weight:600;" onclick="modalLancamentoColetivo()">📋 Lançamento Único (Boletim de Calda)</button>
+      </div>
+      <div class="muted" style="margin-top:.75rem;">Total em estoque: <strong>${state.insumos.length} produtos</strong></div>
+    </div>
+
+    <div class="sec">Inventário de Produtos & Defensivos</div>
+    <div class="card">
+      <ul class="list">
+        ${state.insumos.map(i => {
+          const v = checarVencimento(i.vencimento);
+          let badgeClass = 'ok';
+          if (v.status === 'vencido') badgeClass = 'danger';
+          else if (v.status === 'alerta') badgeClass = 'warn';
+
+          return `
+            <li class="ins-item">
+              <div class="item-main">
+                <div>
+                  <strong>${i.nome}</strong> <span class="muted">(Cód: ${i.codigo})</span>
+                  <div style="font-size:.78rem; color:var(--primary); font-weight:600; margin-top:.15rem;">
+                    🧪 Ativo: ${i.ativo || 'Não informado'}
+                  </div>
+                  <div class="muted" style="font-size:.75rem; margin-top:.1rem;">
+                    Categoria: ${i.categoria}
+                    ${v.texto ? `<br><strong ${v.status === 'vencido' ? 'style="color:var(--danger)"' : ''}>${v.texto}</strong>` : ''}
+                  </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:.4rem;">
+                  <div class="badge ${badgeClass}">
+                    ${typeof i.quantidade === 'number' ? i.quantidade.toLocaleString('pt-BR') : i.quantidade} ${i.unidade}
+                  </div>
+                  <button class="btn sm" onclick="modalEditarInsumo('${i.id}')" title="Editar estoque">✏️</button>
+                </div>
+              </div>
+              <div style="margin-top:.3rem;">
+                <button class="btn sm" onclick="modalMovimentacao('${i.id}')">🔄 Lançar Saída/Entrada Individual</button>
+              </div>
+            </li>
+          `;
+        }).join('')}
+      </ul>
+    </div>
+
+    <div class="sec" style="margin-top:1.5rem;">📜 Histórico de Movimentações (Entradas / Saídas)</div>
+    <div class="card">
+      ${listHist.length === 0 ? '<div class="muted">Nenhuma movimentação registrada ainda.</div>' : `
+        <ul class="list">
+          ${listHist.map(h => {
+            const isSaida = h.tipo.startsWith("saida");
+            return `
+              <li>
+                <div class="item-main">
+                  <div>
+                    <strong>${h.insumoNome}</strong> <span class="muted">(Ativo: ${h.insumoAtivo || 'N/I'})</span>
+                    <div class="muted" style="font-size:.8rem; margin-top:.1rem;">
+                      ${isSaida ? '🔴' : '🟢'} ${h.tipo.replace('_', ' ').toUpperCase()}<br>
+                      📍 Destino/Talhão: <strong>${h.destino}</strong> | 🚜 Máq: ${h.maquina || 'N/I'}<br>
+                      👤 Resp: ${h.responsavel} | Status: <strong>${h.statusApp}</strong> ${h.obs ? '• ' + h.obs : ''}
+                    </div>
+                  </div>
+                  <div style="text-align:right;">
+                    <div class="badge ${isSaida ? 'danger' : 'ok'}">
+                      ${isSaida ? '-' : '+'}${h.quantidade} ${h.unidade}
+                    </div>
+                    <div class="muted" style="font-size:.7rem; margin-top:.2rem;">${h.data.split('-').reverse().join('/')}</div>
+                  </div>
+                </div>
+              </li>
+            `;
+          }).join('')}
+        </ul>
+      `}
+    </div>
+  `;
+}
+
+function autoSugerirAtivo() {
+  const nomeComercial = document.getElementById("f-nome").value.trim().toLowerCase();
+  const fieldAtivo = document.getElementById("f-ativo");
+  const alertDiv = document.getElementById("f-alerta-ativo");
+  
+  if (!nomeComercial) {
+    alertDiv.innerHTML = '';
+    return;
+  }
+
+  const match = PRINCIPIOS_ATIVOS.find(p => p.comercial.toLowerCase() === nomeComercial || nomeComercial.includes(p.comercial.toLowerCase()));
+  if (match && !fieldAtivo.value) {
+    fieldAtivo.value = match.ativo;
+  }
+
+  const ativoAtual = fieldAtivo.value.trim().toLowerCase();
+  if (ativoAtual) {
+    const estoqueExistente = state.insumos.find(i => i.ativo && i.ativo.toLowerCase().includes(ativoAtual));
+    if (estoqueExistente) {
+      alertDiv.innerHTML = `<div style="font-size:.75rem; color:var(--warn); margin-top:.3rem;">💡 <strong>Atenção:</strong> Você já possui o produto <strong>${estoqueExistente.nome}</strong> com esse ativo no estoque!</div>`;
+    } else {
+      alertDiv.innerHTML = '';
+    }
+  }
+}
+
+function modalEditarInsumo(id = null) {
+  const i = id ? state.insumos.find(x => x.id === id) : { codigo: '', nome: '', ativo: '', unidade: 'L', quantidade: 0, vencimento: '', categoria: 'Defensivos / Nutrição' };
+  
+  openModal(`
+    <h3 style="margin-bottom:1rem;">${id ? '✏️ Editar Insumo' : '＋ Adicionar Novo Insumo'}</h3>
+    <div class="field"><label>Código do Produto</label><input type="text" id="f-cod" value="${i.codigo}"></div>
+    <div class="field"><label>Nome Comercial</label><input type="text" id="f-nome" value="${i.nome}" onkeyup="autoSugerirAtivo()"></div>
+    <div class="field">
+      <label>Princípio Ativo (Nome Científico / Ingrediente Ativo)</label>
+      <input type="text" id="f-ativo" value="${i.ativo}" placeholder="Ex: Clorfenapir ou 2,4-D" onkeyup="autoSugerirAtivo()">
+      <div id="f-alerta-ativo"></div>
+    </div>
+    <div class="field">
+      <label>Unidade de Medida</label>
+      <select id="f-unidade">
+        <option value="L" ${i.unidade === 'L' ? 'selected' : ''}>Litros (L)</option>
+        <option value="KG" ${i.unidade === 'KG' ? 'selected' : ''}>Quilogramas (KG)</option>
+        <option value="bags" ${i.unidade === 'bags' ? 'selected' : ''}>Bags</option>
+        <option value="UN" ${i.unidade === 'UN' ? 'selected' : ''}>Unidades (UN)</option>
+      </select>
+    </div>
+    <div class="field"><label>Quantidade Atual</label><input type="number" step="any" id="f-qtd" value="${i.quantidade}"></div>
+    <div class="field"><label>Data de Vencimento</label><input type="date" id="f-venc" value="${i.vencimento || ''}"></div>
+    <div class="field"><label>Categoria</label><input type="text" id="f-cat" value="${i.categoria}"></div>
+    <div class="row" style="margin-top:1.25rem;">
+      <button class="btn block" onclick="closeModal()">Cancelar</button>
+      <button class="btn primary block" onclick="salvarInsumo('${id || ''}')">Salvar</button>
+    </div>
+  `);
+}
+
+function salvarInsumo(id) {
+  const nome = document.getElementById("f-nome").value.trim();
+  const ativo = document.getElementById("f-ativo").value.trim();
+
+  if (!nome) return alert("Informe o nome comercial do insumo.");
+  if (!ativo) return alert("Informe o Princípio Ativo / Nome Científico.");
+
+  const item = {
+    id: id || 'ins-' + Date.now(),
+    codigo: document.getElementById("f-cod").value.trim(),
+    nome: nome,
+    ativo: ativo,
+    unidade: document.getElementById("f-unidade").value,
+    quantidade: parseFloat(document.getElementById("f-qtd").value) || 0,
+    vencimento: document.getElementById("f-venc").value,
+    categoria: document.getElementById("f-cat").value.trim() || 'Geral'
+  };
+
+  if (id) {
+    const idx = state.insumos.findIndex(x => x.id === id);
+    if (idx !== -1) state.insumos[idx] = item;
+  } else {
+    state.insumos.unshift(item);
+  }
+
+  saveLocalState();
+  closeModal();
+  selectTab('insumos');
+  showToast("Insumo salvo com sucesso!");
+}
+
+// --- LANÇAMENTO COLETIVO (BOLETIM DE CALDA) ---
+let itensColetivos = [];
+
+function modalLancamentoColetivo() {
+  itensColetivos = [{ insumoId: state.insumos[0].id, quantidade: '' }];
+  const hoje = new Date().toISOString().split('T')[0];
+
+  openModal(`
+    <h3 style="margin-bottom:.5rem;">📋 Lançamento Único (Boletim de Calda)</h3>
+    <div class="muted" style="margin-bottom:1rem;">Dê baixa em múltiplos produtos usados na mesma operação de uma vez.</div>
+
+    <div class="field">
+      <label>Talhão de Aplicação / Destino</label>
+      <select id="c-talhao">
+        ${state.talhoes.map(t => `<option value="${t.nome}">${t.nome} (${t.area} ha)</option>`).join('')}
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Equipamento / Pulverizador Utilizado</label>
+      <select id="c-maquina">
+        <option value="Não informado">Nenhum / Não informado</option>
+        ${state.maquinas.map(m => `<option value="${m.nome} (${m.nr})">${m.nome} - Nº ${m.nr}</option>`).join('')}
+      </select>
+    </div>
+
+    <div class="field"><label>Data da Operação</label><input type="date" id="c-data" value="${hoje}"></div>
+    <div class="field"><label>Responsável</label><input type="text" id="c-resp" value="${state.farm.cargo}"></div>
+
+    <div style="margin-top:1rem; margin-bottom:.5rem; font-weight:600; font-size:.85rem;">Insumos Utilizados na Receita / Calda:</div>
+    <div id="coletivo-lista"></div>
+
+    <button class="btn sm" style="margin-top:.5rem;" onclick="adicionarItemColetivo()">＋ Adicionar Outro Produto</button>
+
+    <div class="row" style="margin-top:1.5rem;">
+      <button class="btn block" onclick="closeModal()">Cancelar</button>
+      <button class="btn primary block" onclick="confirmarLancamentoColetivo()">Confirmar Lançamento</button>
+    </div>
+  `);
+
+  renderItensColetivos();
+}
+
+function renderItensColetivos() {
+  const container = document.getElementById("coletivo-lista");
+  container.innerHTML = itensColetivos.map((item, idx) => `
+    <div class="coletivo-item">
+      <div class="field">
+        <label>Produto Insumo #${idx + 1}</label>
+        <select onchange="itensColetivos[${idx}].insumoId = this.value">
+          ${state.insumos.map(ins => `<option value="${ins.id}" ${ins.id === item.insumoId ? 'selected' : ''}>${ins.nome} (${ins.ativo}) - Est: ${ins.quantidade} ${ins.unidade}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field">
+        <label>Quantidade Utilizada</label>
+        <input type="number" step="any" value="${item.quantidade}" placeholder="0.00" onkeyup="itensColetivos[${idx}].quantidade = this.value">
+      </div>
+    </div>
+  `).join('');
+}
+
+function adicionarItemColetivo() {
+  itensColetivos.push({ insumoId: state.insumos[0].id, quantidade: '' });
+  renderItensColetivos();
+}
+
+function confirmarLancamentoColetivo() {
+  const talhao = document.getElementById("c-talhao").value;
+  const maquina = document.getElementById("c-maquina").value;
+  const data = document.getElementById("c-data").value;
+  const resp = document.getElementById("c-resp").value.trim() || 'Sistema';
+
+  if (!state.historicoInsumos) state.historicoInsumos = [];
+
+  let processados = 0;
+
+  for (let item of itensColetivos) {
+    const qtd = parseFloat(item.quantidade);
+    if (!qtd || qtd <= 0) continue;
+
+    const ins = state.insumos.find(x => x.id === item.insumoId);
+    if (!ins) continue;
+
+    ins.quantidade -= qtd;
+
+    state.historicoInsumos.unshift({
+      id: 'hist-' + Date.now() + '-' + Math.random(),
+      insumoId: ins.id,
+      insumoNome: ins.nome,
+      insumoAtivo: ins.ativo,
+      unidade: ins.unidade,
+      tipo: 'saida_aplicacao',
+      quantidade: qtd,
+      data: data,
+      destino: `Talhão ${talhao}`,
+      maquina: maquina,
+      statusApp: '✅ Concluído',
+      responsavel: resp,
+      obs: 'Boletim de Calda Coletivo'
+    });
+
+    processados++;
+  }
+
+  if (processados === 0) return alert("Informe a quantidade para pelo menos um produto.");
+
+  saveLocalState();
+  closeModal();
+  selectTab('insumos');
+  showToast(`${processados} insumos lançados com sucesso!`);
+}
+
+function modalMovimentacao(insumoId) {
+  const ins = state.insumos.find(x => x.id === insumoId);
+  if (!ins) return;
+
+  const hoje = new Date().toISOString().split('T')[0];
+
+  openModal(`
+    <h3 style="margin-bottom:.5rem;">🔄 Movimentação Individual</h3>
+    <div class="muted" style="margin-bottom:1rem;">Produto: <strong>${ins.nome}</strong> (Ativo: ${ins.ativo})<br>Estoque Atual: ${ins.quantidade} ${ins.unidade}</div>
+    
+    <div class="field">
+      <label>Tipo de Operação</label>
+      <select id="m-tipo">
+        <option value="saida_aplicacao">➖ Saída: Aplicação em Talhão</option>
+        <option value="saida_transferencia">➖ Saída: Empréstimo / Transferência</option>
+        <option value="entrada_compra">➕ Entrada: Compra / Recebimento</option>
+        <option value="entrada_devolucao">➕ Entrada: Devolução / Ajuste</option>
+      </select>
+    </div>
+
+    <div class="field"><label>Quantidade (${ins.unidade})</label><input type="number" step="any" id="m-qtd" placeholder="0.00"></div>
+    <div class="field"><label>Data do Lançamento</label><input type="date" id="m-data" value="${hoje}"></div>
+    <div class="field">
+      <label>Talhão / Destino</label>
+      <select id="m-destino">
+        <option value="Geral / Outros">Geral / Outros</option>
+        ${state.talhoes.map(t => `<option value="Talhão ${t.nome}">Talhão ${t.nome} (${t.area} ha)</option>`).join('')}
+      </select>
+    </div>
+    <div class="field"><label>Responsável pelo Lançamento</label><input type="text" id="m-resp" value="${state.farm.cargo}"></div>
+    <div class="field"><label>Observações</label><textarea id="m-obs" rows="2" placeholder="Detalhes adicionais..."></textarea></div>
+
+    <div class="row" style="margin-top:1.25rem;">
+      <button class="btn block" onclick="closeModal()">Cancelar</button>
+      <button class="btn primary block" onclick="confirmarMovimentacao('${ins.id}')">Registrar</button>
+    </div>
+  `);
+}
+
+function confirmarMovimentacao(insumoId) {
+  const ins = state.insumos.find(x => x.id === insumoId);
+  const qtd = parseFloat(document.getElementById("m-qtd").value);
+  if (!qtd || qtd <= 0) return alert("Informe uma quantidade válida.");
+
+  const tipo = document.getElementById("m-tipo").value;
+  const isSaida = tipo.startsWith("saida");
+
+  if (isSaida) ins.quantidade -= qtd;
+  else ins.quantidade += qtd;
+
+  if (!state.historicoInsumos) state.historicoInsumos = [];
+  
+  state.historicoInsumos.unshift({
+    id: 'hist-' + Date.now(),
+    insumoId: ins.id,
+    insumoNome: ins.nome,
+    insumoAtivo: ins.ativo,
+    unidade: ins.unidade,
+    tipo: tipo,
+    quantidade: qtd,
+    data: document.getElementById("m-data").value,
+    destino: document.getElementById("m-destino").value,
+    statusApp: '✅ Concluído',
+    responsavel: document.getElementById("m-resp").value.trim() || 'Sistema',
+    obs: document.getElementById("m-obs").value.trim()
+  });
+
+  saveLocalState();
+  closeModal();
+  selectTab('insumos');
+  showToast("Movimentação registrada com sucesso!");
+}
+
+function filtrarInsumos() {
+  const query = document.getElementById("search-ins").value.toLowerCase();
+  document.querySelectorAll(".ins-item").forEach(item => {
+    item.style.display = item.innerText.toLowerCase().includes(query) ? "flex" : "none";
+  });
+}
+
+// --- MÓDULO TALHÕES ---
+function renderTalhoes() {
+  const totalArea = state.talhoes.reduce((acc, t) => acc + t.area, 0);
+  return `
+    <div class="card" style="margin-bottom:.5rem;">
+      <div class="muted">Área Total Agrícola Cadastrada: <strong>${totalArea.toLocaleString('pt-BR', {minimumFractionDigits: 2})} ha</strong></div>
+    </div>
+
+    <div class="sec">Relação de Talhões (Fazenda Santa Rita)</div>
+    <div class="card">
+      <ul class="list">
+        ${state.talhoes.map(t => `
+          <li>
+            <div class="item-main">
+              <div>
+                <strong>Talhão ${t.nome}</strong>
+                <div class="muted">Fazenda Santa Rita</div>
+              </div>
+              <div class="badge ok">${t.area.toLocaleString('pt-BR', {minimumFractionDigits: 2})} ha</div>
+            </div>
+          </li>
+        `).join('')}
+      </ul>
+    </div>
+  `;
+}
+
+function renderResumo() {
+  const operando = state.maquinas.filter(m => m.status === 'operando').length;
+  const diesel = state.insumos.find(i => i.codigo === "73") || { quantidade: 7400 };
+  const vencidos = state.insumos.filter(i => checarVencimento(i.vencimento).status === 'vencido').length;
+  const totalArea = state.talhoes.reduce((acc, t) => acc + t.area, 0);
+
+  return `
+    <div class="grid2">
+      <div class="stat"><div class="lbl">Área Agrícola</div><div class="val" style="color:var(--ok);">${totalArea.toLocaleString('pt-BR')} ha</div></div>
+      <div class="stat"><div class="lbl">Frota Operando</div><div class="val">${operando} / ${state.maquinas.length}</div></div>
+      <div class="stat"><div class="lbl">Estoque Diesel</div><div class="val" style="color:var(--warn);">${diesel.quantidade.toLocaleString('pt-BR')} L</div></div>
+      <div class="stat"><div class="lbl">Produtos Vencidos</div><div class="val" style="color:${vencidos > 0 ? 'var(--danger)' : 'var(--fg)'};">${vencidos} Alertas</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Resumo do Sistema</div>
+      <p class="muted">Painel operacional da Fazenda Santa Rita atualizado com controle completo de inventário, equipe de colaboradores, ingredientes ativos e boletim de calda.</p>
+    </div>
+  `;
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  selectTab('resumo');
+});
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js');
+}
+</script>
+</body>
+</html>
