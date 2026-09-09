@@ -39,6 +39,7 @@ h1,h2,h3{font-family:var(--display);font-weight:500;margin:0}
 
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:.35rem;border:1px solid var(--border);background:var(--elevated);color:var(--fg);border-radius:8px;padding:.45rem .75rem;font-size:.8rem;font-weight:500;text-decoration:none}
 .btn.primary{background:var(--primary);color:var(--bg);border-color:transparent;font-weight:600}
+.btn.whatsapp{background:#25d366;color:#000;font-weight:700;border-color:transparent}
 .btn.block{width:100%}
 .btn.sm{padding:.25rem .5rem;font-size:.75rem}
 
@@ -172,7 +173,48 @@ const SEED = {
     {"id": "ins-75", "codigo": "75", "nome": "CLORETO POTASSIO KCL", "ativo": "Cloreto de Potássio 60% K2O", "unidade": "bags", "quantidade": 233, "vencimento": "", "categoria": "Defensivos / Nutrição"},
     {"id": "ins-73", "codigo": "73", "nome": "DIESEL S500", "ativo": "Óleo Diesel S500 (Combustível)", "unidade": "L", "quantidade": 7400, "vencimento": "", "categoria": "Combustível"}
   ],
-  "historicoInsumos": []
+  "historicoInsumos": [],
+  "equatorialUCs": [
+    {
+      "id": "uc-campo-alegre",
+      "descricao": "FAZ CAMPO ALEGRE (Sede, Alojamento, Célio)",
+      "unidadeProd": "SANTA RITA",
+      "uc": "10026027184",
+      "ucAtualizada": "0.003.587.008.012-27",
+      "titular": "ADRIANO 597.573.291-34",
+      "inscricao": "11.563.523-8"
+    },
+    {
+      "id": "uc-pouso-alegre",
+      "descricao": "ENEL FAZ POUSO ALEGRE",
+      "unidadeProd": "SANTA RITA",
+      "uc": "980046051",
+      "ucAtualizada": "0.001.626.932.012-63",
+      "titular": "JAYME ACACIO - 328.043.188-34",
+      "inscricao": "11.243.742-7"
+    }
+  ],
+  "protocolosEquatorial": [
+    {"id": 1, "data": "2026-03-23", "hora": "07:26", "uc": "10026027184", "protocolo": "476513825", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "SANTA RITA"},
+    {"id": 2, "data": "2026-03-23", "hora": "09:33", "uc": "10026027184", "protocolo": "476544256", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "SANTA RITA"},
+    {"id": 3, "data": "2026-04-15", "hora": "08:11", "uc": "0.001.626.932.012-63", "protocolo": "480215339", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "POUSO ALEGRE"},
+    {"id": 4, "data": "2026-04-22", "hora": "09:51", "uc": "0.003.587.008.0122-7", "protocolo": "481135486", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "SANTA RITA"},
+    {"id": 5, "data": "2026-05-19", "hora": "07:35", "uc": "10026027184", "protocolo": "485573798", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "SANTA RITA"},
+    {"id": 6, "data": "2026-05-19", "hora": "20:30", "uc": "10026027184", "protocolo": "48575720", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "SANTA RITA"},
+    {"id": 7, "data": "2026-05-20", "hora": "07:27", "uc": "10026027184", "protocolo": "485780385", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "SANTA RITA"},
+    {"id": 8, "data": "2026-07-10", "hora": "07:00", "uc": "10026027184", "protocolo": "493018848", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "SANTA RITA"},
+    {"id": 9, "data": "2026-07-21", "hora": "00:00", "uc": "10026027184", "protocolo": "494397090", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "SANTA RITA"},
+    {"id": 10, "data": "2026-07-27", "hora": "08:43", "uc": "10026027184", "protocolo": "495090858", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "SANTA RITA"},
+    {"id": 11, "data": "2026-07-27", "hora": "19:22", "uc": "10026027184", "protocolo": "495232772", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "SANTA RITA"},
+    {"id": 12, "data": "2026-07-28", "hora": "09:45", "uc": "10026027184", "protocolo": "495292116", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "SANTA RITA"},
+    {"id": 13, "data": "2026-08-05", "hora": "09:50", "uc": "10026027184", "protocolo": "496390441", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "SANTA RITA"},
+    {"id": 14, "data": "2026-08-10", "hora": "07:13", "uc": "10026027184", "protocolo": "499679147", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "SANTA RITA"},
+    {"id": 15, "data": "2026-08-10", "hora": "14:42", "uc": "10026027184", "protocolo": "497092477", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "SANTA RITA"},
+    {"id": 16, "data": "2026-08-19", "hora": "07:15", "uc": "980046051", "protocolo": "498250408", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "POUSO ALEGRE"},
+    {"id": 17, "data": "2026-08-19", "hora": "09:41", "uc": "10026027184", "protocolo": "498274640", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "SANTA RITA"},
+    {"id": 18, "data": "2026-09-09", "hora": "07:07", "uc": "10026027184", "protocolo": "501085528", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "SANTA RITA"},
+    {"id": 19, "data": "2026-09-09", "hora": "08:26", "uc": "980046051", "protocolo": "501097429", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "POUSO ALEGRE"}
+  ]
 };
 
 let state = JSON.parse(localStorage.getItem("campogestor_state"));
@@ -181,7 +223,9 @@ if (!state || !state.insumos) {
   state = JSON.parse(JSON.stringify(SEED));
   localStorage.setItem("campogestor_state", JSON.stringify(state));
 } else {
-  state.talhoes = SEED.talhoes; // Garantir os 14 talhões unificados
+  state.talhoes = SEED.talhoes;
+  if (!state.equatorialUCs) state.equatorialUCs = SEED.equatorialUCs;
+  if (!state.protocolosEquatorial) state.protocolosEquatorial = SEED.protocolosEquatorial;
   state.insumos.forEach(ins => {
     if (!ins.ativo) {
       const match = PRINCIPIOS_ATIVOS.find(p => p.comercial.toLowerCase() === ins.nome.toLowerCase());
@@ -259,12 +303,160 @@ function selectTab(tab) {
     content.innerHTML = renderTalhoes();
   } else if (tab === 'equatorial') {
     pageTitle.textContent = "Equatorial / Energia";
-    content.innerHTML = `<div class="card">Módulo Equatorial</div>`;
+    content.innerHTML = renderEquatorial();
   } else if (tab === 'pessoas') {
     pageTitle.textContent = "Equipe";
     content.innerHTML = `<div class="card">Módulo de Equipe</div>`;
   }
   window.scrollTo(0, 0);
+}
+
+// --- MÓDULO EQUATORIAL / ENERGIA ---
+function renderEquatorial() {
+  const ucs = state.equatorialUCs || [];
+  // Ordenar do mais recente ao mais antigo
+  const listaProtocolos = [...(state.protocolosEquatorial || [])].sort((a,b) => {
+    const dtA = (a.data || '') + ' ' + (a.hora || '');
+    const dtB = (b.data || '') + ' ' + (b.hora || '');
+    return dtB.localeCompare(dtA);
+  });
+
+  return `
+    <div class="card" style="margin-bottom:.5rem; background:color-mix(in srgb, #25d366 10%, var(--surface)); border-color:#25d366;">
+      <a href="https://wa.me/556232432020" target="_blank" class="btn whatsapp block" style="font-size:.95rem; padding:.7rem;">
+        💬 Abrir Atendimento Clara no WhatsApp
+      </a>
+      <div class="muted" style="text-align:center; margin-top:.4rem; font-size:.75rem;">Equatorial Goiás • WhatsApp: (62) 3243-2020</div>
+    </div>
+
+    <div class="sec">Unidades Consumidoras (UCs Ativas)</div>
+    
+    ${ucs.map(u => `
+      <div class="card" style="margin-bottom:.75rem;">
+        <div class="row" style="margin-bottom:.5rem;">
+          <strong style="font-size:.9rem; color:var(--primary);">${u.descricao}</strong>
+          <span class="badge ok">${u.unidadeProd}</span>
+        </div>
+        <div class="muted" style="font-size:.8rem; display:flex; flex-direction:column; gap:.25rem;">
+          <div>⚡ <strong>UC Padrão:</strong> <code style="color:var(--fg); font-size:.9rem;">${u.uc}</code></div>
+          ${u.ucAtualizada ? `<div>⚡ <strong>UC Atualizada:</strong> <code style="color:var(--fg); font-size:.9rem;">${u.ucAtualizada}</code></div>` : ''}
+          <div>👤 <strong>Titular / CPF:</strong> ${u.titular}</div>
+          <div>📄 <strong>Inscrição Estadual:</strong> ${u.inscricao}</div>
+        </div>
+        <div style="display:flex; gap:.5rem; margin-top:.75rem;">
+          <button class="btn primary sm block" onclick="copiarTexto('${u.uc}', 'UC ${u.uc}')">📋 Copiar UC</button>
+          ${u.ucAtualizada ? `<button class="btn sm block" onclick="copiarTexto('${u.ucAtualizada}', 'UC Atualizada ${u.ucAtualizada}')">📋 Copiar UC Nova</button>` : ''}
+        </div>
+      </div>
+    `).join('')}
+
+    <div class="sec" style="margin-top:1.5rem; display:flex; justify-content:space-between; align-items:center;">
+      <span>📜 Histórico de Protocolos</span>
+      <button class="btn primary sm" onclick="modalNovoProtocolo()">＋ Registar Protocolo</button>
+    </div>
+
+    <div class="card">
+      ${listaProtocolos.length === 0 ? '<div class="muted">Nenhum protocolo registrado.</div>' : `
+        <ul class="list">
+          ${listaProtocolos.map(p => `
+            <li>
+              <div class="item-main">
+                <div>
+                  <strong>Protocolo: ${p.protocolo}</strong>
+                  <div class="muted" style="font-size:.8rem; margin-top:.2rem;">
+                    📍 UC: <strong>${p.uc}</strong> (${p.contato})<br>
+                    📝 Histórico: ${p.historico}<br>
+                    👤 Solicitante: ${p.solicitante} | Canal: ${p.canal}
+                  </div>
+                </div>
+                <div style="text-align:right;">
+                  <span class="badge warn" style="font-size:.7rem;">${p.data.split('-').reverse().join('/')}</span>
+                  <div class="muted" style="font-size:.75rem; margin-top:.2rem;">⏰ ${p.hora}</div>
+                </div>
+              </div>
+            </li>
+          `).join('')}
+        </ul>
+      `}
+    </div>
+  `;
+}
+
+function copiarTexto(texto, nome) {
+  navigator.clipboard.writeText(texto).then(() => {
+    showToast(`${nome} copiada para a área de transferência!`);
+  }).catch(() => {
+    prompt("Copie o código abaixo:", texto);
+  });
+}
+
+function modalNovoProtocolo() {
+  const hoje = new Date().toISOString().split('T')[0];
+  const agora = new Date().toTimeString().split(' ')[0].substring(0, 5);
+
+  openModal(`
+    <h3 style="margin-bottom:1rem;">⚡ Registar Novo Protocolo</h3>
+    <div class="field"><label>Data</label><input type="date" id="p-data" value="${hoje}"></div>
+    <div class="field"><label>Hora</label><input type="time" id="p-hora" value="${agora}"></div>
+    <div class="field">
+      <label>Unidade Consumidora (UC)</label>
+      <select id="p-uc">
+        <option value="10026027184">10026027184 — FAZ CAMPO ALEGRE (Sede, Alojamento)</option>
+        <option value="980046051">980046051 — ENEL FAZ POUSO ALEGRE</option>
+        <option value="0.003.587.008.012-27">0.003.587.008.012-27 — CAMPO ALEGRE (Nova UC)</option>
+        <option value="0.001.626.932.012-63">0.001.626.932.012-63 — POUSO ALEGRE (Nova UC)</option>
+      </select>
+    </div>
+    <div class="field"><label>Número do Protocolo</label><input type="text" id="p-nr" placeholder="Ex: 501097429"></div>
+    <div class="field">
+      <label>Canal de Atendimento</label>
+      <select id="p-canal">
+        <option value="WHATSAPP">WHATSAPP (Clara)</option>
+        <option value="TELEFONE 0800">TELEFONE 0800-620196</option>
+        <option value="APP / SITE">APP / SITE</option>
+      </select>
+    </div>
+    <div class="field"><label>Histórico do Acontecimento</label><input type="text" id="p-hist" value="FALTA DE ENERGIA"></div>
+    <div class="field"><label>Solicitante</label><input type="text" id="p-solic" value="MARCOS"></div>
+    <div class="field">
+      <label>Contato / Local para ENEL</label>
+      <select id="p-contato">
+        <option value="SANTA RITA">SANTA RITA</option>
+        <option value="POUSO ALEGRE">POUSO ALEGRE</option>
+        <option value="CAMPO ALEGRE">CAMPO ALEGRE</option>
+      </select>
+    </div>
+
+    <div class="row" style="margin-top:1.25rem;">
+      <button class="btn block" onclick="closeModal()">Cancelar</button>
+      <button class="btn primary block" onclick="salvarProtocolo()">Salvar Protocolo</button>
+    </div>
+  `);
+}
+
+function salvarProtocolo() {
+  const nr = document.getElementById("p-nr").value.trim();
+  if (!nr) return alert("Informe o número do protocolo gerado.");
+
+  if (!state.protocolosEquatorial) state.protocolosEquatorial = [];
+
+  const item = {
+    id: Date.now(),
+    data: document.getElementById("p-data").value,
+    hora: document.getElementById("p-hora").value,
+    uc: document.getElementById("p-uc").value,
+    protocolo: nr,
+    canal: document.getElementById("p-canal").value,
+    historico: document.getElementById("p-hist").value.trim() || 'FALTA DE ENERGIA',
+    solicitante: document.getElementById("p-solic").value.trim() || 'MARCOS',
+    contato: document.getElementById("p-contato").value
+  };
+
+  state.protocolosEquatorial.unshift(item);
+  saveLocalState();
+  closeModal();
+  selectTab('equatorial');
+  showToast("Protocolo registrado com sucesso!");
 }
 
 // --- MÓDULO FROTA DE MÁQUINAS ---
