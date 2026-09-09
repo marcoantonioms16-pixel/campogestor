@@ -27,12 +27,26 @@ h1,h2,h3{font-family:var(--display);font-weight:500;margin:0}
 .row{display:flex;align-items:center;justify-content:space-between;gap:.75rem}
 .muted{color:var(--muted);font-size:.8rem}
 .list{list-style:none;margin:0;padding:0}
-.list li{display:flex;align-items:center;justify-content:space-between;gap:.75rem;padding:.75rem 0;border-bottom:1px solid var(--border)}
+.list li{display:flex;flex-direction:column;gap:.5rem;padding:.85rem 0;border-bottom:1px solid var(--border)}
 .list li:last-child{border-bottom:none}
+
+.item-main{display:flex;align-items:center;justify-content:space-between;gap:.5rem;width:100%}
+.item-actions{display:flex;align-items:center;gap:.4rem;margin-top:.2rem}
+
 .badge{display:inline-flex;border-radius:999px;padding:.2rem .65rem;font-size:.75rem;font-weight:600}
 .badge.ok{background:color-mix(in srgb,var(--ok) 20%,transparent);color:var(--ok)}
 .badge.warn{background:color-mix(in srgb,var(--warn) 20%,transparent);color:var(--warn)}
+.badge.danger{background:color-mix(in srgb,var(--danger) 30%,transparent);color:var(--danger);border:1px solid var(--danger)}
 .badge.muted{background:var(--elevated);color:var(--muted)}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.35rem;border:1px solid var(--border);background:var(--elevated);color:var(--fg);border-radius:8px;padding:.45rem .75rem;font-size:.8rem;font-weight:500;text-decoration:none}
+.btn.primary{background:var(--primary);color:var(--bg);border-color:transparent;font-weight:600}
+.btn.block{width:100%}
+.btn.sm{padding:.25rem .5rem;font-size:.75rem}
+
+.field{display:flex;flex-direction:column;gap:.3rem;margin-bottom:.75rem}
+.field label{font-size:.75rem;color:var(--muted)}
+.field input,.field select,.field textarea{background:var(--elevated);border:1px solid var(--border);border-radius:8px;padding:.55rem .7rem;color:var(--fg)}
 
 .drawer-bg{position:fixed;inset:0;background:rgba(12, 16, 11, 0.75);backdrop-filter:blur(4px);z-index:90;display:none}
 .drawer-bg.open{display:flex}
@@ -48,8 +62,12 @@ h1,h2,h3{font-family:var(--display);font-weight:500;margin:0}
 .stat .lbl{font-size:.7rem;color:var(--muted)}.stat .val{font-size:.95rem;font-weight:500;margin-top:.2rem}
 .sec{margin:.75rem 1rem;font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
 
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:110;display:none;align-items:center;justify-content:center;padding:1rem}
+.modal-bg.open{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);width:100%;max-width:500px;padding:1.2rem;max-height:90vh;overflow-y:auto}
+
 .toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:var(--primary);color:var(--bg);padding:.6rem 1.2rem;border-radius:999px;font-size:.85rem;font-weight:600;z-index:200;display:none;box-shadow:0 4px 12px rgba(0,0,0,0.4)}
-.search-box{background:var(--elevated);border:1px solid var(--border);border-radius:10px;padding:.5rem .75rem;width:100%;color:var(--fg);margin-bottom:.75rem}
+.search-box{background:var(--elevated);border:1px solid var(--border);border-radius:10px;padding:.5.rem .75rem;width:100%;color:var(--fg);margin-bottom:.75rem}
 </style>
 </head>
 <body>
@@ -71,9 +89,9 @@ h1,h2,h3{font-family:var(--display);font-weight:500;margin:0}
       <button id="menu-resumo" class="active" onclick="selectTab('resumo')">📊 Resumo Geral</button>
       <button id="menu-maquinas" onclick="selectTab('maquinas')">🚜 Frota de Máquinas</button>
       <button id="menu-insumos" onclick="selectTab('insumos')">📦 Estoque de Insumos</button>
+      <button id="menu-historico" onclick="selectTab('historico')">📜 Histórico de Insumos</button>
       <button id="menu-talhoes" onclick="selectTab('talhoes')">🌱 Talhões e Áreas</button>
       <button id="menu-equatorial" onclick="selectTab('equatorial')">⚡ Equatorial / Energia</button>
-      <button id="menu-safra" onclick="selectTab('safra')">📖 Caderno de Campo</button>
       <button id="menu-pessoas" onclick="selectTab('pessoas')">👥 Equipe da Fazenda</button>
     </div>
   </div>
@@ -96,120 +114,38 @@ h1,h2,h3{font-family:var(--display);font-weight:500;margin:0}
   <div id="content"></div>
 </div>
 
+<div class="modal-bg" id="modal-bg">
+  <div class="modal" id="modal-body"></div>
+</div>
+
 <script>
 const SEED = {
-  "farm": {"nome": "Fazenda Santa Rita", "municipio": "Grupo Segredo", "cargo": "Auxiliar administrativo", "safra": "2026/27", "areaTotal": 1581.0, "gerente": "Célio Carlos Canedo Júnior"},
+  "farm": {"nome": "Fazenda Santa Rita", "municipio": "Grupo Segredo", "cargo": "Auxiliar administrativo", "safra": "2026/27"},
   "maquinas": [
     {"id": "mq-0102", "nome": "BAZUCA", "tipo": "Implemento", "modelo": "NINJA 32000 (2012)", "status": "operando", "placa": "-", "nr": "0102", "marca": "STARA"},
     {"id": "mq-0107", "nome": "BAZUCA TRATADORA SEMENTE", "tipo": "Implemento", "modelo": "REB6000TS (2006)", "status": "operando", "placa": "-", "nr": "0107", "marca": "STARA"},
     {"id": "mq-0109", "nome": "BAZUCA", "tipo": "Implemento", "modelo": "NINJA 33000 (2020)", "status": "operando", "placa": "-", "nr": "0109", "marca": "STARA"},
     {"id": "mq-0202", "nome": "CAÇAMBA BASCULANTE", "tipo": "Equipamento", "modelo": "60X18F 1012 (2012)", "status": "operando", "placa": "-", "nr": "0202", "marca": "GRIMALDI"},
-    {"id": "mq-0206", "nome": "CAÇAMBA TANQUE AGUA POLIGUINCHO", "tipo": "Equipamento", "modelo": "DAOL CAMI ROLON 18.500 LTS (2017)", "status": "operando", "placa": "-", "nr": "0206", "marca": "MEPEL"},
-    {"id": "mq-0207", "nome": "CAÇAMBA TANQUE DIESEL POLIGUINCHO", "tipo": "Equipamento", "modelo": "COMBOIO 8000 LTS (2012)", "status": "operando", "placa": "-", "nr": "0207", "marca": "S/MARCA"},
-    {"id": "mq-0209", "nome": "CAÇAMBA TANQUE DIESEL POLIGUINCHO", "tipo": "Equipamento", "modelo": "COMBOIO 15000 LTS (2020)", "status": "operando", "placa": "-", "nr": "0209", "marca": "S/MARCA"},
-    {"id": "mq-0212", "nome": "CAÇAMBA BASCULANTE BOIADEIRA", "tipo": "Equipamento", "modelo": "2 EM 1 CASCALHO BOIADEIRA", "status": "operando", "placa": "-", "nr": "0212", "marca": "IMAV"},
-    {"id": "mq-0220", "nome": "CAÇAMBA PRANCHA ROLLON", "tipo": "Equipamento", "modelo": "6 MTS (2022)", "status": "operando", "placa": "-", "nr": "0220", "marca": "TEC ACO"},
     {"id": "mq-0303", "nome": "CAMINHAO", "tipo": "Veiculo", "modelo": "CARGO 2422 (07/08)", "status": "operando", "placa": "NKA3C99", "nr": "0303", "marca": "FORD ROLL ON"},
     {"id": "mq-0314", "nome": "CAMINHAO", "tipo": "Veiculo", "modelo": "VM-270 (2016)", "status": "operando", "placa": "FPR2D69", "nr": "0314", "marca": "VOLVO TANQUE"},
-    {"id": "mq-0408", "nome": "MOTO HONDA BROSS", "tipo": "Veiculo", "modelo": "NXR 125 BROSS (15/15)", "status": "operando", "placa": "PQM8281", "nr": "0408", "marca": "HONDA"},
-    {"id": "mq-0415", "nome": "CAMINHONETA FORD RANGER", "tipo": "Veiculo", "modelo": "RANGER XLSCD4A22C (21/22)", "status": "operando", "placa": "RCN0G64", "nr": "0415", "marca": "FORD"},
-    {"id": "mq-0416", "nome": "CAMINHONETA FORD RANGER", "tipo": "Veiculo", "modelo": "RANGER XLSCD4A22C (21/22)", "status": "operando", "placa": "RCN2F94", "nr": "0416", "marca": "FORD"},
-    {"id": "mq-0507", "nome": "CARRETA TANQUE CALDA PRONTA", "tipo": "Implemento", "modelo": "4400 CT122 (2014)", "status": "operando", "placa": "-", "nr": "0507", "marca": "IMEP"},
-    {"id": "mq-0509", "nome": "CARRETA TANQUE CALDA PRONTA", "tipo": "Implemento", "modelo": "6600 (2017)", "status": "operando", "placa": "-", "nr": "0509", "marca": "IMEP"},
-    {"id": "mq-0510", "nome": "CARRETA PLATAFORMA", "tipo": "Equipamento", "modelo": "CARRETO TOP 30 (2015)", "status": "operando", "placa": "-", "nr": "0510", "marca": "GRAZMEC"},
-    {"id": "mq-0512", "nome": "CARRETA PLATAFORMA", "tipo": "Equipamento", "modelo": "CARRETO TOP GS 45 (2019)", "status": "operando", "placa": "-", "nr": "0512", "marca": "GRAZMEC"},
-    {"id": "mq-0513", "nome": "CARRETA PLATAFORMA", "tipo": "Equipamento", "modelo": "CARRETO TOP GS 45 (2019)", "status": "operando", "placa": "-", "nr": "0513", "marca": "GRAZMEC"},
-    {"id": "mq-0520", "nome": "CARRETA AGRICOLA", "tipo": "Implemento", "modelo": "MAX CARGOR 5.0 (2021)", "status": "operando", "placa": "-", "nr": "0520", "marca": "ALMEIDA"},
-    {"id": "mq-0524", "nome": "CARETA TRANSBORDO", "tipo": "Implemento", "modelo": "TAS 12000", "status": "operando", "placa": "-", "nr": "0524", "marca": "SANTA IZABEL"},
     {"id": "mq-0703", "nome": "COLHEITADEIRA", "tipo": "Maquina", "modelo": "2799 (2011)", "status": "operando", "placa": "-", "nr": "0703", "marca": "CASE"},
-    {"id": "mq-0704", "nome": "COLHEITADEIRA", "tipo": "Maquina", "modelo": "2799 (2012)", "status": "operando", "placa": "-", "nr": "0704", "marca": "CASE"},
-    {"id": "mq-0706", "nome": "COLHEITADEIRA", "tipo": "Maquina", "modelo": "2799 STD 2399 (2012)", "status": "operando", "placa": "-", "nr": "0706", "marca": "CASE"},
-    {"id": "mq-0802", "nome": "DISTRIBUIDOR DE CORRETIVOS", "tipo": "Maquina", "modelo": "HERCULES 6.0 (2016)", "status": "operando", "placa": "-", "nr": "0802", "marca": "STARA"},
-    {"id": "mq-0804", "nome": "DISTRIBUIDOR DE CORRETIVOS", "tipo": "Maquina", "modelo": "NEVOEIRO 10010", "status": "operando", "placa": "-", "nr": "0804", "marca": "STARA"},
-    {"id": "mq-0902", "nome": "EMBOLSADORA DE GRÃOS", "tipo": "Implemento", "modelo": "NSG-9200 (2012)", "status": "operando", "placa": "-", "nr": "0902", "marca": "NOGUEIRA"},
-    {"id": "mq-1103", "nome": "EXTRATORA DE GRÃOS", "tipo": "Implemento", "modelo": "OUTGRAIN 220 (2019)", "status": "operando", "placa": "-", "nr": "1103", "marca": "MARCHER"},
-    {"id": "mq-1204", "nome": "GRUPO GERADOR", "tipo": "Maquina", "modelo": "190 KVA BA27G (2023)", "status": "operando", "placa": "-", "nr": "1204", "marca": "BAMBOZZI"},
-    {"id": "mq-1301", "nome": "MOTONIVELADORA", "tipo": "Maquina", "modelo": "GR135 HP (2016)", "status": "operando", "placa": "-", "nr": "1301", "marca": "XCMG"},
-    {"id": "mq-1402", "nome": "MUNK GUINDASTE", "tipo": "Implemento", "modelo": "15700 (2015)", "status": "operando", "placa": "TKA NKA3299", "nr": "1402", "marca": "S/MARCA"},
-    {"id": "mq-1501", "nome": "PA MECANICA", "tipo": "Maquina", "modelo": "936 FL 936 F JOYSTCK (2012)", "status": "operando", "placa": "-", "nr": "1501", "marca": "FOTTON LOVOL"},
-    {"id": "mq-1602", "nome": "PLANTADEIRA", "tipo": "Implemento", "modelo": "DB 74 - 45 LINHAS (2014)", "status": "operando", "placa": "-", "nr": "1602", "marca": "JOHN DEERE"},
-    {"id": "mq-1607", "nome": "PLANTADEIRA", "tipo": "Implemento", "modelo": "5 LINHAS", "status": "operando", "placa": "-", "nr": "1607", "marca": "PROPRIA"},
-    {"id": "mq-1701", "nome": "PLATAFORMA DE SOJA", "tipo": "Implemento", "modelo": "DRAPPER 2162 FD70 35 PE (2012)", "status": "operando", "placa": "-", "nr": "1701", "marca": "MACDON"},
-    {"id": "mq-1702", "nome": "PLATAFORMA DE SOJA", "tipo": "Implemento", "modelo": "DRAPPER 2162 FD70 35 PE (2013)", "status": "operando", "placa": "-", "nr": "1702", "marca": "MACDON"},
-    {"id": "mq-1706", "nome": "PLATAFORMA DE SOJA", "tipo": "Implemento", "modelo": "1020 30 PES (2011)", "status": "operando", "placa": "-", "nr": "1706", "marca": "CASE"},
-    {"id": "mq-1801", "nome": "PLATAFORMA MILHO", "tipo": "Implemento", "modelo": "BRAVA 6850 / 14 LINHAS (2012)", "status": "operando", "placa": "-", "nr": "1801", "marca": "STARA"},
-    {"id": "mq-1802", "nome": "PLATAFORMA MILHO", "tipo": "Implemento", "modelo": "BRAVA 6850 / 14 LINHAS (2012)", "status": "operando", "placa": "-", "nr": "1802", "marca": "STARA"},
-    {"id": "mq-1803", "nome": "PLATAFORMA MILHO", "tipo": "Implemento", "modelo": "BRAVA 7980 / 16 LINHAS (2013)", "status": "operando", "placa": "-", "nr": "1803", "marca": "STARA"},
-    {"id": "mq-1804", "nome": "PLATAFORMA MILHO", "tipo": "Implemento", "modelo": "BRAVA 7980 / 16 LINHAS (2013)", "status": "operando", "placa": "-", "nr": "1804", "marca": "STARA"},
     {"id": "mq-1908", "nome": "PULVERIZADOR e DISTRIBUIDOR", "tipo": "Maquina", "modelo": "IMPERADOR 3.0 (2020)", "status": "operando", "placa": "-", "nr": "1908", "marca": "STARA"},
-    {"id": "mq-1913", "nome": "PULVERIZADOR", "tipo": "Maquina", "modelo": "IMPERADOR 3000 (2022)", "status": "operando", "placa": "-", "nr": "1913", "marca": "STARA"},
-    {"id": "mq-2002", "nome": "ROÇADEIRA", "tipo": "Implemento", "modelo": "JMRUT D 1.6 (2003)", "status": "operando", "placa": "-", "nr": "2002", "marca": "JUMIL"},
-    {"id": "mq-2004", "nome": "SUBSOLADOR ASA LASER", "tipo": "Implemento", "modelo": "ASA 11 HASTES (2010)", "status": "operando", "placa": "-", "nr": "2004", "marca": "STARA"},
-    {"id": "mq-2008", "nome": "SCRAPER", "tipo": "Implemento", "modelo": "SCRAPER", "status": "operando", "placa": "-", "nr": "2008", "marca": "S/MARCA"},
-    {"id": "mq-2009", "nome": "GRADE NIVELADORA", "tipo": "Implemento", "modelo": "48 x 22", "status": "operando", "placa": "-", "nr": "2009", "marca": "TATU"},
-    {"id": "mq-2010", "nome": "GRADE ARADORA", "tipo": "Implemento", "modelo": "GAICP 2428 (1992)", "status": "operando", "placa": "-", "nr": "2010", "marca": "TATU"},
-    {"id": "mq-2012", "nome": "GRADE INTERMEDIARIA", "tipo": "Implemento", "modelo": "32 X 28 SAC40100", "status": "operando", "placa": "-", "nr": "2012", "marca": "CIVEMASA"},
-    {"id": "mq-2014", "nome": "PERFURADOR SOLO", "tipo": "Implemento", "modelo": "PSH C/ BROCA DE 9/12 (2011)", "status": "operando", "placa": "-", "nr": "2014", "marca": "BALDAN"},
-    {"id": "mq-2018", "nome": "DOLLY", "tipo": "Implemento", "modelo": "8 PNEUS 1000/20", "status": "operando", "placa": "-", "nr": "2018", "marca": "S/MARCA"},
-    {"id": "mq-2020", "nome": "GRADE NIVELADORA", "tipo": "Implemento", "modelo": "38 X 28", "status": "operando", "placa": "-", "nr": "2020", "marca": "TATU"},
-    {"id": "mq-2022", "nome": "ROLO COMPACTADOR", "tipo": "Implemento", "modelo": "ROLO", "status": "operando", "placa": "-", "nr": "2022", "marca": "S/MARCA"},
-    {"id": "mq-2405", "nome": "TRATOR", "tipo": "Maquina", "modelo": "STEIGER 450 (2014)", "status": "operando", "placa": "-", "nr": "2405", "marca": "CASE"},
-    {"id": "mq-2409", "nome": "TRATOR", "tipo": "Maquina", "modelo": "FARMAL 80 (2013)", "status": "operando", "placa": "-", "nr": "2409", "marca": "CASE"},
-    {"id": "mq-2412", "nome": "TRATOR", "tipo": "Maquina", "modelo": "BH194 (18/18)", "status": "operando", "placa": "-", "nr": "2412", "marca": "VALTRA"},
-    {"id": "mq-2413", "nome": "TRATOR", "tipo": "Maquina", "modelo": "BH194 (18/18)", "status": "operando", "placa": "-", "nr": "2413", "marca": "VALTRA"},
-    {"id": "mq-2416", "nome": "TRATOR", "tipo": "Maquina", "modelo": "18.5 HP (2011)", "status": "operando", "placa": "-", "nr": "2416", "marca": "TRAPP MURRAY"},
-    {"id": "mq-2420", "nome": "TRATOR", "tipo": "Maquina", "modelo": "6600 (1988)", "status": "operando", "placa": "-", "nr": "2420", "marca": "FORD"}
+    {"id": "mq-2405", "nome": "TRATOR", "tipo": "Maquina", "modelo": "STEIGER 450 (2014)", "status": "operando", "placa": "-", "nr": "2405", "marca": "CASE"}
   ],
   "insumos": [
-    {"id": "ins-1242", "codigo": "1242", "nome": "2,4 D TECNOMYL", "unidade": "L", "quantidade": 900, "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-1003", "codigo": "1003", "nome": "ALMAX", "unidade": "L", "quantidade": 38, "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-219", "codigo": "219", "nome": "APROCH POWER", "unidade": "L", "quantidade": 262, "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-128", "codigo": "128", "nome": "TA35 ULTRA", "unidade": "L", "quantidade": 480, "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-318", "codigo": "318", "nome": "AURORA", "unidade": "L", "quantidade": 104.8, "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-222", "codigo": "222", "nome": "AZIMUT", "unidade": "L", "quantidade": 205, "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-1244", "codigo": "1244", "nome": "AZURE", "unidade": "L", "quantidade": 322.5, "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-1170", "codigo": "1170", "nome": "BIOMAX AZUM", "unidade": "L", "quantidade": 21.6, "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-321", "codigo": "321", "nome": "CALARIS", "unidade": "L", "quantidade": 30, "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-132", "codigo": "132", "nome": "CALCARIO", "unidade": "KG", "quantidade": 575400, "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-1246", "codigo": "1246", "nome": "CARNADINE", "unidade": "L", "quantidade": 76.5, "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-75", "codigo": "75", "nome": "CLORETO POTASSIO KCL", "unidade": "bags", "quantidade": 233, "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-262", "codigo": "262", "nome": "CLORFENAPIN", "unidade": "L", "quantidade": 342, "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-951", "codigo": "951", "nome": "CONCENTRAT FIX", "unidade": "L", "quantidade": 348, "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-952", "codigo": "952", "nome": "CONCORDE", "unidade": "L", "quantidade": 28.6, "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-264", "codigo": "264", "nome": "CONNECT", "unidade": "L", "quantidade": 15.2, "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-931", "codigo": "931", "nome": "CURBIX", "unidade": "L", "quantidade": 1324, "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-267", "codigo": "267", "nome": "CYPTRIN", "unidade": "L", "quantidade": 7, "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-113", "codigo": "113", "nome": "EXTRAVON", "unidade": "L", "quantidade": 280, "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-122", "codigo": "122", "nome": "FORSPRAY", "unidade": "L", "quantidade": 26, "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-1058", "codigo": "1058", "nome": "GRASIDIM", "unidade": "L", "quantidade": 920, "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-1236", "codigo": "1236", "nome": "GLUFOS WYN 880", "unidade": "KG", "quantidade": 780, "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-279", "codigo": "279", "nome": "INTREPID", "unidade": "L", "quantidade": 122, "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-111", "codigo": "111", "nome": "MAP PURIFICADO", "unidade": "KG", "quantidade": 616, "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-1065", "codigo": "1065", "nome": "MASTER", "unidade": "L", "quantidade": 10, "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-1161", "codigo": "1161", "nome": "META MUVI SOLIDO", "unidade": "KG", "quantidade": 243, "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-1220", "codigo": "1220", "nome": "NHT MANGANES", "unidade": "L", "quantidade": 93, "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-1006", "codigo": "1006", "nome": "NHT ZINCO", "unidade": "L", "quantidade": 7.7, "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-1216", "codigo": "1216", "nome": "NIMAXXA", "unidade": "L", "quantidade": 8, "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-939", "codigo": "939", "nome": "OLEO MINERAL DU FOL ADJUVANTE", "unidade": "L", "quantidade": 75, "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-1016", "codigo": "1016", "nome": "POLI FLEX", "unidade": "L", "quantidade": 76.5, "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-352", "codigo": "352", "nome": "PRIMOLEO", "unidade": "L", "quantidade": 97, "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-360", "codigo": "360", "nome": "SELECT", "unidade": "L", "quantidade": 200, "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-1042", "codigo": "1042", "nome": "SILKON", "unidade": "L", "quantidade": 266.9, "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-1144", "codigo": "1144", "nome": "SOLDIER", "unidade": "KG", "quantidade": 7784.5, "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-935", "codigo": "935", "nome": "SULFATO DE MAGNESIO", "unidade": "KG", "quantidade": 2041, "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-1188", "codigo": "1188", "nome": "SUPER SIMPLES", "unidade": "KG", "quantidade": 7010, "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-1046", "codigo": "1046", "nome": "YONON", "unidade": "L", "quantidade": 3, "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-1326", "codigo": "1326", "nome": "ASSIST EC", "unidade": "L", "quantidade": 640, "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-1365", "codigo": "1365", "nome": "NITRATO DE POTASSIO", "unidade": "KG", "quantidade": 6000, "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-375", "codigo": "375", "nome": "ZETHAMAXX", "unidade": "L", "quantidade": 152.5, "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-73", "codigo": "73", "nome": "DIESEL S500", "unidade": "L", "quantidade": 7400, "categoria": "Combustível"},
-    {"id": "ins-71", "codigo": "71", "nome": "DIESEL S10", "unidade": "L", "quantidade": 0, "categoria": "Combustível"}
-  ]
+    {"id": "ins-1242", "codigo": "1242", "nome": "2,4 D TECNOMYL", "unidade": "L", "quantidade": 900, "vencimento": "2027-05-20", "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-1003", "codigo": "1003", "nome": "ALMAX", "unidade": "L", "quantidade": 38, "vencimento": "2026-03-10", "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-219", "codigo": "219", "nome": "APROCH POWER", "unidade": "L", "quantidade": 262, "vencimento": "2026-11-15", "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-132", "codigo": "132", "nome": "CALCARIO", "unidade": "KG", "quantidade": 575400, "vencimento": "", "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-75", "codigo": "75", "nome": "CLORETO POTASSIO KCL", "unidade": "bags", "quantidade": 233, "vencimento": "", "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-73", "codigo": "73", "nome": "DIESEL S500", "unidade": "L", "quantidade": 7400, "vencimento": "", "categoria": "Combustível"}
+  ],
+  "historicoInsumos": []
 };
 
 let state = JSON.parse(localStorage.getItem("campogestor_state"));
 
-if (!state || !state.insumos || state.insumos.length < 40) {
+if (!state || !state.insumos) {
   state = JSON.parse(JSON.stringify(SEED));
   localStorage.setItem("campogestor_state", JSON.stringify(state));
 }
@@ -237,6 +173,31 @@ function toggleDrawer(open) {
   }
 }
 
+function closeModal() {
+  document.getElementById("modal-bg").classList.remove("open");
+}
+
+function openModal(html) {
+  document.getElementById("modal-body").innerHTML = html;
+  document.getElementById("modal-bg").classList.add("open");
+}
+
+function checarVencimento(dataStr) {
+  if (!dataStr) return { status: 'normal', texto: '' };
+  const hoje = new Date();
+  hoje.setHours(0,0,0,0);
+  const venc = new Date(dataStr + "T00:00:00");
+  
+  const diffDias = Math.ceil((venc - hoje) / (1000 * 60 * 60 * 24));
+  
+  if (diffDias < 0) {
+    return { status: 'vencido', texto: `VENCIDO (${dataStr.split('-').reverse().join('/')})` };
+  } else if (diffDias <= 30) {
+    return { status: 'alerta', texto: `Vence em ${diffDias} dias (${dataStr.split('-').reverse().join('/')})` };
+  }
+  return { status: 'ok', texto: `Venc: ${dataStr.split('-').reverse().join('/')}` };
+}
+
 function selectTab(tab) {
   document.querySelectorAll('.drawer-menu button').forEach(b => b.classList.remove('active'));
   const btn = document.getElementById('menu-' + tab);
@@ -256,71 +217,30 @@ function selectTab(tab) {
   } else if (tab === 'insumos') {
     pageTitle.textContent = "Estoque de Insumos";
     content.innerHTML = renderInsumos();
+  } else if (tab === 'historico') {
+    pageTitle.textContent = "Histórico de Insumos";
+    content.innerHTML = renderHistorico();
   } else if (tab === 'talhoes') {
     pageTitle.textContent = "Talhões e Áreas";
-    content.innerHTML = `<div class="card">Módulo de Talhões (Envie a planilha para preencher)</div>`;
+    content.innerHTML = `<div class="card">Módulo de Talhões</div>`;
   } else if (tab === 'equatorial') {
     pageTitle.textContent = "Equatorial / Energia";
-    content.innerHTML = `<div class="card">Módulo Equatorial (Envie os dados de UCs e faturas)</div>`;
-  } else if (tab === 'safra') {
-    pageTitle.textContent = "Caderno de Campo";
-    content.innerHTML = `<div class="card">Módulo Caderno de Campo</div>`;
+    content.innerHTML = `<div class="card">Módulo Equatorial</div>`;
   } else if (tab === 'pessoas') {
     pageTitle.textContent = "Equipe";
-    content.innerHTML = `<div class="card">Módulo de Equipe (Envie a lista de funcionários)</div>`;
+    content.innerHTML = `<div class="card">Módulo de Equipe</div>`;
   }
   window.scrollTo(0, 0);
 }
 
-function alternarStatusMaquina(id) {
-  const m = state.maquinas.find(x => x.id === id);
-  if (m) {
-    m.status = m.status === 'operando' ? 'parada' : 'operando';
-    saveLocalState();
-    selectTab('maquinas');
-    showToast(`Status de ${m.nome} alterado para ${m.status.toUpperCase()}`);
-  }
-}
-
-function filtrarMaquinas() {
-  const query = document.getElementById("search-mq").value.toLowerCase();
-  const itens = document.querySelectorAll(".mq-item");
-  itens.forEach(item => {
-    const text = item.innerText.toLowerCase();
-    item.style.display = text.includes(query) ? "flex" : "none";
-  });
-}
-
-function filtrarInsumos() {
-  const query = document.getElementById("search-ins").value.toLowerCase();
-  const itens = document.querySelectorAll(".ins-item");
-  itens.forEach(item => {
-    const text = item.innerText.toLowerCase();
-    item.style.display = text.includes(query) ? "flex" : "none";
-  });
-}
-
-function renderResumo() {
-  const operando = state.maquinas.filter(m => m.status === 'operando').length;
-  const diesel = state.insumos.find(i => i.codigo === "73") || { quantidade: 7400 };
-  return `
-    <div class="grid2">
-      <div class="stat"><div class="lbl">Total da Frota</div><div class="val">${state.maquinas.length} Itens</div></div>
-      <div class="stat"><div class="lbl">Em Operação</div><div class="val" style="color:var(--ok);">${operando} Ativos</div></div>
-      <div class="stat"><div class="lbl">Estoque Diesel S500</div><div class="val" style="color:var(--warn);">${diesel.quantidade.toLocaleString('pt-BR')} L</div></div>
-      <div class="stat"><div class="lbl">Itens no Inventário</div><div class="val">${state.insumos.length} Produtos</div></div>
-    </div>
-    <div class="card">
-      <div class="card-title">Resumo do Inventário (08/09/2026)</div>
-      <p class="muted">A frota de 59 máquinas e os 43 itens do inventário de insumos/combustível foram carregados no sistema.</p>
-    </div>
-  `;
-}
-
+// --- MÓDULO FROTA (MÁQUINAS) ---
 function renderMaquinas() {
   return `
     <div class="card" style="margin-bottom:.5rem;">
-      <input type="text" id="search-mq" class="search-box" placeholder="🔍 Buscar por nome, marca, código ou placa..." onkeyup="filtrarMaquinas()"/>
+      <div class="row" style="margin-bottom:.75rem;">
+        <input type="text" id="search-mq" class="search-box" style="margin-bottom:0;" placeholder="🔍 Buscar máquina, placa ou código..." onkeyup="filtrarMaquinas()"/>
+        <button class="btn primary" onclick="modalEditarMaquina()">＋ Adicionar</button>
+      </div>
       <div class="muted">Total cadastrado: <strong>${state.maquinas.length} equipamentos</strong></div>
     </div>
 
@@ -329,14 +249,19 @@ function renderMaquinas() {
       <ul class="list">
         ${state.maquinas.map(m => `
           <li class="mq-item">
-            <div>
-              <strong>${m.nome}</strong> <span class="muted">(Nº ${m.nr})</span>
-              <div class="muted">${m.marca} ${m.modelo} ${m.placa !== '-' ? '• Placa: ' + m.placa : ''}</div>
-              <div class="muted" style="font-size:.7rem; text-transform:uppercase; margin-top:.1rem;">${m.tipo}</div>
+            <div class="item-main">
+              <div>
+                <strong>${m.nome}</strong> <span class="muted">(Nº ${m.nr})</span>
+                <div class="muted">${m.marca} ${m.modelo} ${m.placa !== '-' ? '• Placa: ' + m.placa : ''}</div>
+                <div class="muted" style="font-size:.7rem; text-transform:uppercase; margin-top:.1rem;">${m.tipo}</div>
+              </div>
+              <button class="badge ${m.status === 'operando' ? 'ok' : 'muted'}" onclick="alternarStatusMaquina('${m.id}')">
+                ${m.status}
+              </button>
             </div>
-            <button class="badge ${m.status === 'operando' ? 'ok' : 'muted'}" onclick="alternarStatusMaquina('${m.id}')">
-              ${m.status}
-            </button>
+            <div class="item-actions">
+              <button class="btn sm" onclick="modalEditarMaquina('${m.id}')">✏️ Editar</button>
+            </div>
           </li>
         `).join('')}
       </ul>
@@ -344,28 +269,325 @@ function renderMaquinas() {
   `;
 }
 
+function alternarStatusMaquina(id) {
+  const m = state.maquinas.find(x => x.id === id);
+  if (m) {
+    m.status = m.status === 'operando' ? 'parada' : 'operando';
+    saveLocalState();
+    selectTab('maquinas');
+    showToast(`Status de ${m.nome} alterado`);
+  }
+}
+
+function modalEditarMaquina(id = null) {
+  const m = id ? state.maquinas.find(x => x.id === id) : { nome: '', nr: '', marca: '', modelo: '', placa: '-', tipo: 'Maquina', status: 'operando' };
+  
+  openModal(`
+    <h3 style="margin-bottom:1rem;">${id ? '✏️ Editar Máquina' : '＋ Adicionar Nova Máquina'}</h3>
+    <div class="field"><label>Nome do Equipamento</label><input type="text" id="f-nome" value="${m.nome}"></div>
+    <div class="field"><label>Número / Código (NR)</label><input type="text" id="f-nr" value="${m.nr}"></div>
+    <div class="field"><label>Marca</label><input type="text" id="f-marca" value="${m.marca}"></div>
+    <div class="field"><label>Modelo / Ano</label><input type="text" id="f-modelo" value="${m.modelo}"></div>
+    <div class="field"><label>Placa (se houver)</label><input type="text" id="f-placa" value="${m.placa}"></div>
+    <div class="field">
+      <label>Tipo</label>
+      <select id="f-tipo">
+        <option value="Maquina" ${m.tipo === 'Maquina' ? 'selected' : ''}>Máquina</option>
+        <option value="Implemento" ${m.tipo === 'Implemento' ? 'selected' : ''}>Implemento</option>
+        <option value="Veiculo" ${m.tipo === 'Veiculo' ? 'selected' : ''}>Veículo</option>
+        <option value="Equipamento" ${m.tipo === 'Equipamento' ? 'selected' : ''}>Equipamento</option>
+      </select>
+    </div>
+    <div class="row" style="margin-top:1.25rem;">
+      <button class="btn block" onclick="closeModal()">Cancelar</button>
+      <button class="btn primary block" onclick="salvarMaquina('${id || ''}')">Salvar</button>
+    </div>
+  `);
+}
+
+function salvarMaquina(id) {
+  const nome = document.getElementById("f-nome").value.trim();
+  if (!nome) return alert("Informe o nome da máquina.");
+
+  const item = {
+    id: id || 'mq-' + Date.now(),
+    nome: nome,
+    nr: document.getElementById("f-nr").value.trim(),
+    marca: document.getElementById("f-marca").value.trim(),
+    modelo: document.getElementById("f-modelo").value.trim(),
+    placa: document.getElementById("f-placa").value.trim() || '-',
+    tipo: document.getElementById("f-tipo").value,
+    status: 'operando'
+  };
+
+  if (id) {
+    const idx = state.maquinas.findIndex(x => x.id === id);
+    if (idx !== -1) state.maquinas[idx] = item;
+  } else {
+    state.maquinas.unshift(item);
+  }
+
+  saveLocalState();
+  closeModal();
+  selectTab('maquinas');
+  showToast("Máquina salva com sucesso!");
+}
+
+function filtrarMaquinas() {
+  const query = document.getElementById("search-mq").value.toLowerCase();
+  document.querySelectorAll(".mq-item").forEach(item => {
+    item.style.display = item.innerText.toLowerCase().includes(query) ? "flex" : "none";
+  });
+}
+
+
+// --- MÓDULO INSUMOS E HISTÓRICO ---
 function renderInsumos() {
   return `
     <div class="card" style="margin-bottom:.5rem;">
-      <input type="text" id="search-ins" class="search-box" placeholder="🔍 Buscar por insumo ou código..." onkeyup="filtrarInsumos()"/>
-      <div class="muted">Total cadastrado: <strong>${state.insumos.length} produtos em estoque</strong></div>
+      <div class="row" style="margin-bottom:.75rem;">
+        <input type="text" id="search-ins" class="search-box" style="margin-bottom:0;" placeholder="🔍 Buscar insumo ou código..." onkeyup="filtrarInsumos()"/>
+        <button class="btn primary" onclick="modalEditarInsumo()">＋ Novo Insumo</button>
+      </div>
+      <div class="muted">Total em estoque: <strong>${state.insumos.length} produtos</strong></div>
     </div>
 
     <div class="sec">Inventário de Produtos & Defensivos</div>
     <div class="card">
       <ul class="list">
-        ${state.insumos.map(i => `
-          <li class="ins-item">
-            <div>
-              <strong>${i.nome}</strong> <span class="muted">(Cód: ${i.codigo})</span>
-              <div class="muted" style="font-size:.7rem; text-transform:uppercase; margin-top:.1rem;">${i.categoria}</div>
-            </div>
-            <div class="badge ${i.quantidade > 0 ? 'ok' : 'warn'}">
-              ${typeof i.quantidade === 'number' ? i.quantidade.toLocaleString('pt-BR') : i.quantidade} ${i.unidade}
-            </div>
-          </li>
-        `).join('')}
+        ${state.insumos.map(i => {
+          const v = checarVencimento(i.vencimento);
+          let badgeClass = 'ok';
+          if (v.status === 'vencido') badgeClass = 'danger';
+          else if (v.status === 'alerta') badgeClass = 'warn';
+
+          return `
+            <li class="ins-item">
+              <div class="item-main">
+                <div>
+                  <strong>${i.nome}</strong> <span class="muted">(Cód: ${i.codigo})</span>
+                  <div class="muted" style="font-size:.75rem; margin-top:.1rem;">
+                    Categoria: ${i.categoria}
+                    ${v.texto ? `<br><strong class="${v.status === 'vencido' ? 'style="color:var(--danger)"' : ''}">${v.texto}</strong>` : ''}
+                  </div>
+                </div>
+                <div class="badge ${badgeClass}">
+                  ${typeof i.quantidade === 'number' ? i.quantidade.toLocaleString('pt-BR') : i.quantidade} ${i.unidade}
+                </div>
+              </div>
+              <div class="item-actions">
+                <button class="btn sm primary" onclick="modalMovimentacao('${i.id}')">🔄 Lançar Movimentação</button>
+                <button class="btn sm" onclick="modalEditarInsumo('${i.id}')">✏️ Editar</button>
+              </div>
+            </li>
+          `;
+        }).join('')}
       </ul>
+    </div>
+  `;
+}
+
+function modalEditarInsumo(id = null) {
+  const i = id ? state.insumos.find(x => x.id === id) : { codigo: '', nome: '', unidade: 'L', quantidade: 0, vencimento: '', categoria: 'Defensivos / Nutrição' };
+  
+  openModal(`
+    <h3 style="margin-bottom:1rem;">${id ? '✏️ Editar Insumo' : '＋ Adicionar Novo Insumo'}</h3>
+    <div class="field"><label>Código do Produto</label><input type="text" id="f-cod" value="${i.codigo}"></div>
+    <div class="field"><label>Nome do Insumo / Defensivo</label><input type="text" id="f-nome" value="${i.nome}"></div>
+    <div class="field">
+      <label>Unidade de Medida</label>
+      <select id="f-unidade">
+        <option value="L" ${i.unidade === 'L' ? 'selected' : ''}>Litros (L)</option>
+        <option value="KG" ${i.unidade === 'KG' ? 'selected' : ''}>Quilogramas (KG)</option>
+        <option value="bags" ${i.unidade === 'bags' ? 'selected' : ''}>Bags</option>
+        <option value="UN" ${i.unidade === 'UN' ? 'selected' : ''}>Unidades (UN)</option>
+      </select>
+    </div>
+    <div class="field"><label>Quantidade Atual</label><input type="number" step="any" id="f-qtd" value="${i.quantidade}"></div>
+    <div class="field"><label>Data de Vencimento</label><input type="date" id="f-venc" value="${i.vencimento || ''}"></div>
+    <div class="field"><label>Categoria</label><input type="text" id="f-cat" value="${i.categoria}"></div>
+    <div class="row" style="margin-top:1.25rem;">
+      <button class="btn block" onclick="closeModal()">Cancelar</button>
+      <button class="btn primary block" onclick="salvarInsumo('${id || ''}')">Salvar</button>
+    </div>
+  `);
+}
+
+function salvarInsumo(id) {
+  const nome = document.getElementById("f-nome").value.trim();
+  if (!nome) return alert("Informe o nome do insumo.");
+
+  const item = {
+    id: id || 'ins-' + Date.now(),
+    codigo: document.getElementById("f-cod").value.trim(),
+    nome: nome,
+    unidade: document.getElementById("f-unidade").value,
+    quantidade: parseFloat(document.getElementById("f-qtd").value) || 0,
+    vencimento: document.getElementById("f-venc").value,
+    categoria: document.getElementById("f-cat").value.trim() || 'Geral'
+  };
+
+  if (id) {
+    const idx = state.insumos.findIndex(x => x.id === id);
+    if (idx !== -1) state.insumos[idx] = item;
+  } else {
+    state.insumos.unshift(item);
+  }
+
+  saveLocalState();
+  closeModal();
+  selectTab('insumos');
+  showToast("Insumo salvo!");
+}
+
+function modalMovimentacao(insumoId) {
+  const ins = state.insumos.find(x => x.id === insumoId);
+  if (!ins) return;
+
+  const hoje = new Date().toISOString().split('T')[0];
+
+  openModal(`
+    <h3 style="margin-bottom:.5rem;">🔄 Movimentação de Insumo</h3>
+    <div class="muted" style="margin-bottom:1rem;">Produto: <strong>${ins.nome}</strong> (Atual: ${ins.quantidade} ${ins.unidade})</div>
+    
+    <div class="field">
+      <label>Tipo de Operação</label>
+      <select id="m-tipo">
+        <option value="saida_aplicacao">➖ Saída: Aplicação em Talhão</option>
+        <option value="saida_transferencia">➖ Saída: Empréstimo / Transferência p/ Outra Fazenda</option>
+        <option value="entrada_compra">➕ Entrada: Compra / Recebimento</option>
+        <option value="entrada_devolucao">➕ Entrada: Devolução / Ajuste</option>
+      </select>
+    </div>
+
+    <div class="field"><label>Quantidade (${ins.unidade})</label><input type="number" step="any" id="m-qtd" placeholder="0.00"></div>
+    <div class="field"><label>Data do Lançamento</label><input type="date" id="m-data" value="${hoje}"></div>
+    <div class="field"><label>Destino / Talhão / Fazenda Recebedora</label><input type="text" id="m-destino" placeholder="Ex: Talhão 04 ou Fazenda Santa Maria"></div>
+    <div class="field">
+      <label>Status de Aplicação / Conclusão</label>
+      <select id="m-status-app">
+        <option value="Aplicado / Concluído">✅ Aplicado / Concluído</option>
+        <option value="Pendente / Em Trânsito">⏳ Pendente / Em Trânsito</option>
+        <option value="Não Aplicado">❌ Não Aplicado</option>
+      </select>
+    </div>
+    <div class="field"><label>Responsável pelo Lançamento</label><input type="text" id="m-resp" value="${state.farm.cargo}"></div>
+    <div class="field"><label>Observações</label><textarea id="m-obs" rows="2" placeholder="Detalhes adicionais..."></textarea></div>
+
+    <div class="row" style="margin-top:1.25rem;">
+      <button class="btn block" onclick="closeModal()">Cancelar</button>
+      <button class="btn primary block" onclick="confirmarMovimentacao('${ins.id}')">Registrar</button>
+    </div>
+  `);
+}
+
+function confirmarMovimentacao(insumoId) {
+  const ins = state.insumos.find(x => x.id === insumoId);
+  const qtd = parseFloat(document.getElementById("m-qtd").value);
+  if (!qtd || qtd <= 0) return alert("Informe uma quantidade válida.");
+
+  const tipo = document.getElementById("m-tipo").value;
+  const isSaida = tipo.startsWith("saida");
+
+  if (isSaida && ins.quantidade < qtd) {
+    if (!confirm(`Atenção: A quantidade informada (${qtd}) é maior do que o estoque atual (${ins.quantidade}). Deseja continuar assim mesmo?`)) return;
+  }
+
+  // Atualizar estoque
+  if (isSaida) {
+    ins.quantidade -= qtd;
+  } else {
+    ins.quantidade += qtd;
+  }
+
+  // Criar registro no histórico
+  if (!state.historicoInsumos) state.historicoInsumos = [];
+  
+  const reg = {
+    id: 'hist-' + Date.now(),
+    insumoId: ins.id,
+    insumoNome: ins.nome,
+    unidade: ins.unidade,
+    tipo: tipo,
+    quantidade: qtd,
+    data: document.getElementById("m-data").value,
+    destino: document.getElementById("m-destino").value.trim() || 'N/I',
+    statusApp: document.getElementById("m-status-app").value,
+    responsavel: document.getElementById("m-resp").value.trim() || 'Sistema',
+    obs: document.getElementById("m-obs").value.trim()
+  };
+
+  state.historicoInsumos.unshift(reg);
+  saveLocalState();
+  closeModal();
+  selectTab('insumos');
+  showToast("Movimentação registrada com sucesso!");
+}
+
+function renderHistorico() {
+  const list = state.historicoInsumos || [];
+  return `
+    <div class="card" style="margin-bottom:.5rem;">
+      <div class="muted">Total de movimentações registradas: <strong>${list.length} lançamentos</strong></div>
+    </div>
+
+    <div class="sec">Registro de Entradas, Saídas e Transferências</div>
+    <div class="card">
+      ${list.length === 0 ? '<div class="muted">Nenhuma movimentação registrada ainda.</div>' : `
+        <ul class="list">
+          ${list.map(h => {
+            const isSaida = h.tipo.startsWith("saida");
+            return `
+              <li>
+                <div class="item-main">
+                  <div>
+                    <strong>${h.insumoNome}</strong>
+                    <div class="muted" style="font-size:.8rem; margin-top:.1rem;">
+                      ${isSaida ? '🔴' : '🟢'} ${h.tipo.replace('_', ' ').toUpperCase()}<br>
+                      📍 Destino: <strong>${h.destino}</strong> | 👤 Resp: ${h.responsavel}<br>
+                      Status: <strong>${h.statusApp}</strong> ${h.obs ? '• Obs: ' + h.obs : ''}
+                    </div>
+                  </div>
+                  <div style="text-align:right;">
+                    <div class="badge ${isSaida ? 'danger' : 'ok'}">
+                      ${isSaida ? '-' : '+'}${h.quantidade} ${h.unidade}
+                    </div>
+                    <div class="muted" style="font-size:.7rem; margin-top:.2rem;">${h.data.split('-').reverse().join('/')}</div>
+                  </div>
+                </div>
+              </li>
+            `;
+          }).join('')}
+        </ul>
+      `}
+    </div>
+  `;
+}
+
+function filtrarInsumos() {
+  const query = document.getElementById("search-ins").value.toLowerCase();
+  document.querySelectorAll(".ins-item").forEach(item => {
+    item.style.display = item.innerText.toLowerCase().includes(query) ? "flex" : "none";
+  });
+}
+
+function renderResumo() {
+  const operando = state.maquinas.filter(m => m.status === 'operando').length;
+  const diesel = state.insumos.find(i => i.codigo === "73") || { quantidade: 7400 };
+  
+  // Contar vencidos
+  const vencidos = state.insumos.filter(i => checarVencimento(i.vencimento).status === 'vencido').length;
+
+  return `
+    <div class="grid2">
+      <div class="stat"><div class="lbl">Total da Frota</div><div class="val">${state.maquinas.length} Itens</div></div>
+      <div class="stat"><div class="lbl">Em Operação</div><div class="val" style="color:var(--ok);">${operando} Ativos</div></div>
+      <div class="stat"><div class="lbl">Estoque Diesel</div><div class="val" style="color:var(--warn);">${diesel.quantidade.toLocaleString('pt-BR')} L</div></div>
+      <div class="stat"><div class="lbl">Produtos Vencidos</div><div class="val" style="color:${vencidos > 0 ? 'var(--danger)' : 'var(--fg)'};">${vencidos} Alertas</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Resumo do Sistema</div>
+      <p class="muted">Painel operacional da Fazenda Santa Rita atualizado com controle completo de inventário, transferências e frota.</p>
     </div>
   `;
 }
