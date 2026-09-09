@@ -31,8 +31,6 @@ h1,h2,h3{font-family:var(--display);font-weight:500;margin:0}
 .list li:last-child{border-bottom:none}
 
 .item-main{display:flex;align-items:center;justify-content:space-between;gap:.5rem;width:100%}
-.item-actions{display:flex;align-items:center;gap:.4rem;margin-top:.2rem}
-
 .badge{display:inline-flex;border-radius:999px;padding:.2rem .65rem;font-size:.75rem;font-weight:600}
 .badge.ok{background:color-mix(in srgb,var(--ok) 20%,transparent);color:var(--ok)}
 .badge.warn{background:color-mix(in srgb,var(--warn) 20%,transparent);color:var(--warn)}
@@ -64,10 +62,11 @@ h1,h2,h3{font-family:var(--display);font-weight:500;margin:0}
 
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:110;display:none;align-items:center;justify-content:center;padding:1rem}
 .modal-bg.open{display:flex}
-.modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);width:100%;max-width:500px;padding:1.2rem;max-height:90vh;overflow-y:auto}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);width:100%;max-width:520px;padding:1.2rem;max-height:90vh;overflow-y:auto}
 
 .toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:var(--primary);color:var(--bg);padding:.6rem 1.2rem;border-radius:999px;font-size:.85rem;font-weight:600;z-index:200;display:none;box-shadow:0 4px 12px rgba(0,0,0,0.4)}
 .search-box{background:var(--elevated);border:1px solid var(--border);border-radius:10px;padding:.5rem .75rem;width:100%;color:var(--fg);margin-bottom:.75rem}
+.coletivo-item{background:var(--elevated);padding:.6rem;border-radius:8px;margin-bottom:.5rem;border:1px solid var(--border)}
 </style>
 </head>
 <body>
@@ -89,7 +88,6 @@ h1,h2,h3{font-family:var(--display);font-weight:500;margin:0}
       <button id="menu-resumo" class="active" onclick="selectTab('resumo')">📊 Resumo Geral</button>
       <button id="menu-maquinas" onclick="selectTab('maquinas')">🚜 Frota de Máquinas</button>
       <button id="menu-insumos" onclick="selectTab('insumos')">📦 Estoque de Insumos</button>
-      <button id="menu-historico" onclick="selectTab('historico')">📜 Histórico de Insumos</button>
       <button id="menu-talhoes" onclick="selectTab('talhoes')">🌱 Talhões e Áreas</button>
       <button id="menu-equatorial" onclick="selectTab('equatorial')">⚡ Equatorial / Energia</button>
       <button id="menu-pessoas" onclick="selectTab('pessoas')">👥 Equipe da Fazenda</button>
@@ -97,7 +95,7 @@ h1,h2,h3{font-family:var(--display);font-weight:500;margin:0}
   </div>
 
   <div style="font-size:.75rem;color:var(--subtle);padding-top:1rem;border-top:1px solid var(--border);">
-    Fazenda Santa Rita — 2026/27
+    Fazenda Santa Rita — Safra 2026/27
   </div>
 </div>
 
@@ -119,7 +117,6 @@ h1,h2,h3{font-family:var(--display);font-weight:500;margin:0}
 </div>
 
 <script>
-// Dicionário de Ingredientes Ativos Conhecidos
 const PRINCIPIOS_ATIVOS = [
   {"comercial": "2,4 D TECNOMYL", "ativo": "2,4-D (Sal Dimetilamina)"},
   {"comercial": "ALMAX", "ativo": "Glifosato de Amônio"},
@@ -128,46 +125,31 @@ const PRINCIPIOS_ATIVOS = [
   {"comercial": "AURORA", "ativo": "Carfentrazona-etílica"},
   {"comercial": "AZIMUT", "ativo": "Azoxistrobina + Tebuconazol"},
   {"comercial": "AZURE", "ativo": "Clorotalonil + Tebuconazol"},
-  {"comercial": "BIOMAX AZUM", "ativo": "Inoculante Azospirillum brasilense"},
-  {"comercial": "CALARIS", "ativo": "Atrazina + Mesotriona"},
-  {"comercial": "CALCARIO", "ativo": "Carbonato de Cálcio e Magnésio (Corretivo)"},
-  {"comercial": "CARNADINE", "ativo": "Acetamiprido"},
+  {"comercial": "CALCARIO", "ativo": "Carbonato de Cálcio e Magnésio"},
   {"comercial": "CLORETO POTASSIO KCL", "ativo": "Cloreto de Potássio 60% K2O"},
   {"comercial": "CLORFENAPIN", "ativo": "Clorfenapir"},
-  {"comercial": "CONCENTRAT FIX", "ativo": "Espalhante / Adjuvante Siliconado"},
-  {"comercial": "CONCORDE", "ativo": "Cipermetrina"},
-  {"comercial": "CONNECT", "ativo": "Imidacloprido + Beta-ciflutrina"},
-  {"comercial": "CURBIX", "ativo": "Etiprole"},
-  {"comercial": "CYPTRIN", "ativo": "Cipermetrina 250 EC"},
-  {"comercial": "EXTRAVON", "ativo": "Adjuvante / Espalhante"},
-  {"comercial": "FORSPRAY", "ativo": "Óleo Vegetal / Adjuvante"},
-  {"comercial": "GRASIDIM", "ativo": "Clethodim"},
-  {"comercial": "GLUFOS WYN 880", "ativo": "Glufosinato de Amônio"},
-  {"comercial": "INTREPID", "ativo": "Metoxifenozida"},
-  {"comercial": "MAP PURIFICADO", "ativo": "Fosfato Monoamônico 12-61-00"},
-  {"comercial": "MASTER", "ativo": "Adjuvante Redutor de pH"},
-  {"comercial": "META MUVI SOLIDO", "ativo": "Metalaxil-M"},
-  {"comercial": "NHT MANGANES", "ativo": "Manganês Quelatado (Fertilizante Foliar)"},
-  {"comercial": "NHT ZINCO", "ativo": "Zinco Quelatado (Fertilizante Foliar)"},
-  {"comercial": "NIMAXXA", "ativo": "Tiametoxam"},
-  {"comercial": "OLEO MINERAL DU FOL", "ativo": "Óleo Mineral AL 80%"},
-  {"comercial": "POLI FLEX", "ativo": "Fertilizante Foliar Micronutrientes"},
-  {"comercial": "PRIMOLEO", "ativo": "Atrazina + Óleo Mineral"},
-  {"comercial": "SELECT", "ativo": "Clethodim 240 EC"},
-  {"comercial": "SILKON", "ativo": "Adjuvante Organossiliconado"},
-  {"comercial": "SOLDIER", "ativo": "Glifosato Sal de Amônio SG"},
-  {"comercial": "SULFATO DE MAGNESIO", "ativo": "Sulfato de Magnésio Hexahidratado"},
-  {"comercial": "SUPER SIMPLES", "ativo": "Superfosfato Simples 18% P2O5"},
-  {"comercial": "YONON", "ativo": "Tiametoxam + Lambda-Cialotrina"},
-  {"comercial": "ASSIST EC", "ativo": "Óleo Mineral Parafínico"},
-  {"comercial": "NITRATO DE POTASSIO", "ativo": "Nitrato de Potássio 13-00-44"},
-  {"comercial": "ZETHAMAXX", "ativo": "Imazetapir + Flumioxazina"},
   {"comercial": "DIESEL S500", "ativo": "Óleo Diesel S500 (Combustível)"},
   {"comercial": "DIESEL S10", "ativo": "Óleo Diesel S10 (Combustível)"}
 ];
 
 const SEED = {
   "farm": {"nome": "Fazenda Santa Rita", "municipio": "Grupo Segredo", "cargo": "Auxiliar administrativo", "safra": "2026/27"},
+  "talhoes": [
+    {"nome": "Entrada", "area": 91.35},
+    {"nome": "Jaime", "area": 132.00},
+    {"nome": "Duilio", "area": 136.67},
+    {"nome": "Mato", "area": 12.88},
+    {"nome": "Sede", "area": 109.13},
+    {"nome": "Pista Tapera", "area": 130.14},
+    {"nome": "Tapera", "area": 94.76},
+    {"nome": "Luizinho", "area": 153.13},
+    {"nome": "Amargoso", "area": 102.33},
+    {"nome": "110", "area": 109.00},
+    {"nome": "190", "area": 186.36},
+    {"nome": "Cascalheira", "area": 59.38},
+    {"nome": "Pivo 1", "area": 112.00},
+    {"nome": "Pivo 2", "area": 152.00}
+  ],
   "maquinas": [
     {"id": "mq-0102", "nome": "BAZUCA", "tipo": "Implemento", "modelo": "NINJA 32000 (2012)", "status": "operando", "placa": "-", "nr": "0102", "marca": "STARA"},
     {"id": "mq-0107", "nome": "BAZUCA TRATADORA SEMENTE", "tipo": "Implemento", "modelo": "REB6000TS (2006)", "status": "operando", "placa": "-", "nr": "0107", "marca": "STARA"},
@@ -183,8 +165,10 @@ const SEED = {
     {"id": "ins-1242", "codigo": "1242", "nome": "2,4 D TECNOMYL", "ativo": "2,4-D (Sal Dimetilamina)", "unidade": "L", "quantidade": 900, "vencimento": "2027-05-20", "categoria": "Defensivos / Nutrição"},
     {"id": "ins-1003", "codigo": "1003", "nome": "ALMAX", "ativo": "Glifosato de Amônio", "unidade": "L", "quantidade": 38, "vencimento": "2026-03-10", "categoria": "Defensivos / Nutrição"},
     {"id": "ins-219", "codigo": "219", "nome": "APROCH POWER", "ativo": "Ciproconazol + Azoxistrobina", "unidade": "L", "quantidade": 262, "vencimento": "2026-11-15", "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-128", "codigo": "128", "nome": "TA35 ULTRA", "ativo": "Óleo Mineral Emulsionável", "unidade": "L", "quantidade": 480, "vencimento": "", "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-318", "codigo": "318", "nome": "AURORA", "ativo": "Carfentrazona-etílica", "unidade": "L", "quantidade": 104.8, "vencimento": "", "categoria": "Defensivos / Nutrição"},
     {"id": "ins-262", "codigo": "262", "nome": "CLORFENAPIN", "ativo": "Clorfenapir", "unidade": "L", "quantidade": 342, "vencimento": "2027-01-20", "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-132", "codigo": "132", "nome": "CALCARIO", "ativo": "Carbonato de Cálcio e Magnésio (Corretivo)", "unidade": "KG", "quantidade": 575400, "vencimento": "", "categoria": "Defensivos / Nutrição"},
+    {"id": "ins-132", "codigo": "132", "nome": "CALCARIO", "ativo": "Carbonato de Cálcio e Magnésio", "unidade": "KG", "quantidade": 575400, "vencimento": "", "categoria": "Defensivos / Nutrição"},
     {"id": "ins-75", "codigo": "75", "nome": "CLORETO POTASSIO KCL", "ativo": "Cloreto de Potássio 60% K2O", "unidade": "bags", "quantidade": 233, "vencimento": "", "categoria": "Defensivos / Nutrição"},
     {"id": "ins-73", "codigo": "73", "nome": "DIESEL S500", "ativo": "Óleo Diesel S500 (Combustível)", "unidade": "L", "quantidade": 7400, "vencimento": "", "categoria": "Combustível"}
   ],
@@ -193,12 +177,11 @@ const SEED = {
 
 let state = JSON.parse(localStorage.getItem("campogestor_state"));
 
-// Atualização de estado para incluir ativos se não existirem
 if (!state || !state.insumos) {
   state = JSON.parse(JSON.stringify(SEED));
   localStorage.setItem("campogestor_state", JSON.stringify(state));
 } else {
-  // Garantir que os insumos existentes recebam os ativos padrão se faltar
+  state.talhoes = SEED.talhoes; // Garantir os 14 talhões unificados
   state.insumos.forEach(ins => {
     if (!ins.ativo) {
       const match = PRINCIPIOS_ATIVOS.find(p => p.comercial.toLowerCase() === ins.nome.toLowerCase());
@@ -245,14 +228,10 @@ function checarVencimento(dataStr) {
   const hoje = new Date();
   hoje.setHours(0,0,0,0);
   const venc = new Date(dataStr + "T00:00:00");
-  
   const diffDias = Math.ceil((venc - hoje) / (1000 * 60 * 60 * 24));
   
-  if (diffDias < 0) {
-    return { status: 'vencido', texto: `VENCIDO (${dataStr.split('-').reverse().join('/')})` };
-  } else if (diffDias <= 30) {
-    return { status: 'alerta', texto: `Vence em ${diffDias} dias (${dataStr.split('-').reverse().join('/')})` };
-  }
+  if (diffDias < 0) return { status: 'vencido', texto: `VENCIDO (${dataStr.split('-').reverse().join('/')})` };
+  if (diffDias <= 30) return { status: 'alerta', texto: `Vence em ${diffDias} dias (${dataStr.split('-').reverse().join('/')})` };
   return { status: 'ok', texto: `Venc: ${dataStr.split('-').reverse().join('/')}` };
 }
 
@@ -275,12 +254,9 @@ function selectTab(tab) {
   } else if (tab === 'insumos') {
     pageTitle.textContent = "Estoque de Insumos";
     content.innerHTML = renderInsumos();
-  } else if (tab === 'historico') {
-    pageTitle.textContent = "Histórico de Insumos";
-    content.innerHTML = renderHistorico();
   } else if (tab === 'talhoes') {
-    pageTitle.textContent = "Talhões e Áreas";
-    content.innerHTML = `<div class="card">Módulo de Talhões</div>`;
+    pageTitle.textContent = "Talhões — Fazenda Santa Rita";
+    content.innerHTML = renderTalhoes();
   } else if (tab === 'equatorial') {
     pageTitle.textContent = "Equatorial / Energia";
     content.innerHTML = `<div class="card">Módulo Equatorial</div>`;
@@ -291,7 +267,7 @@ function selectTab(tab) {
   window.scrollTo(0, 0);
 }
 
-// --- MÓDULO FROTA (MÁQUINAS) ---
+// --- MÓDULO FROTA DE MÁQUINAS ---
 function renderMaquinas() {
   return `
     <div class="card" style="margin-bottom:.5rem;">
@@ -398,16 +374,17 @@ function filtrarMaquinas() {
   });
 }
 
-
-// --- MÓDULO INSUMOS E HISTÓRICO ---
+// --- MÓDULO INSUMOS & HISTÓRICO INTEGRADO ---
 function renderInsumos() {
+  const listHist = state.historicoInsumos || [];
   return `
     <div class="card" style="margin-bottom:.5rem;">
-      <div class="row" style="margin-bottom:.75rem;">
-        <input type="text" id="search-ins" class="search-box" style="margin-bottom:0;" placeholder="🔍 Buscar por nome comercial ou princípio ativo (ex: Clorfenapir)..." onkeyup="filtrarInsumos()"/>
-        <button class="btn primary" onclick="modalEditarInsumo()">＋ Novo Insumo</button>
+      <input type="text" id="search-ins" class="search-box" placeholder="🔍 Buscar por marca ou princípio ativo (ex: Clorfenapir)..." onkeyup="filtrarInsumos()"/>
+      <div style="display:flex; flex-direction:column; gap:.5rem;">
+        <button class="btn primary block" onclick="modalEditarInsumo()">＋ Novo Insumo</button>
+        <button class="btn block" style="background:var(--primary); color:var(--bg); font-weight:600;" onclick="modalLancamentoColetivo()">📋 Lançamento Único (Boletim de Calda)</button>
       </div>
-      <div class="muted">Total em estoque: <strong>${state.insumos.length} produtos</strong></div>
+      <div class="muted" style="margin-top:.75rem;">Total em estoque: <strong>${state.insumos.length} produtos</strong></div>
     </div>
 
     <div class="sec">Inventário de Produtos & Defensivos</div>
@@ -432,18 +409,51 @@ function renderInsumos() {
                     ${v.texto ? `<br><strong ${v.status === 'vencido' ? 'style="color:var(--danger)"' : ''}>${v.texto}</strong>` : ''}
                   </div>
                 </div>
-                <div class="badge ${badgeClass}">
-                  ${typeof i.quantidade === 'number' ? i.quantidade.toLocaleString('pt-BR') : i.quantidade} ${i.unidade}
+                <div style="display:flex; align-items:center; gap:.4rem;">
+                  <div class="badge ${badgeClass}">
+                    ${typeof i.quantidade === 'number' ? i.quantidade.toLocaleString('pt-BR') : i.quantidade} ${i.unidade}
+                  </div>
+                  <button class="btn sm" onclick="modalEditarInsumo('${i.id}')" title="Editar estoque">✏️</button>
                 </div>
               </div>
-              <div class="item-actions">
-                <button class="btn sm primary" onclick="modalMovimentacao('${i.id}')">🔄 Lançar Movimentação</button>
-                <button class="btn sm" onclick="modalEditarInsumo('${i.id}')">✏️ Editar</button>
+              <div style="margin-top:.3rem;">
+                <button class="btn sm" onclick="modalMovimentacao('${i.id}')">🔄 Lançar Saída/Entrada Individual</button>
               </div>
             </li>
           `;
         }).join('')}
       </ul>
+    </div>
+
+    <div class="sec" style="margin-top:1.5rem;">📜 Histórico de Movimentações (Entradas / Saídas)</div>
+    <div class="card">
+      ${listHist.length === 0 ? '<div class="muted">Nenhuma movimentação registrada ainda.</div>' : `
+        <ul class="list">
+          ${listHist.map(h => {
+            const isSaida = h.tipo.startsWith("saida");
+            return `
+              <li>
+                <div class="item-main">
+                  <div>
+                    <strong>${h.insumoNome}</strong> <span class="muted">(Ativo: ${h.insumoAtivo || 'N/I'})</span>
+                    <div class="muted" style="font-size:.8rem; margin-top:.1rem;">
+                      ${isSaida ? '🔴' : '🟢'} ${h.tipo.replace('_', ' ').toUpperCase()}<br>
+                      📍 Destino/Talhão: <strong>${h.destino}</strong> | 🚜 Máq: ${h.maquina || 'N/I'}<br>
+                      👤 Resp: ${h.responsavel} | Status: <strong>${h.statusApp}</strong> ${h.obs ? '• ' + h.obs : ''}
+                    </div>
+                  </div>
+                  <div style="text-align:right;">
+                    <div class="badge ${isSaida ? 'danger' : 'ok'}">
+                      ${isSaida ? '-' : '+'}${h.quantidade} ${h.unidade}
+                    </div>
+                    <div class="muted" style="font-size:.7rem; margin-top:.2rem;">${h.data.split('-').reverse().join('/')}</div>
+                  </div>
+                </div>
+              </li>
+            `;
+          }).join('')}
+        </ul>
+      `}
     </div>
   `;
 }
@@ -458,13 +468,11 @@ function autoSugerirAtivo() {
     return;
   }
 
-  // Buscar sugestão no dicionário
   const match = PRINCIPIOS_ATIVOS.find(p => p.comercial.toLowerCase() === nomeComercial || nomeComercial.includes(p.comercial.toLowerCase()));
   if (match && !fieldAtivo.value) {
     fieldAtivo.value = match.ativo;
   }
 
-  // Verificar se o Princípio Ativo já existe no estoque da fazenda
   const ativoAtual = fieldAtivo.value.trim().toLowerCase();
   if (ativoAtual) {
     const estoqueExistente = state.insumos.find(i => i.ativo && i.ativo.toLowerCase().includes(ativoAtual));
@@ -538,6 +546,118 @@ function salvarInsumo(id) {
   showToast("Insumo salvo com sucesso!");
 }
 
+// --- LANÇAMENTO COLETIVO (BOLETIM DE CALDA) ---
+let itensColetivos = [];
+
+function modalLancamentoColetivo() {
+  itensColetivos = [{ insumoId: state.insumos[0].id, quantidade: '' }];
+  const hoje = new Date().toISOString().split('T')[0];
+
+  openModal(`
+    <h3 style="margin-bottom:.5rem;">📋 Lançamento Único (Boletim de Calda)</h3>
+    <div class="muted" style="margin-bottom:1rem;">Dê baixa em múltiplos produtos usados na mesma operação de uma vez.</div>
+
+    <div class="field">
+      <label>Talhão de Aplicação / Destino</label>
+      <select id="c-talhao">
+        ${state.talhoes.map(t => `<option value="${t.nome}">${t.nome} (${t.area} ha)</option>`).join('')}
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Equipamento / Pulverizador Utilizado</label>
+      <select id="c-maquina">
+        <option value="Não informado">Nenhum / Não informado</option>
+        ${state.maquinas.map(m => `<option value="${m.nome} (${m.nr})">${m.nome} - Nº ${m.nr}</option>`).join('')}
+      </select>
+    </div>
+
+    <div class="field"><label>Data da Operação</label><input type="date" id="c-data" value="${hoje}"></div>
+    <div class="field"><label>Responsável</label><input type="text" id="c-resp" value="${state.farm.cargo}"></div>
+
+    <div style="margin-top:1rem; margin-bottom:.5rem; font-weight:600; font-size:.85rem;">Insumos Utilizados na Receita / Calda:</div>
+    <div id="coletivo-lista"></div>
+
+    <button class="btn sm" style="margin-top:.5rem;" onclick="adicionarItemColetivo()">＋ Adicionar Outro Produto</button>
+
+    <div class="row" style="margin-top:1.5rem;">
+      <button class="btn block" onclick="closeModal()">Cancelar</button>
+      <button class="btn primary block" onclick="confirmarLancamentoColetivo()">Confirmar Lançamento</button>
+    </div>
+  `);
+
+  renderItensColetivos();
+}
+
+function renderItensColetivos() {
+  const container = document.getElementById("coletivo-lista");
+  container.innerHTML = itensColetivos.map((item, idx) => `
+    <div class="coletivo-item">
+      <div class="field">
+        <label>Produto Insumo #${idx + 1}</label>
+        <select onchange="itensColetivos[${idx}].insumoId = this.value">
+          ${state.insumos.map(ins => `<option value="${ins.id}" ${ins.id === item.insumoId ? 'selected' : ''}>${ins.nome} (${ins.ativo}) - Est: ${ins.quantidade} ${ins.unidade}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field">
+        <label>Quantidade Utilizada</label>
+        <input type="number" step="any" value="${item.quantidade}" placeholder="0.00" onkeyup="itensColetivos[${idx}].quantidade = this.value">
+      </div>
+    </div>
+  `).join('');
+}
+
+function adicionarItemColetivo() {
+  itensColetivos.push({ insumoId: state.insumos[0].id, quantidade: '' });
+  renderItensColetivos();
+}
+
+function confirmarLancamentoColetivo() {
+  const talhao = document.getElementById("c-talhao").value;
+  const maquina = document.getElementById("c-maquina").value;
+  const data = document.getElementById("c-data").value;
+  const resp = document.getElementById("c-resp").value.trim() || 'Sistema';
+
+  if (!state.historicoInsumos) state.historicoInsumos = [];
+
+  let processados = 0;
+
+  for (let item of itensColetivos) {
+    const qtd = parseFloat(item.quantidade);
+    if (!qtd || qtd <= 0) continue;
+
+    const ins = state.insumos.find(x => x.id === item.insumoId);
+    if (!ins) continue;
+
+    ins.quantidade -= qtd;
+
+    state.historicoInsumos.unshift({
+      id: 'hist-' + Date.now() + '-' + Math.random(),
+      insumoId: ins.id,
+      insumoNome: ins.nome,
+      insumoAtivo: ins.ativo,
+      unidade: ins.unidade,
+      tipo: 'saida_aplicacao',
+      quantidade: qtd,
+      data: data,
+      destino: `Talhão ${talhao}`,
+      maquina: maquina,
+      statusApp: '✅ Concluído',
+      responsavel: resp,
+      obs: 'Boletim de Calda Coletivo'
+    });
+
+    processados++;
+  }
+
+  if (processados === 0) return alert("Informe a quantidade para pelo menos um produto.");
+
+  saveLocalState();
+  closeModal();
+  selectTab('insumos');
+  showToast(`${processados} insumos lançados com sucesso!`);
+}
+
 function modalMovimentacao(insumoId) {
   const ins = state.insumos.find(x => x.id === insumoId);
   if (!ins) return;
@@ -545,14 +665,14 @@ function modalMovimentacao(insumoId) {
   const hoje = new Date().toISOString().split('T')[0];
 
   openModal(`
-    <h3 style="margin-bottom:.5rem;">🔄 Movimentação de Insumo</h3>
+    <h3 style="margin-bottom:.5rem;">🔄 Movimentação Individual</h3>
     <div class="muted" style="margin-bottom:1rem;">Produto: <strong>${ins.nome}</strong> (Ativo: ${ins.ativo})<br>Estoque Atual: ${ins.quantidade} ${ins.unidade}</div>
     
     <div class="field">
       <label>Tipo de Operação</label>
       <select id="m-tipo">
         <option value="saida_aplicacao">➖ Saída: Aplicação em Talhão</option>
-        <option value="saida_transferencia">➖ Saída: Empréstimo / Transferência p/ Outra Fazenda</option>
+        <option value="saida_transferencia">➖ Saída: Empréstimo / Transferência</option>
         <option value="entrada_compra">➕ Entrada: Compra / Recebimento</option>
         <option value="entrada_devolucao">➕ Entrada: Devolução / Ajuste</option>
       </select>
@@ -560,13 +680,11 @@ function modalMovimentacao(insumoId) {
 
     <div class="field"><label>Quantidade (${ins.unidade})</label><input type="number" step="any" id="m-qtd" placeholder="0.00"></div>
     <div class="field"><label>Data do Lançamento</label><input type="date" id="m-data" value="${hoje}"></div>
-    <div class="field"><label>Destino / Talhão / Fazenda Recebedora</label><input type="text" id="m-destino" placeholder="Ex: Talhão 04 ou Fazenda Santa Maria"></div>
     <div class="field">
-      <label>Status de Aplicação / Conclusão</label>
-      <select id="m-status-app">
-        <option value="Aplicado / Concluído">✅ Aplicado / Concluído</option>
-        <option value="Pendente / Em Trânsito">⏳ Pendente / Em Trânsito</option>
-        <option value="Não Aplicado">❌ Não Aplicado</option>
+      <label>Talhão / Destino</label>
+      <select id="m-destino">
+        <option value="Geral / Outros">Geral / Outros</option>
+        ${state.talhoes.map(t => `<option value="Talhão ${t.nome}">Talhão ${t.nome} (${t.area} ha)</option>`).join('')}
       </select>
     </div>
     <div class="field"><label>Responsável pelo Lançamento</label><input type="text" id="m-resp" value="${state.farm.cargo}"></div>
@@ -587,21 +705,12 @@ function confirmarMovimentacao(insumoId) {
   const tipo = document.getElementById("m-tipo").value;
   const isSaida = tipo.startsWith("saida");
 
-  if (isSaida && ins.quantidade < qtd) {
-    if (!confirm(`Atenção: A quantidade informada (${qtd}) é maior do que o estoque atual (${ins.quantidade}). Deseja continuar assim mesmo?`)) return;
-  }
+  if (isSaida) ins.quantidade -= qtd;
+  else ins.quantidade += qtd;
 
-  // Atualizar estoque
-  if (isSaida) {
-    ins.quantidade -= qtd;
-  } else {
-    ins.quantidade += qtd;
-  }
-
-  // Criar registro no histórico
   if (!state.historicoInsumos) state.historicoInsumos = [];
   
-  const reg = {
+  state.historicoInsumos.unshift({
     id: 'hist-' + Date.now(),
     insumoId: ins.id,
     insumoNome: ins.nome,
@@ -610,57 +719,16 @@ function confirmarMovimentacao(insumoId) {
     tipo: tipo,
     quantidade: qtd,
     data: document.getElementById("m-data").value,
-    destino: document.getElementById("m-destino").value.trim() || 'N/I',
-    statusApp: document.getElementById("m-status-app").value,
+    destino: document.getElementById("m-destino").value,
+    statusApp: '✅ Concluído',
     responsavel: document.getElementById("m-resp").value.trim() || 'Sistema',
     obs: document.getElementById("m-obs").value.trim()
-  };
+  });
 
-  state.historicoInsumos.unshift(reg);
   saveLocalState();
   closeModal();
   selectTab('insumos');
   showToast("Movimentação registrada com sucesso!");
-}
-
-function renderHistorico() {
-  const list = state.historicoInsumos || [];
-  return `
-    <div class="card" style="margin-bottom:.5rem;">
-      <div class="muted">Total de movimentações registradas: <strong>${list.length} lançamentos</strong></div>
-    </div>
-
-    <div class="sec">Registro de Entradas, Saídas e Transferências</div>
-    <div class="card">
-      ${list.length === 0 ? '<div class="muted">Nenhuma movimentação registrada ainda.</div>' : `
-        <ul class="list">
-          ${list.map(h => {
-            const isSaida = h.tipo.startsWith("saida");
-            return `
-              <li>
-                <div class="item-main">
-                  <div>
-                    <strong>${h.insumoNome}</strong> <span class="muted">(Ativo: ${h.insumoAtivo || 'N/I'})</span>
-                    <div class="muted" style="font-size:.8rem; margin-top:.1rem;">
-                      ${isSaida ? '🔴' : '🟢'} ${h.tipo.replace('_', ' ').toUpperCase()}<br>
-                      📍 Destino: <strong>${h.destino}</strong> | 👤 Resp: ${h.responsavel}<br>
-                      Status: <strong>${h.statusApp}</strong> ${h.obs ? '• Obs: ' + h.obs : ''}
-                    </div>
-                  </div>
-                  <div style="text-align:right;">
-                    <div class="badge ${isSaida ? 'danger' : 'ok'}">
-                      ${isSaida ? '-' : '+'}${h.quantidade} ${h.unidade}
-                    </div>
-                    <div class="muted" style="font-size:.7rem; margin-top:.2rem;">${h.data.split('-').reverse().join('/')}</div>
-                  </div>
-                </div>
-              </li>
-            `;
-          }).join('')}
-        </ul>
-      `}
-    </div>
-  `;
 }
 
 function filtrarInsumos() {
@@ -670,23 +738,49 @@ function filtrarInsumos() {
   });
 }
 
+// --- MÓDULO TALHÕES ---
+function renderTalhoes() {
+  const totalArea = state.talhoes.reduce((acc, t) => acc + t.area, 0);
+  return `
+    <div class="card" style="margin-bottom:.5rem;">
+      <div class="muted">Área Total Agrícola Cadastrada: <strong>${totalArea.toLocaleString('pt-BR', {minimumFractionDigits: 2})} ha</strong></div>
+    </div>
+
+    <div class="sec">Relação de Talhões (Fazenda Santa Rita)</div>
+    <div class="card">
+      <ul class="list">
+        ${state.talhoes.map(t => `
+          <li>
+            <div class="item-main">
+              <div>
+                <strong>Talhão ${t.nome}</strong>
+                <div class="muted">Fazenda Santa Rita</div>
+              </div>
+              <div class="badge ok">${t.area.toLocaleString('pt-BR', {minimumFractionDigits: 2})} ha</div>
+            </div>
+          </li>
+        `).join('')}
+      </ul>
+    </div>
+  `;
+}
+
 function renderResumo() {
   const operando = state.maquinas.filter(m => m.status === 'operando').length;
   const diesel = state.insumos.find(i => i.codigo === "73") || { quantidade: 7400 };
-  
-  // Contar vencidos
   const vencidos = state.insumos.filter(i => checarVencimento(i.vencimento).status === 'vencido').length;
+  const totalArea = state.talhoes.reduce((acc, t) => acc + t.area, 0);
 
   return `
     <div class="grid2">
-      <div class="stat"><div class="lbl">Total da Frota</div><div class="val">${state.maquinas.length} Itens</div></div>
-      <div class="stat"><div class="lbl">Em Operação</div><div class="val" style="color:var(--ok);">${operando} Ativos</div></div>
+      <div class="stat"><div class="lbl">Área Agrícola</div><div class="val" style="color:var(--ok);">${totalArea.toLocaleString('pt-BR')} ha</div></div>
+      <div class="stat"><div class="lbl">Frota Operando</div><div class="val">${operando} / ${state.maquinas.length}</div></div>
       <div class="stat"><div class="lbl">Estoque Diesel</div><div class="val" style="color:var(--warn);">${diesel.quantidade.toLocaleString('pt-BR')} L</div></div>
       <div class="stat"><div class="lbl">Produtos Vencidos</div><div class="val" style="color:${vencidos > 0 ? 'var(--danger)' : 'var(--fg)'};">${vencidos} Alertas</div></div>
     </div>
     <div class="card">
       <div class="card-title">Resumo do Sistema</div>
-      <p class="muted">Painel operacional da Fazenda Santa Rita atualizado com controle completo de inventário, ingredientes ativos e frota.</p>
+      <p class="muted">Painel operacional da Fazenda Santa Rita atualizado com controle completo de inventário, ingredientes ativos e boletim de calda.</p>
     </div>
   `;
 }
