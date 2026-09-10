@@ -7,7 +7,7 @@
 <title>CampoGestor — Fazenda Santa Rita</title>
 <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&family=Fraunces:opsz,wght@9..144,500&display=swap" rel="stylesheet"/>
 <style>
-:root{--bg:#121a14;--surface:#1c261f;--elevated:#27332a;--fg:#f4f7f2;--muted:#a8b5a4;--subtle:#7d8c78;--primary:#8fcf7a;--primary-soft:#b5e0a6;--border:#334038;--ok:#9fd48a;--warn:#d4b36a;--danger:#d47a6a;--font:Figtree,system-ui,sans-serif;--display:Fraunces,Georgia,serif;--radius:14px}
+:root{--bg:#1a2a1e;--surface:#2a3b2f;--elevated:#35483b;--fg:#f7faf6;--muted:#c5d0c1;--subtle:#93a38e;--primary:#9ad67f;--primary-soft:#c5ebb3;--border:#4a5e4e;--ok:#a8dc90;--warn:#e0c07a;--danger:#e08a7a;--font:Figtree,system-ui,sans-serif;--display:Fraunces,Georgia,serif;--radius:14px}
 *{box-sizing:border-box;border-color:var(--border)}
 html,body{margin:0;min-height:100dvh;background:var(--bg);color:var(--fg);font-family:var(--font)}
 button,input,select{font:inherit;color:inherit}button{cursor:pointer}
@@ -763,6 +763,28 @@ function renderDrawer(){
       <ul style="padding-left:1.1rem">${lis(d.domingoTrab,"Nenhum")}</ul>
       <p class="muted" style="margin-top:.6rem">Folga na casa acumula mês a mês. Extra de seg–sex além da 1 do mês abate da casa.</p>`;
   }
+  if(edit.kind==="hoje-diesel"){
+    const p=Math.round((state.diesel.litros/state.diesel.capacidade)*100);
+    const col=p>=50?"var(--ok)":p>=25?"var(--warn)":"var(--danger)";
+    body=`<h2>Diesel</h2>
+      <div class="ring-wrap" style="justify-content:center">
+        <div class="ring" style="--p:${p};width:110px;height:110px;background:conic-gradient(${col} calc(${p}*1%), var(--elevated) 0)">
+          <span class="pct">${p}%</span>
+        </div>
+      </div>
+      <p style="text-align:center">${n(state.diesel.litros,0)} L de ${n(state.diesel.capacidade,0)} L</p>`;
+  }
+  if(edit.kind==="hoje-chuva"){
+    const lista=(state.chuva||[]).slice().sort((a,b)=>(b.data||"").localeCompare(a.data||""));
+    const u=lista[0];
+    body=`<h2>Última chuva</h2>
+      ${u?`<p style="font-size:1.4rem;font-weight:500">${n(u.mm,1)} mm</p><p class="muted">${(u.data||"").split("-").reverse().join("/")}${u.obs?" · "+esc(u.obs):""}</p>`:`<p class="muted">Sem registro ainda.</p>`}`;
+  }
+  if(edit.kind==="hoje-area"){
+    const ts=(state.talhoes||[]).slice().sort((a,b)=>String(a.codigo||a.nome).localeCompare(String(b.codigo||b.nome),"pt-BR"));
+    body=`<h2>Área</h2><p>${n(state.farm.areaTotal,0)} ha · ${ts.length} talhões</p>
+      <ul class="list" style="margin-top:.6rem">${ts.map(t=>`<li><div style="flex:1">${esc(t.codigo||"")} ${esc(t.nome||"")}</div><div>${n(t.area,2)} ha</div></li>`).join("")||'<li class="muted">Sem talhões</li>'}</ul>`;
+  }
   if(edit.kind==="janela"){
     const j=janelaMapa();
     body=`<h2>Janela MAPA · Soja GO</h2>
@@ -817,10 +839,18 @@ function render(){
     </div>`;
     // Bloco resumo
     html+=`<div class="grid2">
-      <div class="stat"><div class="lbl">Diesel</div><div class="val">${n(state.diesel.litros,0)} L</div><div class="muted">${dieselPct}% do tanque</div></div>
-      <div class="stat"><div class="lbl">Última chuva</div><div class="val">${ultimaChuva ? n(ultimaChuva.mm,1)+" mm" : "—"}</div><div class="muted">${ultimaChuva ? (ultimaChuva.data||"").split("-").reverse().join("/") : "sem registro"}</div></div>
-      <div class="stat"><div class="lbl">Equipe</div><div class="val">${state.pessoas.filter(p=>p.tipo!=="encerrado").length}</div><div class="muted">colaboradores</div></div>
-      <div class="stat"><div class="lbl">Área</div><div class="val">${n(state.farm.areaTotal,0)} ha</div><div class="muted">${state.talhoes.length} talhões</div></div>
+      <button class="stat" data-hoje="diesel" style="text-align:left;border:1px solid var(--border)">
+        <div class="lbl">⛽ Diesel</div><div class="val">${n(state.diesel.litros,0)} L</div><div class="muted">${dieselPct}% do tanque</div>
+      </button>
+      <button class="stat" data-hoje="chuva" style="text-align:left;border:1px solid var(--border)">
+        <div class="lbl">🌧 Última chuva</div><div class="val">${ultimaChuva ? n(ultimaChuva.mm,1)+" mm" : "—"}</div><div class="muted">${ultimaChuva ? (ultimaChuva.data||"").split("-").reverse().join("/") : "sem registro"}</div>
+      </button>
+      <button class="stat" data-hoje="equipe" style="text-align:left;border:1px solid var(--border)">
+        <div class="lbl">👥 Equipe</div><div class="val">${state.pessoas.filter(p=>p.tipo!=="encerrado").length}</div><div class="muted">colaboradores</div>
+      </button>
+      <button class="stat" data-hoje="area" style="text-align:left;border:1px solid var(--border)">
+        <div class="lbl">🗺 Área</div><div class="val">${n(state.farm.areaTotal,0)} ha</div><div class="muted">${state.talhoes.length} talhões</div>
+      </button>
     </div>`;
     // Atividades do dia
     html+=`<div class="ring-wrap">
@@ -1257,9 +1287,12 @@ function render(){
           <button class="btn primary" id="btn-login">Entrar</button>
           <button class="btn" id="btn-signup">Criar conta</button>
         </div>
-        <p class="muted" style="margin-top:.5rem">Com login, celular e PC compartilham os mesmos dados.</p>`;
+        <p class="muted" style="margin-top:.5rem">Você e o gerente usam o <b>mesmo e-mail e a mesma senha</b>. Assim o que um lança aparece no celular do outro.</p>
+        <p class="muted">1) Crie a conta uma vez · 2) Entre nos dois aparelhos com essa conta · 3) O app salva sozinho na nuvem.</p>
+        <p class="muted">Contas diferentes = cadernetas diferentes. Não misturam.</p>`;
     } else {
-      html+=`<p class="muted">E-mail: ${esc(sbUser.email||"")}</p>
+      html+=`<p class="muted">Conta da fazenda: ${esc(sbUser.email||"")}</p>
+        <p class="muted">O Célio precisa entrar com este mesmo e-mail. O que um salvar, o outro vê ao abrir o app (ou em “Buscar da nuvem”).</p>
         <button class="btn" id="btn-logout" style="margin-top:.5rem">Sair</button>
         <button class="btn" id="btn-push" style="margin-top:.5rem">Salvar na nuvem agora</button>
         <button class="btn" id="btn-pull" style="margin-top:.5rem">Buscar da nuvem</button>`;
@@ -1313,6 +1346,16 @@ function render(){
 
 function bind(){
   document.querySelectorAll("[data-go]").forEach(btn=>{ btn.onclick=()=>{ page=btn.getAttribute("data-go"); edit=null; menuOpen=false; render(); }; });
+  document.querySelectorAll("[data-hoje]").forEach(b=>{
+    b.onclick=()=>{
+      const k=b.getAttribute("data-hoje");
+      if(k==="equipe"){ page="pessoas"; edit=null; menuOpen=false; render(); return; }
+      if(k==="diesel") edit={kind:"hoje-diesel"};
+      if(k==="chuva") edit={kind:"hoje-chuva"};
+      if(k==="area") edit={kind:"hoje-area"};
+      render();
+    };
+  });
   document.querySelectorAll("[data-ver-pessoa]").forEach(el=>{
     el.onclick=()=>{ edit={kind:"ver-pessoa", id:el.getAttribute("data-ver-pessoa")}; render(); };
   });
