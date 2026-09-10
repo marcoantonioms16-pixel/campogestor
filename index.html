@@ -1332,7 +1332,7 @@ function render(){
     html+=`<div class="card"><p class="card-title">Atendimento</p><p style="font-size:1.1rem;font-weight:500">${esc(eq.telefone)}</p>
       <p class="muted">Anote o protocolo após o atendimento.</p>
       <a class="btn primary block" style="margin-top:.6rem;text-align:center;text-decoration:none" id="btn-wa-clara" href="#">WhatsApp Clara</a>
-      <p class="muted" style="margin-top:.4rem">0800-620-196 · informe o número da Clara em Mais → Editar fazenda se o link não abrir.</p>
+      <p class="muted" style="margin-top:.4rem">0800-620-196 · Abre o WhatsApp do telefone. Com o número da Clara em Mais → Editar fazenda, já entra no chat dela.</p>
     </div>`;
     const ucKeep=["10026027184","980046051"];
     html+=`<p class="sec">Unidades consumidoras</p><ul class="list card" style="padding:.25rem 1rem">`;
@@ -1465,9 +1465,20 @@ function bind(){
   const bwa=document.getElementById("btn-wa-clara");
   if(bwa) bwa.onclick=(ev)=>{
     ev.preventDefault();
-    const num=(state.farm.whatsappClara||"").replace(/\D/g,"");
-    if(!num){ toast("Cadastre o WhatsApp da Clara em Mais → Editar fazenda"); return; }
-    window.open("https://wa.me/55"+num, "_blank");
+    let num=(state.farm.whatsappClara||"").replace(/\D/g,"");
+    if(num.startsWith("55") && num.length>=12) num=num;
+    else if(num.length>=10) num="55"+num;
+    if(num.length>=12){
+      const app="whatsapp://send?phone="+num;
+      const web="https://wa.me/"+num;
+      const t=Date.now();
+      location.href=app;
+      setTimeout(()=>{ if(Date.now()-t<1800) location.href=web; }, 600);
+    } else {
+      location.href="whatsapp://";
+      setTimeout(()=>{ location.href="https://wa.me/"; }, 500);
+      toast("Abriu o WhatsApp do telefone. Para ir direto na Clara, grave o número em Mais → Editar fazenda.");
+    }
   };
   document.querySelectorAll("[data-safra-filtro]").forEach(b=>{
     b.onclick=()=>{ safraFiltro=b.getAttribute("data-safra-filtro"); render(); };
