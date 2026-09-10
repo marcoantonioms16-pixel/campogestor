@@ -283,6 +283,7 @@ function load(){
         chuva: Array.isArray(d.chuva) ? d.chuva : (SEED.chuva||[]),
         saidas: Array.isArray(d.saidas) ? d.saidas : (SEED.saidas||[]),
         safraStatus: d.safraStatus || {},
+        safraPlantio: d.safraPlantio || {},
         equatorial: d.equatorial || SEED.equatorial,
         rotinaFeita: d.rotinaFeita || {},
       };
@@ -321,6 +322,7 @@ let page = "hoje";
 let menuOpen = false;
 let qInsumo = "";
 let catInsumo = "todos";
+let safraFiltro = "todos"; // todos | pendente | andamento | concluido
 let edit = null; // {kind, id} or {kind:'novo-...'}
 let toastTimer;
 
@@ -588,6 +590,19 @@ function renderDrawer(){
       <div class="field"><label>Observação</label><input id="e-obs" placeholder="Opcional"/></div>
       <button class="btn primary block" id="e-save">Salvar e dar baixa</button>`;
   }
+  if(edit.kind==="edit-plantio"){
+    const idx=Number(edit.id);
+    const r=SAFRA.plantio[idx]||{};
+    const ov=(state.safraPlantio||{})[idx]||{};
+    const cults=["76KA72 CE","Raptor I2X","NEO761 I2X","NEO700 I2X","DM 72IX74 I2X","ST 752 I2X","RAPTOR I2X"];
+    const curCult=ov.cultivar||r.cultivar||"";
+    body=`<h2>Editar plantio</h2>
+      <p class="muted" style="margin-bottom:.6rem">${esc(r.talhoes||"")} · ${n(r.ha||0,2)} ha</p>
+      <div class="field"><label>Cultivar / semente</label><select id="e-cult">${cults.map(c=>`<option value="${c}" ${curCult===c?"selected":""}>${c}</option>`).join("")}</select></div>
+      <div class="field"><label>Sementes por metro (sem/m)</label><input id="e-semm" value="${esc(ov.sem_m||r.sem_m||"")}"/></div>
+      <div class="field"><label>Sementes por hectare (sem/ha)</label><input id="e-semha" value="${esc(ov.sem_ha||r.sem_ha||"")}"/></div>
+      <button class="btn primary block" id="e-save-plantio">Salvar</button>`;
+  }
   if(edit.kind==="farm"){
     body=`<h2>Editar fazenda</h2>
       <div class="field"><label>Nome</label><input id="f-nome" value="${esc(state.farm.nome)}"/></div>
@@ -739,18 +754,24 @@ function render(){
     if(selPessoa){
       const p = selPessoa;
       const tempo = tempoDeCasa(p.admissao, hoje);
-      html+=headerBar("Detalhes","Pessoa",`<button class="btn sm" data-go="pessoas">← Voltar</button>`);
-      html+=`<div class="card">
-        <p style="font-family:var(--display);font-size:1.25rem;margin:0 0 .5rem">${esc(p.nome)}</p>
-        <p class="muted">${esc(p.funcao)} · ${esc(p.tipo)}</p>
-        ${p.nascimento?`<p class="muted" style="margin-top:.4rem">Aniversário: ${dataNascimentoFmt(p.nascimento)}</p>`:""}
-        ${p.admissao?`<p class="muted">Admissão: ${String(p.admissao).split("-").reverse().join("/")}</p>`:""}
-        ${tempo?`<p style="margin-top:.5rem;font-weight:500">Tempo de casa: ${esc(tempo)}</p>`:""}
-        ${p.carteira?`<div style="margin-top:.75rem;padding:.6rem;background:var(--elevated);border-radius:10px;display:flex;align-items:center;justify-content:space-between;gap:.5rem">
-          <div><div class="muted" style="font-size:.7rem">Carteira Unimed</div><div style="font-weight:500;font-size:.9rem">${esc(p.carteira)}</div></div>
+      html+=headerBar("Equipe","Pessoas",`<button class="btn sm" data-go="pessoas">← Voltar</button>`);
+      html+=`<div class="card" style="margin-top:.25rem">
+        <div class="row" style="align-items:flex-start">
+          <div style="flex:1">
+            <p style="font-family:var(--display);font-size:1.25rem;margin:0">${esc(p.nome)}</p>
+            <p class="muted" style="margin-top:.25rem">${esc(p.funcao)} · ${esc(p.tipo)}</p>
+          </div>
+          <button class="btn icon" data-edit="pessoa" data-id="${p.id}" title="Editar">✎</button>
+        </div>
+        <div style="margin-top:.85rem;display:flex;flex-direction:column;gap:.45rem">
+          ${p.nascimento?`<div class="row"><span class="muted">Aniversário</span><span>${dataNascimentoFmt(p.nascimento)}</span></div>`:""}
+          ${p.admissao?`<div class="row"><span class="muted">Admissão</span><span>${String(p.admissao).split("-").reverse().join("/")}</span></div>`:""}
+          ${tempo?`<div class="row"><span class="muted">Tempo de casa</span><span style="font-weight:500;color:var(--primary-soft)">${esc(tempo)}</span></div>`:""}
+        </div>
+        ${p.carteira?`<div style="margin-top:.9rem;padding:.7rem .8rem;background:var(--elevated);border-radius:12px;display:flex;align-items:center;justify-content:space-between;gap:.5rem">
+          <div><div class="muted" style="font-size:.7rem">Carteira Unimed</div><div style="font-weight:500;letter-spacing:.02em">${esc(p.carteira)}</div></div>
           <button class="btn sm" data-copy="${esc(p.carteira)}">Copiar</button>
-        </div>`:`<p class="muted" style="margin-top:.5rem">Sem carteira cadastrada</p>`}
-        <button class="btn" style="margin-top:1rem" data-edit="pessoa" data-id="${p.id}">✎ Editar dados</button>
+        </div>`:`<p class="muted" style="margin-top:.75rem">Sem carteira cadastrada</p>`}
       </div>`;
     } else {
       html+=headerBar(`Equipe · ${state.pessoas.length}`,"Pessoas",`<button class="btn primary sm" data-new="pessoa">+ Nova</button>`);
@@ -771,23 +792,92 @@ function render(){
   }
 
   if(page==="safra"){
+    if(!state.safraStatus) state.safraStatus={};
+    if(!state.safraPlantio) state.safraPlantio={}; // overrides: {idx: {cultivar, sem_m, sem_ha}}
+    const stKey = (sec, i) => sec+"-"+i;
+    const getSt = (sec, i) => (state.safraStatus[stKey(sec,i)]||{}).status || "pendente";
+    const getStDate = (sec, i) => (state.safraStatus[stKey(sec,i)]||{}).data || "";
+    const stLabel = {pendente:"Pendente", andamento:"Em andamento", concluido:"Concluído"};
+    const stBadge = {pendente:"muted", andamento:"warn", concluido:"ok"};
+    const matchFiltro = (sec, i) => safraFiltro==="todos" || getSt(sec,i)===safraFiltro;
+    const countSt = (sec, total) => {
+      let c=0; for(let i=0;i<total;i++) if(getSt(sec,i)==="concluido") c++; return c;
+    };
+    const nCor = SAFRA.corretivo.length, nFer = SAFRA.fertilizante.length, nPla = SAFRA.plantio.length, nSul = SAFRA.sulco.length;
     html+=headerBar("Caderno de campo","Safra 2026/27",``);
     html+=`<p class="sub">Programação · Grupo Segredo · Fazenda Santa Rita</p>`;
-    html+=`<p class="sec">Corretivo (calcário)</p><div class="card" style="padding:.5rem .75rem;overflow:auto"><table class="table"><tr><th>Talhões</th><th>ha</th><th>Cultivar</th><th>Dose</th><th>Volume</th></tr>`;
-    SAFRA.corretivo.forEach(r=>{ html+=`<tr><td>${esc(r.talhoes)}</td><td>${n(r.ha,2)}</td><td>${esc(r.cultivar)}</td><td>${esc(r.dose)}</td><td>${esc(r.volume)}</td></tr>`; });
-    html+=`</table></div>`;
-    html+=`<p class="sec">Fertilizante</p>`;
-    SAFRA.fertilizante.forEach(g=>{
-      html+=`<div class="card"><p class="card-title">${esc(g.talhoes)} · ${n(g.ha,2)} ha · ${esc(g.cultivar)}</p><ul class="list">`;
-      g.itens.forEach(it=>{ html+=`<li><div style="flex:1"><div style="font-weight:500">${esc(it.insumo)}</div><div class="muted">${esc(it.dose)}</div></div><div class="muted">${esc(it.volume)}</div></li>`; });
-      html+=`</ul></div>`;
+    // Progresso geral
+    html+=`<div class="card"><p class="card-title">Progresso da safra</p>
+      <p class="muted">Corretivo ${countSt("cor",nCor)}/${nCor} · Fertilizante ${countSt("fer",nFer)}/${nFer} · Plantio ${countSt("pla",nPla)}/${nPla} · Sulco ${countSt("sul",nSul)}/${nSul}</p></div>`;
+    // Filtro
+    html+=`<div class="chips">
+      <button class="chip ${safraFiltro==="todos"?"on":""}" data-safra-filtro="todos">Todos</button>
+      <button class="chip ${safraFiltro==="pendente"?"on":""}" data-safra-filtro="pendente">Pendente</button>
+      <button class="chip ${safraFiltro==="andamento"?"on":""}" data-safra-filtro="andamento">Em andamento</button>
+      <button class="chip ${safraFiltro==="concluido"?"on":""}" data-safra-filtro="concluido">Concluído</button>
+    </div>`;
+    // Corretivo
+    html+=`<p class="sec">Corretivo (calcário)</p>`;
+    SAFRA.corretivo.forEach((r,i)=>{
+      if(!matchFiltro("cor",i)) return;
+      const st=getSt("cor",i);
+      html+=`<div class="card"><div class="row">
+        <div style="flex:1"><p class="card-title" style="margin:0">${esc(r.talhoes)}</p>
+          <p class="muted">${n(r.ha,2)} ha · ${esc(r.cultivar)} · ${esc(r.dose)} · ${esc(r.volume)}</p>
+          ${st==="concluido"&&getStDate("cor",i)?`<p class="muted">Concluído em ${getStDate("cor",i).split("-").reverse().join("/")}</p>`:""}
+        </div>
+        <button class="badge ${stBadge[st]}" data-safra-st="cor" data-i="${i}" style="border:none;cursor:pointer">${stLabel[st]}</button>
+      </div></div>`;
     });
-    html+=`<p class="sec">Plantio soja</p><div class="card" style="padding:.5rem .75rem;overflow:auto"><table class="table"><tr><th>Talhões</th><th>ha</th><th>Cultivar</th><th>Sem/m</th><th>Esp.</th><th>Sem/ha</th></tr>`;
-    SAFRA.plantio.forEach(r=>{ html+=`<tr><td>${esc(r.talhoes)}</td><td>${n(r.ha,2)}</td><td>${esc(r.cultivar)}</td><td>${esc(r.sem_m)}</td><td>${esc(r.espac)}</td><td>${esc(r.sem_ha)}</td></tr>`; });
-    html+=`</table><p class="muted" style="margin-top:.5rem">Total plantio ≈ 1.587,11 ha</p></div>`;
-    html+=`<p class="sec">Manejo de sulco (todos os talhões)</p><div class="card"><ul class="list">`;
-    SAFRA.sulco.forEach(s=>{ html+=`<li><div style="flex:1"><div style="font-weight:500">${esc(s.insumo)}</div><div class="muted">${esc(s.tipo)} · ${esc(s.fabricante)}</div></div><div class="muted">${esc(s.dose)}</div></li>`; });
-    html+=`</ul></div>`;
+    // Fertilizante
+    html+=`<p class="sec">Fertilizante</p>`;
+    SAFRA.fertilizante.forEach((g,i)=>{
+      if(!matchFiltro("fer",i)) return;
+      const st=getSt("fer",i);
+      html+=`<div class="card"><div class="row" style="align-items:flex-start">
+        <div style="flex:1"><p class="card-title" style="margin:0">${esc(g.talhoes)} · ${n(g.ha,2)} ha · ${esc(g.cultivar)}</p>
+          <ul class="list">`;
+      g.itens.forEach(it=>{ html+=`<li style="padding:.35rem 0"><div style="flex:1"><div style="font-weight:500">${esc(it.insumo)}</div><div class="muted">${esc(it.dose)}</div></div><div class="muted">${esc(it.volume)}</div></li>`; });
+      html+=`</ul>
+          ${st==="concluido"&&getStDate("fer",i)?`<p class="muted">Concluído em ${getStDate("fer",i).split("-").reverse().join("/")}</p>`:""}
+        </div>
+        <button class="badge ${stBadge[st]}" data-safra-st="fer" data-i="${i}" style="border:none;cursor:pointer;margin-top:.2rem">${stLabel[st]}</button>
+      </div></div>`;
+    });
+    // Plantio
+    html+=`<p class="sec">Plantio soja</p>`;
+    SAFRA.plantio.forEach((r,i)=>{
+      if(!matchFiltro("pla",i)) return;
+      const st=getSt("pla",i);
+      const ov = (state.safraPlantio||{})[i] || {};
+      const cult = ov.cultivar || r.cultivar;
+      const semM = ov.sem_m || r.sem_m;
+      const semHa = ov.sem_ha || r.sem_ha;
+      html+=`<div class="card"><div class="row" style="align-items:flex-start">
+        <div style="flex:1"><p class="card-title" style="margin:0">${esc(r.talhoes)} · ${n(r.ha,2)} ha</p>
+          <p class="muted">${esc(cult)} · ${esc(semM)} sem/m · ${esc(r.espac)} · ${esc(semHa)} sem/ha</p>
+          ${st==="concluido"&&getStDate("pla",i)?`<p class="muted">Concluído em ${getStDate("pla",i).split("-").reverse().join("/")}</p>`:""}
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:.35rem">
+          <button class="badge ${stBadge[st]}" data-safra-st="pla" data-i="${i}" style="border:none;cursor:pointer">${stLabel[st]}</button>
+          <button class="btn sm" data-edit-plantio="${i}">✎</button>
+        </div>
+      </div></div>`;
+    });
+    // Sulco
+    html+=`<p class="sec">Manejo de sulco (todos os talhões)</p>`;
+    SAFRA.sulco.forEach((s,i)=>{
+      if(!matchFiltro("sul",i)) return;
+      const st=getSt("sul",i);
+      html+=`<div class="card"><div class="row">
+        <div style="flex:1"><p style="font-weight:500;margin:0">${esc(s.insumo)}</p>
+          <p class="muted">${esc(s.tipo)} · ${esc(s.fabricante)} · ${esc(s.dose)}</p>
+          ${st==="concluido"&&getStDate("sul",i)?`<p class="muted">Concluído em ${getStDate("sul",i).split("-").reverse().join("/")}</p>`:""}
+        </div>
+        <button class="badge ${stBadge[st]}" data-safra-st="sul" data-i="${i}" style="border:none;cursor:pointer">${stLabel[st]}</button>
+      </div></div>`;
+    });
+    // Talhões
     html+=`<p class="sec">Talhões cadastrados</p><ul class="list card" style="padding:.25rem 1rem">`;
     state.talhoes.forEach(t=>{
       const tag=t.fazenda==="campo-alegre"?"C. Alegre":"Sta Rita";
@@ -955,6 +1045,30 @@ function bind(){
   document.querySelectorAll("[data-ver-pessoa]").forEach(el=>{
     el.onclick=()=>{ edit={kind:"ver-pessoa", id:el.getAttribute("data-ver-pessoa")}; render(); };
   });
+  document.querySelectorAll("[data-safra-filtro]").forEach(b=>{
+    b.onclick=()=>{ safraFiltro=b.getAttribute("data-safra-filtro"); render(); };
+  });
+  document.querySelectorAll("[data-safra-st]").forEach(b=>{
+    b.onclick=()=>{
+      if(!state.safraStatus) state.safraStatus={};
+      const sec=b.getAttribute("data-safra-st");
+      const i=b.getAttribute("data-i");
+      const key=sec+"-"+i;
+      const cur=(state.safraStatus[key]||{}).status||"pendente";
+      const next=cur==="pendente"?"andamento":cur==="andamento"?"concluido":"pendente";
+      const entry={status:next};
+      if(next==="concluido") entry.data=hojeISO();
+      // histórico simples
+      if(!state.safraStatus[key]) state.safraStatus[key]={};
+      if(!state.safraStatus[key].hist) state.safraStatus[key].hist=[];
+      state.safraStatus[key].hist.push({de:cur, para:next, em:hojeISO()});
+      state.safraStatus[key]={...state.safraStatus[key], ...entry};
+      save(); render();
+    };
+  });
+  document.querySelectorAll("[data-edit-plantio]").forEach(b=>{
+    b.onclick=()=>{ edit={kind:"edit-plantio", id:b.getAttribute("data-edit-plantio")}; render(); };
+  });
 
   const bm=document.getElementById("btn-menu");
   if(bm) bm.onclick=()=>{ menuOpen=true; render(); };
@@ -1081,6 +1195,17 @@ function bind(){
     state.farm.gerente=document.getElementById("f-ger").value.trim()||state.farm.gerente;
     state.farm.safra=document.getElementById("f-safra").value.trim()||state.farm.safra;
     save(); toast("Fazenda atualizada"); closeEdit();
+  };
+  const ep=document.getElementById("e-save-plantio");
+  if(ep) ep.onclick=()=>{
+    if(!state.safraPlantio) state.safraPlantio={};
+    const idx=Number(edit.id);
+    state.safraPlantio[idx]={
+      cultivar:document.getElementById("e-cult").value,
+      sem_m:document.getElementById("e-semm").value.trim(),
+      sem_ha:document.getElementById("e-semha").value.trim()
+    };
+    save(); toast("Plantio atualizado"); closeEdit();
   };
   const bn=document.getElementById("btn-notif");
   if(bn) bn.onclick=()=>{ if(!("Notification" in window)){ toast("Sem suporte a notificação"); return; }
