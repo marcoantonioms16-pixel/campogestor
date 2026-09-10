@@ -7,10 +7,12 @@
 <title>CampoGestor — Fazenda Santa Rita</title>
 <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&family=Fraunces:opsz,wght@9..144,500&display=swap" rel="stylesheet"/>
 <style>
-:root{--bg:#1a2a1e;--surface:#2a3b2f;--elevated:#35483b;--fg:#f7faf6;--muted:#c5d0c1;--subtle:#93a38e;--primary:#9ad67f;--primary-soft:#c5ebb3;--border:#4a5e4e;--ok:#a8dc90;--warn:#e0c07a;--danger:#e08a7a;--font:Figtree,system-ui,sans-serif;--display:Fraunces,Georgia,serif;--radius:14px}
+:root{--bg:#e8f0e4;--surface:#f7faf5;--elevated:#ffffff;--fg:#1a2a1c;--muted:#4a5c4e;--subtle:#6b7d6e;--primary:#2f7a3a;--primary-soft:#c8e8b8;--border:#b7c8b4;--ok:#1e7a32;--warn:#9a6b00;--danger:#b33a2a;--font:Figtree,system-ui,sans-serif;--display:Fraunces,Georgia,serif;--radius:14px}
 *{box-sizing:border-box;border-color:var(--border)}
 html,body{margin:0;min-height:100dvh;background:var(--bg);color:var(--fg);font-family:var(--font)}
-button,input,select{font:inherit;color:inherit}button{cursor:pointer}
+button,input,select{font:inherit;color:inherit}
+input,select,textarea{background:var(--elevated);border:1px solid var(--border);border-radius:10px;padding:.5rem .65rem;width:100%}
+input:disabled,select:disabled{opacity:.45;background:#dfe8dc}button{cursor:pointer}
 h1,h2,h3{font-family:var(--display);font-weight:500;margin:0}
 .app{max-width:720px;margin:0 auto;min-height:100dvh;padding-bottom:1.5rem}
 .header{padding:1.25rem 1rem .5rem;display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem}
@@ -926,19 +928,26 @@ function renderDrawer(){
   if(edit.kind==="extintor" || edit.kind==="novo-extintor"){
     const e = edit.kind==="extintor" ? (state.extintores||[]).find(x=>x.id===edit.id)||{} : {fazenda:"Santa Rita",grupo:"santa-rita",local:"",maquina:"",tipo:"Pó ABC",carga:"6 kg",codigo:"",recarga:"",validade:"",obs:"",nrInterno:""};
     const locais=["Balança","Oficina","Moega","Cantina interno","Cantina externo","Alojamento interno","Alojamento externo","Tanque de combustível","Gerador","Depósito de embalagens vazias","Casinha do gás","Almoxarifado","Classificação","Outro"];
-    const maqs=["Trator Ford 6600","Trator Valtra BH194","Colheitadeira Case 2799","Colheitadeira Case 2799 STD 2399","Outra"];
+    const maqs=(state.maquinas||[]).slice().sort((a,b)=>String(a.nome).localeCompare(b.nome,"pt-BR"));
     const tipos=["Pó ABC","CO2 BC","Pó BC","Água","Água ABC","Espuma AB"];
     const cargas=["4 kg","4,5 kg","6 kg","10 L","50 kg"];
-    const locVal=e.grupo==="maquinario"?(e.maquina||e.local||""):(e.local||"");
+    const locVal=e.local||"";
+    const isMaq=e.grupo==="maquinario";
+    const maqVal=e.maquina||e.codigoMaq||"";
     body=`<h2>${edit.kind==="extintor"?"Editar extintor":"Novo extintor"}</h2>
       <div class="field"><label>Fazenda</label><select id="x-faz"><option>Santa Rita</option></select></div>
       <div class="field"><label>Grupo</label><select id="x-grupo">
-        <option value="santa-rita" ${e.grupo!=="maquinario"?"selected":""}>Santa Rita (local)</option>
-        <option value="maquinario" ${e.grupo==="maquinario"?"selected":""}>Maquinário</option>
+        <option value="santa-rita" ${!isMaq?"selected":""}>Santa Rita (local)</option>
+        <option value="maquinario" ${isMaq?"selected":""}>Maquinário</option>
       </select></div>
-      <div class="field"><label>Local</label><select id="x-local">${locais.map(t=>`<option ${locVal===t?"selected":""}>${t}</option>`).join("")}</select></div>
-      <div class="field"><label>Máquina (se maquinário)</label><select id="x-maq"><option value="">—</option>${maqs.map(t=>`<option ${ (e.maquina||"")===t?"selected":""}>${t}</option>`).join("")}</select></div>
-      <div class="field"><label>Nr. interno da máquina</label><input id="x-nr" value="${esc(e.nrInterno||"")}" placeholder="2403"/></div>
+      <div class="field"><label>Local</label><select id="x-local" ${isMaq?"disabled":""}>${locais.map(t=>`<option ${locVal===t?"selected":""}>${t}</option>`).join("")}</select></div>
+      <div class="field"><label>Máquina (frota)</label><select id="x-maq" ${isMaq?"":"disabled"}><option value="">—</option>${maqs.map(t=>{
+        const val=t.id;
+        const lab=`${t.codigo?t.codigo+" · ":""}${t.nome}`;
+        const sel=(e.maqId===t.id || e.maquina===t.nome || e.nrInterno===t.codigo)?"selected":"";
+        return `<option value="${val}" ${sel}>${esc(lab)}</option>`;
+      }).join("")}</select></div>
+      <div class="field"><label>Nr. interno da máquina</label><input id="x-nr" value="${esc(e.nrInterno||"")}" placeholder="2403" ${isMaq?"":"disabled"}/></div>
       <div class="field"><label>Tipo</label><select id="x-tipo">${tipos.map(t=>`<option ${e.tipo===t?"selected":""}>${t}</option>`).join("")}</select></div>
       <div class="field"><label>Carga</label><select id="x-carga">${cargas.map(t=>`<option ${e.carga===t?"selected":""}>${t}</option>`).join("")}</select></div>
       <div class="field"><label>Nº cilindro</label><input id="x-cod" value="${esc(e.codigo||"")}"/></div>
@@ -1788,6 +1797,23 @@ function bind(){
     };
     save(); toast("Janela MAPA atualizada"); closeEdit();
   };
+  const xg=document.getElementById("x-grupo");
+  const applyExtLock=()=>{
+    const m=xg && xg.value==="maquinario";
+    const loc=document.getElementById("x-local");
+    const maq=document.getElementById("x-maq");
+    const nr=document.getElementById("x-nr");
+    if(loc) loc.disabled=!!m;
+    if(maq) maq.disabled=!m;
+    if(nr) nr.disabled=!m;
+  };
+  if(xg){ xg.onchange=applyExtLock; applyExtLock(); }
+  const xm=document.getElementById("x-maq");
+  if(xm) xm.onchange=()=>{
+    const m=(state.maquinas||[]).find(x=>x.id===xm.value);
+    const nr=document.getElementById("x-nr");
+    if(m && nr) nr.value=m.codigo||m.placa||"";
+  };
   const sx=document.getElementById("e-save-ext");
   if(sx) sx.onclick=()=>{
     if(!state.extintores) state.extintores=[];
@@ -1796,8 +1822,9 @@ function bind(){
       fazenda:document.getElementById("x-faz").value,
       grupo,
       local:document.getElementById("x-local").value.trim(),
-      maquina:document.getElementById("x-maq").value.trim(),
-      nrInterno:document.getElementById("x-nr").value.trim(),
+      maqId:document.getElementById("x-maq").value,
+      maquina:(()=>{ const id=document.getElementById("x-maq").value; const m=(state.maquinas||[]).find(x=>x.id===id); return m?m.nome:""; })(),
+      nrInterno:document.getElementById("x-nr").value.trim() || (()=>{ const id=document.getElementById("x-maq").value; const m=(state.maquinas||[]).find(x=>x.id===id); return m?(m.codigo||m.placa||""):""; })(),
       tipo:document.getElementById("x-tipo").value,
       carga:document.getElementById("x-carga").value,
       codigo:document.getElementById("x-cod").value.trim(),
