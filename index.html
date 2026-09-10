@@ -260,7 +260,7 @@ const ROTINA = [
   {id:"m5",grupo:"Final do mês",titulo:"Controle de refeições",freq:"fim_mes"},
 ];
 const TIPO_MAQ = {trator:"Trator",colheitadeira:"Colheitadeira",pulverizador:"Pulverizador",plantadeira:"Plantadeira",caminhao:"Caminhão",outros:"Outros"};
-const CAT = {semente:"Semente",fertilizante:"Fertilizante",defensivo:"Defensivo",combustivel:"Combustível",epi:"EPI",cantina:"Cantina",outros:"Outros"};
+const CAT = {semente:"Semente",fertilizante:"Fertilizante",defensivo:"Defensivo",combustivel:"Combustível",outros:"Outros"};
 const CATS = Object.keys(CAT);
 const TIPOS_M = Object.keys(TIPO_MAQ);
 
@@ -473,13 +473,18 @@ function pessoaNoMes(p, ym){
 }
 function nomesDoMes(ym){
   const set=new Set();
-  (state.folgas||[]).forEach(f=>{ if((f.data||"").startsWith(ym+"-") && f.pessoaNome) set.add(f.pessoaNome); });
-  (state.pessoas||[]).forEach(p=>{
-    if(p.tipo==="encerrado"){
-      if(pessoaNoMes(p,ym)) set.add(p.nome);
-    } else if(pessoaNoMes(p,ym)) set.add(p.nome);
+  const ativos=new Set((state.pessoas||[]).filter(p=>p.tipo!=="encerrado" && pessoaNoMes(p,ym)).map(p=>p.nome));
+  ativos.forEach(n=>set.add(n));
+  (state.folgas||[]).forEach(f=>{
+    if(!(f.data||"").startsWith(ym+"-") || !f.pessoaNome) return;
+    const p=(state.pessoas||[]).find(x=>x.nome===f.pessoaNome);
+    if(p && p.tipo==="encerrado") return;
+    if(!p || ativos.has(f.pessoaNome) || pessoaNoMes(p,ym)) set.add(f.pessoaNome);
   });
-  return [...set].sort((a,b)=>a.localeCompare(b,"pt-BR"));
+  return [...set].filter(n=>{
+    const p=(state.pessoas||[]).find(x=>x.nome===n);
+    return !p || p.tipo!=="encerrado";
+  }).sort((a,b)=>a.localeCompare(b,"pt-BR"));
 }
 function saldoFolgas(nome){
   // casa acumulada até o fim de folgaMes; ainda = direito do mês atual
@@ -518,6 +523,28 @@ function saldoFolgas(nome){
   const atual=porMes[folgaMes]||{xUtil:0};
   const ainda=Math.max(0, 1-(atual.xUtil||0));
   return {ainda, casa, xUtil: atual.xUtil||0};
+}
+function detalheSaldo(nome){
+  const mensal=[], domingoX=[], domingoTrab=[];
+  const s=saldoFolgas(nome);
+  const pes=(state.pessoas||[]).find(x=>x.nome===nome);
+  const start="2026-03";
+  let [y,m]=[2026,3];
+  const [y2,m2]=folgaMes.split("-").map(Number);
+  while(y<y2 || (y===y2 && m<=m2)){
+    const ym=y+"-"+String(m).padStart(2,"0");
+    if(!pes || pessoaNoMes(pes,ym)){
+      daysInMonth(ym).forEach(iso=>{
+        const t=folgaTipoNoDia(nome,iso);
+        const dow=isoDow(iso);
+        if(dow>=1 && dow<=5 && t==="X") mensal.push(iso);
+        if(dow===0 && t==="X") domingoX.push(iso);
+        if(dow===0 && t!=="X") domingoTrab.push(iso);
+      });
+    }
+    m++; if(m>12){m=1;y++;}
+  }
+  return {s, mensal, domingoX, domingoTrab};
 }
 
 function esc(s){ return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;"); }
@@ -604,9 +631,12 @@ function renderDrawer(){
         <option value="efetivo" ${p.tipo==="efetivo"?"selected":""}>Efetivo</option>
         <option value="diarista" ${p.tipo==="diarista"?"selected":""}>Diarista</option>
         <option value="candidato" ${p.tipo==="candidato"?"selected":""}>Candidato</option>
+        <option value="encerrado" ${p.tipo==="encerrado"?"selected":""}>Encerrado (some das telas)</option>
       </select></div>
       <div class="field"><label>Nascimento</label><input id="e-nasc" type="date" value="${esc(p.nascimento||"")}"/></div>
-      <div class="field"><label>Admissão</label><input id="e-adm" type="date" value="${esc(p.admissao||"")}"/></div>
+      <div class="field"><label>Admissão / início</label><input id="e-adm" type="date" value="${esc(p.admissao||"")}"/></div>
+      <div class="field"><label>Encerrou contrato</label><input id="e-fim" type="date" value="${esc(p.contratoFim||"")}"/></div>
+      <p class="muted">Encerrado some das telas (Pessoas e Folgas). Continua no CSV da planilha.</p>
       <button class="btn primary block" id="e-save">Salvar</button>
       ${edit.kind==="pessoa"?`<button class="btn block" id="e-del" style="margin-top:.5rem;color:var(--danger)">Excluir</button>`:""}`;
   }
@@ -703,6 +733,22 @@ function renderDrawer(){
     body=`<h2>${esc(nome)}</h2>
       <p class="muted" style="margin-bottom:.7rem">${(dia||"").split("-").reverse().join("/")} · ${["domingo","segunda","terça","quarta","quinta","sexta","sábado"][isoDow(dia)]}</p>
       ${opts.map(([v,l])=>`<button class="btn block" data-set-folga="${v}" style="margin-bottom:.35rem;${cur===v?"background:var(--primary);color:var(--bg)":""}">${l}</button>`).join("")}`;
+  }
+  if(edit.kind==="saldo-folga"){
+    const nome=edit.nome;
+    const d=detalheSaldo(nome);
+    const fmt=iso=>(iso||"").split("-").reverse().join("/");
+    const lis=(arr,vazio)=>arr.length?arr.map(x=>`<li>${fmt(x)}</li>`).join(""):`<li class="muted">${vazio}</li>`;
+    body=`<h2>${esc(nome)}</h2>
+      <p class="muted">A tirar agora: <b>${d.s.ainda + d.s.casa}</b> (${d.s.ainda} do mês + ${d.s.casa} na casa)</p>
+      <p class="card-title" style="margin-top:.8rem">Folga mensal (seg–sex)</p>
+      <ul style="padding-left:1.1rem">${lis(d.mensal,"Nenhuma marcada ainda")}</ul>
+      <p class="muted">Direito do mês: 1 · já usadas: ${d.s.xUtil} · ainda neste mês: ${d.s.ainda}</p>
+      <p class="card-title" style="margin-top:.8rem">Domingo — folga obrigatória (X)</p>
+      <ul style="padding-left:1.1rem">${lis(d.domingoX,"Nenhum domingo com X")}</ul>
+      <p class="card-title" style="margin-top:.8rem">Domingo trabalhado / plantão (gera folga na casa)</p>
+      <ul style="padding-left:1.1rem">${lis(d.domingoTrab,"Nenhum")}</ul>
+      <p class="muted" style="margin-top:.6rem">Folga na casa acumula mês a mês. Extra de seg–sex além da 1 do mês abate da casa.</p>`;
   }
   if(edit.kind==="farm"){
     body=`<h2>Editar fazenda</h2>
@@ -856,7 +902,7 @@ function render(){
 
     html+=`<div style="padding:0 1rem .5rem"><button class="btn block" id="btn-notif">Ativar avisos de aniversário</button></div>`;
     const ativos=state.pessoas.filter(p=>p.tipo!=="encerrado");
-    const exs=state.pessoas.filter(p=>p.tipo==="encerrado");
+    const exs=[];
     const sortFn=(a,b)=>{
       if(sortPessoas==="aniversario"){
         const ka=(a.nascimento||"99-12-31").slice(5);
@@ -1093,7 +1139,8 @@ function render(){
         const bg=t==="X"?"var(--ok)":t==="P"?"var(--warn)":t==="F"?"var(--danger)":"transparent";
         html+=`<td style="text-align:center;padding:.15rem"><button class="btn sm" data-cel-nome="${esc(nome)}" data-cel-dia="${iso}" style="min-width:1.7rem;padding:.15rem .2rem;background:${t?`color-mix(in srgb,${bg} 28%,var(--elevated))`:"var(--elevated)"}">${t||"·"}</button></td>`;
       });
-      html+=`<td class="muted" style="white-space:nowrap">ainda ${s.ainda} · casa ${s.casa}</td></tr>`;
+      const aTirar=s.ainda+s.casa;
+      html+=`<td style="white-space:nowrap"><button class="btn sm" data-saldo-nome="${esc(nome)}" style="font-size:.65rem;padding:.15rem .35rem">A tirar ${aTirar}</button></td></tr>`;
     });
     html+=`</table>
       <p class="muted" style="margin-top:.5rem">X folga · P plantão · F falta · toque na célula para mudar · domingo X = obrigatória · P ou vazio no domingo = folga na casa</p>
@@ -1158,7 +1205,13 @@ function render(){
       <button class="btn block" data-go="safra">Abrir programação da safra</button>
       <button class="btn block" data-go="equatorial">Equatorial / energia (UCs)</button>
       <button class="btn block" data-go="folgas">Folgas, plantão e faltas</button>
-      <button class="btn block" id="btn-reset">Restaurar dados da fazenda</button>
+      <button class="btn block" id="btn-reset">Restaurar cadastro oficial do app</button>
+    </div>
+    <div class="card">
+      <p class="card-title">De onde vem o restaurar</p>
+      <p class="muted">Não puxa da internet nem de arquivo. Volta o pacote gravado <b>dentro deste HTML</b>: fazenda, pessoas ativas, insumos, talhões e folgas da planilha.</p>
+      <p class="muted" style="margin-top:.35rem">Lançamentos feitos depois (saídas, chuva, protocolos, edições) são apagados.</p>
+      <p class="muted">Quem está encerrado some das telas e só volta no <b>CSV de folgas</b>.</p>
     </div>
     <p class="sub" style="margin-top:1rem;line-height:1.5">Pesquise e edite insumos, frota e pessoas nas abas. A safra 2026/27 vem do caderno de campo.</p>`;
   }
@@ -1170,7 +1223,7 @@ function render(){
     {id:"pessoas",ic:"👥",label:"Pessoas"},
     {id:"safra",ic:"🌾",label:"Safra"},
     {id:"chuva",ic:"🌧️",label:"Chuva"},
-    {id:"sementes",ic:"🌱",label:"Sementes"},
+
     {id:"folgas",ic:"📅",label:"Folgas"},
     {id:"equatorial",ic:"⚡",label:"Energia"},
     {id:"mais",ic:"⋯",label:"Mais"},
@@ -1208,6 +1261,9 @@ function bind(){
       edit={kind:"cel-folga", nome:b.getAttribute("data-cel-nome"), dia:b.getAttribute("data-cel-dia")};
       render();
     };
+  });
+  document.querySelectorAll("[data-saldo-nome]").forEach(b=>{
+    b.onclick=()=>{ edit={kind:"saldo-folga", nome:b.getAttribute("data-saldo-nome")}; render(); };
   });
   document.querySelectorAll("[data-folga-pes]").forEach(el=>{
     el.onclick=()=>{ folgaPessoa=el.getAttribute("data-folga-pes"); render(); };
@@ -1305,11 +1361,13 @@ function bind(){
     }
     if(edit.kind==="pessoa"||edit.kind==="novo-pessoa"){
       const row={ nome:document.getElementById("e-nome").value.trim(), funcao:document.getElementById("e-fun").value.trim(),
-        tipo:document.getElementById("e-tipo").value, nascimento:document.getElementById("e-nasc").value||null, admissao:document.getElementById("e-adm").value||null };
+        tipo:document.getElementById("e-tipo").value, nascimento:document.getElementById("e-nasc").value||null, admissao:document.getElementById("e-adm").value||null,
+        contratoFim:document.getElementById("e-fim")? (document.getElementById("e-fim").value||null):null };
       if(!row.nome){ toast("Informe o nome"); return; }
+      if(row.tipo==="encerrado" && !row.contratoFim) row.contratoFim=hojeISO();
       if(edit.kind==="pessoa") state.pessoas=state.pessoas.map(x=>x.id===edit.id?{...x,...row}:x);
       else state.pessoas.push({id:uid(),...row});
-      save(); toast("Pessoa salva"); closeEdit(); return;
+      save(); toast(row.tipo==="encerrado"?"Encerrado: some das telas, fica no CSV":"Pessoa salva"); closeEdit(); return;
     }
     if(edit.kind==="chuva"||edit.kind==="novo-chuva"){
       if(!state.chuva) state.chuva=[];
