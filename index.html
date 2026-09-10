@@ -64,8 +64,10 @@ h1,h2,h3{font-family:var(--display);font-weight:500;margin:0}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin:.75rem 1rem}
 .stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.75rem}
 .stat .lbl{font-size:.7rem;color:var(--muted)}.stat .val{font-size:.95rem;font-weight:500;margin-top:.2rem}
-.drawer-bg{position:fixed;inset:0;background:rgb(12 16 11 / .72);z-index:60;display:flex;align-items:flex-end;justify-content:center}
+.drawer-bg{position:fixed;inset:0;background:rgb(12 16 11 / .55);z-index:60;display:flex;align-items:flex-end;justify-content:center}
+.drawer-bg.center{align-items:center;padding:1rem}
 .drawer{background:var(--surface);border:1px solid var(--border);border-radius:16px 16px 0 0;width:100%;max-width:720px;max-height:88dvh;overflow:auto;padding:1.15rem 1rem 1.4rem}
+.drawer-bg.center .drawer{border-radius:16px;max-width:420px;max-height:80dvh;box-shadow:0 18px 50px rgb(0 0 0 / .35)}
 .drawer h2{margin-bottom:.85rem;font-size:1.1rem}
 .chips{display:flex;flex-wrap:wrap;gap:.35rem;padding:.4rem 1rem}
 .chip{white-space:nowrap;border:1px solid var(--border);background:var(--surface);border-radius:999px;padding:.3rem .7rem;font-size:.72rem;color:var(--muted)}
@@ -323,6 +325,7 @@ let menuOpen = false;
 let qInsumo = "";
 let catInsumo = "todos";
 let catMaq = "todos";
+let qSaidaMes = "todos";
 let catFaz = "todos";
 let safraFiltro = "todos"; // todos | pendente | andamento | concluido
 let sortPessoas = "nome"; // nome | aniversario
@@ -445,6 +448,13 @@ function statusJanela(iso){
   if(iso>j.semeaduraFim) return {id:"fim", label:"Janela encerrada", cls:"danger"};
   return {id:"antes", label:"Antes do vazio / janela", cls:"muted"};
 }
+function diasAtras(iso, hoje){
+  if(!iso) return null;
+  const a=new Date(iso+"T12:00:00");
+  const b=new Date((hoje||hojeISO())+"T12:00:00");
+  return Math.round((b-a)/86400000);
+}
+function nomeTalhao(t){ return (t && (t.nome||t.codigo)) || ""; }
 function isoDow(iso){ return new Date(iso+"T12:00:00").getDay(); } // 0=dom
 function daysInMonth(ym){
   const [y,m]=ym.split("-").map(Number);
@@ -783,7 +793,7 @@ function renderDrawer(){
   if(edit.kind==="hoje-area"){
     const ts=(state.talhoes||[]).slice().sort((a,b)=>String(a.codigo||a.nome).localeCompare(String(b.codigo||b.nome),"pt-BR"));
     body=`<h2>Área</h2><p>${n(state.farm.areaTotal,0)} ha · ${ts.length} talhões</p>
-      <ul class="list" style="margin-top:.6rem">${ts.map(t=>`<li><div style="flex:1">${esc(t.codigo||"")} ${esc(t.nome||"")}</div><div>${n(t.area,2)} ha</div></li>`).join("")||'<li class="muted">Sem talhões</li>'}</ul>`;
+      <ul class="list" style="margin-top:.6rem">${ts.map(t=>`<li><div style="flex:1">${esc(nomeTalhao(t))}</div><div>${n(t.area,2)} ha</div></li>`).join("")||'<li class="muted">Sem talhões</li>'}</ul>`;
   }
   if(edit.kind==="janela"){
     const j=janelaMapa();
@@ -807,7 +817,8 @@ function renderDrawer(){
       <div class="field"><label>WhatsApp Clara (DDD + número)</label><input id="f-wa" placeholder="62999999999" value="${esc(state.farm.whatsappClara||"")}"/></div>
       <button class="btn primary block" id="e-save-farm">Salvar</button>`;
   }
-  return `<div class="drawer-bg" id="drawer"><div class="drawer">${body}</div></div>`;
+  const mid = edit && String(edit.kind||"").startsWith("hoje-");
+  return `<div class="drawer-bg${mid?" center":""}" id="drawer"><div class="drawer">${body}</div></div>`;
 }
 
 function render(){
@@ -840,10 +851,10 @@ function render(){
     // Bloco resumo
     html+=`<div class="grid2">
       <button class="stat" data-hoje="diesel" style="text-align:left;border:1px solid var(--border)">
-        <div class="lbl">⛽ Diesel</div><div class="val">${n(state.diesel.litros,0)} L</div><div class="muted">${dieselPct}% do tanque</div>
+        <div class="lbl">⛽ Diesel</div><div class="val">${n(state.diesel.litros,0)} L</div><div class="muted">${dieselPct}% do tanque${dieselPct<30?" · baixo":""}</div>
       </button>
       <button class="stat" data-hoje="chuva" style="text-align:left;border:1px solid var(--border)">
-        <div class="lbl">🌧 Última chuva</div><div class="val">${ultimaChuva ? n(ultimaChuva.mm,1)+" mm" : "—"}</div><div class="muted">${ultimaChuva ? (ultimaChuva.data||"").split("-").reverse().join("/") : "sem registro"}</div>
+        <div class="lbl">🌧 Última chuva</div><div class="val">${ultimaChuva ? n(ultimaChuva.mm,1)+" mm" : "—"}</div><div class="muted">${ultimaChuva ? (diasAtras(ultimaChuva.data,hoje)===0?"hoje":diasAtras(ultimaChuva.data,hoje)===1?"há 1 dia":"há "+diasAtras(ultimaChuva.data,hoje)+" dias") : "sem registro"}</div>
       </button>
       <button class="stat" data-hoje="equipe" style="text-align:left;border:1px solid var(--border)">
         <div class="lbl">👥 Equipe</div><div class="val">${state.pessoas.filter(p=>p.tipo!=="encerrado").length}</div><div class="muted">colaboradores</div>
@@ -852,6 +863,29 @@ function render(){
         <div class="lbl">🗺 Área</div><div class="val">${n(state.farm.areaTotal,0)} ha</div><div class="muted">${state.talhoes.length} talhões</div>
       </button>
     </div>`;
+    {
+      const nPla=(typeof SAFRA!=="undefined" && SAFRA.plantio)?SAFRA.plantio.length:0;
+      let plaOk=0;
+      if(state.safraStatus && nPla){
+        for(let i=0;i<nPla;i++){
+          const st=(state.safraStatus["pla-"+i]||{}).status;
+          if(st==="concluido") plaOk++;
+        }
+      }
+      const jn=typeof statusJanela==="function"?statusJanela(hoje):null;
+      html+=`<div class="card"><p class="muted">${feitas}/${listaRotina.length} tarefas · diesel ${dieselPct}%${dieselPct<30?" (baixo)":""} · plantio ${plaOk}/${nPla}${jn?" · "+jn.label:""}</p></div>`;
+      const week=weekSlices(hoje.slice(0,7));
+      const w=week.find(arr=>arr.includes(hoje))||week[0]||[];
+      const nomes=typeof nomesDoMes==="function"?nomesDoMes(hoje.slice(0,7)):[];
+      const linhas=[];
+      nomes.forEach(nm=>{
+        const marks=w.map(d=>folgaTipoNoDia(nm,d)).filter(Boolean);
+        if(marks.length) linhas.push(nm.split(" ")[0]+" "+marks.join(""));
+      });
+      if(linhas.length){
+        html+=`<div class="card"><p class="card-title">Folgas nesta semana</p><p class="muted">${esc(linhas.slice(0,8).join(" · "))}</p></div>`;
+      }
+    }
     // Atividades do dia
     html+=`<div class="ring-wrap">
       <div class="ring" style="--p:${pct}"><span class="pct">${pct}%</span></div>
@@ -965,9 +999,17 @@ function render(){
     });
     html+=`</ul>`;
     // Histórico de saídas
-    const saidas = (state.saidas||[]).slice().sort((a,b)=>(b.data||"").localeCompare(a.data||"")).slice(0,30);
-    if(saidas.length){
-      html+=`<p class="sec">Histórico de saídas</p><ul class="list card" style="padding:.25rem 1rem">`;
+    let saidas = (state.saidas||[]).slice().sort((a,b)=>(b.data||"").localeCompare(a.data||""));
+    const mesesSaida=[...new Set(saidas.map(s=>(s.data||"").slice(0,7)).filter(Boolean))];
+    if(qSaidaMes!=="todos") saidas=saidas.filter(s=>(s.data||"").startsWith(qSaidaMes));
+    saidas=saidas.slice(0,30);
+    if((state.saidas||[]).length){
+      html+=`<p class="sec">Histórico de saídas</p>
+        <div style="padding:0 1rem .4rem"><select id="sel-saida-mes">
+          <option value="todos" ${qSaidaMes==="todos"?"selected":""}>Todas as datas</option>
+          ${mesesSaida.map(m=>`<option value="${m}" ${qSaidaMes===m?"selected":""}>${m.split("-").reverse().join("/")}</option>`).join("")}
+        </select></div>
+        <ul class="list card" style="padding:.25rem 1rem">`;
       saidas.forEach(s=>{
         const produtos = (s.itens||[]).map(it=>`${it.nome} (${it.qtd} ${it.un||""})`).join(", ");
         html+=`<li><div style="flex:1"><div style="font-weight:500">${esc(s.tipo)} · ${(s.data||"").split("-").reverse().join("/")}</div>
@@ -1362,6 +1404,8 @@ function bind(){
   document.querySelectorAll("[data-sort-pes]").forEach(b=>{
     b.onclick=()=>{ sortPessoas=b.getAttribute("data-sort-pes"); render(); };
   });
+  const ssm=document.getElementById("sel-saida-mes");
+  if(ssm) ssm.onchange=()=>{ qSaidaMes=ssm.value; render(); };
   const sfm=document.getElementById("sel-folga-mes");
   if(sfm) sfm.onchange=()=>{ folgaMes=sfm.value; folgaPessoa=null; folgaSemana=1; folgaMesTodo=false; render(); };
   document.querySelectorAll("[data-semana]").forEach(b=>{
