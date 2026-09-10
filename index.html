@@ -326,6 +326,8 @@ let safraFiltro = "todos"; // todos | pendente | andamento | concluido
 let sortPessoas = "nome"; // nome | aniversario
 let folgaMes = (new Date().getFullYear()+"-"+String(new Date().getMonth()+1).padStart(2,"0"));
 let folgaPessoa = null;
+let folgaSemana = 1;
+let folgaMesTodo = false;
 let edit = null; // {kind, id} or {kind:'novo-...'}
 let toastTimer;
 
@@ -430,6 +432,94 @@ function tempoDeCasa(admissao, ref){
   }
   return partes.join(" e ");
 }
+function isoDow(iso){ return new Date(iso+"T12:00:00").getDay(); } // 0=dom
+function daysInMonth(ym){
+  const [y,m]=ym.split("-").map(Number);
+  const last=new Date(y,m,0).getDate();
+  const arr=[];
+  for(let d=1;d<=last;d++) arr.push(ym+"-"+String(d).padStart(2,"0"));
+  return arr;
+}
+function weekSlices(ym){
+  const dias=daysInMonth(ym);
+  const weeks=[];
+  for(let i=0;i<dias.length;i+=7) weeks.push(dias.slice(i,i+7));
+  return weeks;
+}
+function letraDow(iso){ return ["D","S","T","Q","Q","S","S"][isoDow(iso)]; }
+function folgaTipoNoDia(nome, iso){
+  const f=(state.folgas||[]).find(x=>x.pessoaNome===nome && x.data===iso);
+  return f? f.tipo : "";
+}
+function setFolgaDia(nome, iso, tipo){
+  if(!state.folgas) state.folgas=[];
+  const i=state.folgas.findIndex(x=>x.pessoaNome===nome && x.data===iso);
+  if(!tipo){
+    if(i>=0) state.folgas.splice(i,1);
+  } else if(i>=0){
+    state.folgas[i].tipo=tipo;
+  } else {
+    const p=state.pessoas.find(x=>x.nome===nome);
+    state.folgas.push({id:uid(), pessoaId:p?p.id:"", pessoaNome:nome, data:iso, tipo, obs:""});
+  }
+  save();
+}
+function pessoaNoMes(p, ym){
+  const ini=ym+"-01";
+  const fim=daysInMonth(ym).slice(-1)[0];
+  if(p.admissao && p.admissao>fim) return false;
+  if(p.contratoFim && p.contratoFim<ini) return false;
+  return true;
+}
+function nomesDoMes(ym){
+  const set=new Set();
+  (state.folgas||[]).forEach(f=>{ if((f.data||"").startsWith(ym+"-") && f.pessoaNome) set.add(f.pessoaNome); });
+  (state.pessoas||[]).forEach(p=>{
+    if(p.tipo==="encerrado"){
+      if(pessoaNoMes(p,ym)) set.add(p.nome);
+    } else if(pessoaNoMes(p,ym)) set.add(p.nome);
+  });
+  return [...set].sort((a,b)=>a.localeCompare(b,"pt-BR"));
+}
+function saldoFolgas(nome){
+  // casa acumulada até o fim de folgaMes; ainda = direito do mês atual
+  const diasMes=daysInMonth(folgaMes);
+  let casa=0;
+  const porMes={};
+  (state.folgas||[]).filter(f=>f.pessoaNome===nome).forEach(f=>{
+    const ym=(f.data||"").slice(0,7);
+    if(!porMes[ym]) porMes[ym]={xUtil:0, regs:{}};
+    porMes[ym].regs[f.data]=f.tipo;
+    const dow=isoDow(f.data);
+    if(f.tipo==="X" && dow>=1 && dow<=5) porMes[ym].xUtil++;
+  });
+  // percorrer meses de 2026-03 até folgaMes
+  const months=[];
+  let [y,m]=[2026,3];
+  const [y2,m2]=folgaMes.split("-").map(Number);
+  while(y<y2 || (y===y2 && m<=m2)){
+    months.push(y+"-"+String(m).padStart(2,"0"));
+    m++; if(m>12){m=1;y++;}
+  }
+  const pes=(state.pessoas||[]).find(x=>x.nome===nome);
+  months.forEach(ym=>{
+    if(pes && !pessoaNoMes(pes,ym)) return;
+    const info=porMes[ym]||{xUtil:0, regs:{}};
+    const dias=daysInMonth(ym);
+    dias.forEach(iso=>{
+      if(isoDow(iso)!==0) return;
+      const t=info.regs[iso]||"";
+      if(t==="X") return;
+      casa++;
+    });
+    const extra=Math.max(0, (info.xUtil||0)-1);
+    casa=Math.max(0, casa-extra);
+  });
+  const atual=porMes[folgaMes]||{xUtil:0};
+  const ainda=Math.max(0, 1-(atual.xUtil||0));
+  return {ainda, casa, xUtil: atual.xUtil||0};
+}
+
 function esc(s){ return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;"); }
 function exportCSV(filename, rows){
   const csv = rows.map(r=>r.map(c=>{
@@ -606,6 +696,14 @@ function renderDrawer(){
       <div class="field"><label>Sementes por hectare (sem/ha)</label><input id="e-semha" value="${esc(ov.sem_ha||r.sem_ha||"")}"/></div>
       <button class="btn primary block" id="e-save-plantio">Salvar</button>`;
   }
+  if(edit.kind==="cel-folga"){
+    const nome=edit.nome, dia=edit.dia;
+    const cur=folgaTipoNoDia(nome,dia)||"";
+    const opts=[["","— vazio / trabalhou"],["X","X — Folga"],["P","P — Plantão de incêndio"],["F","F — Falta"],["V","V — Férias"],["E","E — Encerrou contrato"]];
+    body=`<h2>${esc(nome)}</h2>
+      <p class="muted" style="margin-bottom:.7rem">${(dia||"").split("-").reverse().join("/")} · ${["domingo","segunda","terça","quarta","quinta","sexta","sábado"][isoDow(dia)]}</p>
+      ${opts.map(([v,l])=>`<button class="btn block" data-set-folga="${v}" style="margin-bottom:.35rem;${cur===v?"background:var(--primary);color:var(--bg)":""}">${l}</button>`).join("")}`;
+  }
   if(edit.kind==="farm"){
     body=`<h2>Editar fazenda</h2>
       <div class="field"><label>Nome</label><input id="f-nome" value="${esc(state.farm.nome)}"/></div>
@@ -755,10 +853,7 @@ function render(){
 
   if(page==="pessoas"){
     html+=headerBar(`Equipe · ${state.pessoas.filter(p=>p.tipo!=="encerrado").length}`,"Pessoas",`<button class="btn primary sm" data-new="pessoa">+ Nova</button>`);
-    html+=`<div style="padding:.5rem 1rem;display:flex;gap:.4rem;flex-wrap:wrap">
-      <button class="btn sm ${sortPessoas==="nome"?"primary":""}" data-sort-pes="nome">Nome A–Z</button>
-      <button class="btn sm ${sortPessoas==="aniversario"?"primary":""}" data-sort-pes="aniversario">Aniversário</button>
-    </div>`;
+
     html+=`<div style="padding:0 1rem .5rem"><button class="btn block" id="btn-notif">Ativar avisos de aniversário</button></div>`;
     const ativos=state.pessoas.filter(p=>p.tipo!=="encerrado");
     const exs=state.pessoas.filter(p=>p.tipo==="encerrado");
@@ -781,7 +876,7 @@ function render(){
             ${p.tipo==="encerrado"?'<span class="badge muted">Encerrado</span>':''}
           </div>
           <div class="muted">${esc(p.funcao||"—")} · ${esc(p.tipo)}</div>
-          ${p.nascimento?`<div class="muted">Aniversário: ${dataNascimentoFmt(p.nascimento)}</div>`:""}
+          ${p.nascimento?`<div class="muted">Aniversário: ${dataNascimentoFmt(p.nascimento)} de ${String(p.nascimento).slice(0,4)}</div>`:""}
           ${p.admissao?`<div class="muted">Início / admissão: ${String(p.admissao).split("-").reverse().join("/")}</div>`:""}
           ${p.contratoFim?`<div class="muted">Encerrou contrato: ${String(p.contratoFim).split("-").reverse().join("/")}</div>`:""}
           ${tempo && p.tipo!=="encerrado"?`<div style="margin-top:.15rem">Tempo de casa: <b>${esc(tempo)}</b></div>`:""}
@@ -950,13 +1045,16 @@ function render(){
 
   if(page==="folgas"){
     if(!state.folgas) state.folgas=[];
-    const tipos={X:"Folga",P:"Plantão incêndio",F:"Falta",T:"Trabalhado",V:"Férias",E:"Encerrou contrato"};
+    const tipos={"":"—",X:"Folga",P:"Plantão",F:"Falta",T:"Trabalhado",V:"Férias",E:"Encerrou"};
     const meses=["01","02","03","04","05","06","07","08","09","10","11","12"];
     const nomesM=["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
     if(!folgaMes) folgaMes=hoje.slice(0,7);
     const [ano,mes]=folgaMes.split("-");
-    const prefix=folgaMes+"-";
-    const doMes=state.folgas.filter(f=>(f.data||"").startsWith(prefix));
+    const weeks=weekSlices(folgaMes);
+    if(folgaSemana<1) folgaSemana=1;
+    if(folgaSemana>weeks.length) folgaSemana=weeks.length;
+    const nomes=nomesDoMes(folgaMes);
+    const diasView = folgaMesTodo ? daysInMonth(folgaMes) : weeks[folgaSemana-1];
     html+=headerBar("Controle de equipe","Folgas e faltas",`<button class="btn primary sm" data-new="folga">+ Registrar</button>`);
     html+=`<div style="padding:.4rem 1rem;display:flex;gap:.4rem;align-items:center;flex-wrap:wrap">
       <select id="sel-folga-mes" style="background:var(--elevated);border:1px solid var(--border);border-radius:10px;padding:.4rem .6rem">`;
@@ -967,50 +1065,39 @@ function render(){
       });
     }
     html+=`</select>
-      <button class="btn" id="btn-exp-folgas">Exportar CSV</button>
+      <button class="btn sm ${folgaMesTodo?"primary":""}" id="btn-mes-todo">${folgaMesTodo?"Ver por semana":"Ver mês inteiro"}</button>
+      <button class="btn" id="btn-exp-folgas">CSV</button>
     </div>`;
-    if(folgaPessoa){
-      const nome=folgaPessoa;
-      const regs=doMes.filter(f=>f.pessoaNome===nome).sort((a,b)=>(a.data||"").localeCompare(b.data||""));
-      const cx=regs.filter(r=>r.tipo==="X").length;
-      const cp=regs.filter(r=>r.tipo==="P").length;
-      const cf=regs.filter(r=>r.tipo==="F").length;
-      html+=`<div class="card">
-        <div class="row"><p class="card-title" style="margin:0">${esc(nome)}</p><button class="btn sm" id="btn-folga-voltar">← Resumo</button></div>
-        <p class="muted">${cx} folga(s) · ${cp} plantão(ões) · ${cf} falta(s) neste mês</p>
-      </div>`;
-      html+=`<ul class="list card" style="padding:.25rem 1rem">`;
-      if(!regs.length) html+=`<li class="muted">Nenhum registro neste mês.</li>`;
-      regs.forEach(f=>{
-        html+=`<li><div style="flex:1"><div style="font-weight:500">${esc((f.data||"").split("-").reverse().join("/"))}</div>
-          <div class="muted">${esc(tipos[f.tipo]||f.tipo)}${f.obs?" · "+esc(f.obs):""}</div></div>
-          <span class="badge muted">${esc(f.tipo)}</span>
-          <button class="btn sm" data-edit="folga" data-id="${f.id}">✎</button></li>`;
+    if(!folgaMesTodo){
+      html+=`<div class="chips">`;
+      weeks.forEach((w,i)=>{
+        html+=`<button class="chip ${folgaSemana===i+1?"on":""}" data-semana="${i+1}">${i+1}ª sem</button>`;
       });
-      html+=`</ul>`;
+      html+=`</div>`;
     } else {
-      html+=`<div class="card"><p class="card-title">Resumo · ${nomesM[Number(mes)-1]} ${ano}</p>
-        <p class="muted">Toque na pessoa para ver os dias. Total de lançamentos no mês: ${doMes.length}</p></div>`;
-      const nomes=new Set();
-      state.pessoas.forEach(p=>nomes.add(p.nome));
-      doMes.forEach(f=>{ if(f.pessoaNome) nomes.add(f.pessoaNome); });
-      const lista=[...nomes].sort((a,b)=>a.localeCompare(b,"pt-BR"));
-      html+=`<ul class="list card" style="padding:.25rem 1rem">`;
-      lista.forEach(nome=>{
-        const regs=doMes.filter(f=>f.pessoaNome===nome);
-        const cx=regs.filter(r=>r.tipo==="X").length;
-        const cp=regs.filter(r=>r.tipo==="P").length;
-        const cf=regs.filter(r=>r.tipo==="F").length;
-        const p=state.pessoas.find(x=>x.nome===nome);
-        html+=`<li style="cursor:pointer" data-folga-pes="${esc(nome)}">
-          <div style="flex:1"><div style="font-weight:500">${esc(nome)}</div>
-            <div class="muted">${cx} folga(s) · ${cp} plantão · ${cf} falta${p&&p.contratoFim?" · encerrou "+p.contratoFim.split("-").reverse().join("/"):""}</div>
-          </div>
-          <span class="badge ${cx?"ok":"muted"}">${cx} X</span>
-        </li>`;
-      });
-      html+=`</ul>`;
+      html+=`<p class="sub">Vire o celular para ver o mês todo com mais conforto.</p>`;
     }
+    html+=`<div class="card" style="padding:.5rem;overflow:auto">
+      <table class="table" style="font-size:.72rem;min-width:${diasView.length*34+120}px">
+        <tr><th style="position:sticky;left:0;background:var(--surface);min-width:110px">Nome</th>`;
+    diasView.forEach(iso=>{
+      html+=`<th style="text-align:center">${Number(iso.slice(8))}<br><span class="muted">${letraDow(iso)}</span></th>`;
+    });
+    html+=`<th>Saldo</th></tr>`;
+    if(!nomes.length) html+=`<tr><td colspan="${diasView.length+2}" class="muted">Ninguém neste mês.</td></tr>`;
+    nomes.forEach(nome=>{
+      const s=saldoFolgas(nome);
+      html+=`<tr><td style="position:sticky;left:0;background:var(--surface);font-weight:500">${esc(nome)}</td>`;
+      diasView.forEach(iso=>{
+        const t=folgaTipoNoDia(nome,iso);
+        const bg=t==="X"?"var(--ok)":t==="P"?"var(--warn)":t==="F"?"var(--danger)":"transparent";
+        html+=`<td style="text-align:center;padding:.15rem"><button class="btn sm" data-cel-nome="${esc(nome)}" data-cel-dia="${iso}" style="min-width:1.7rem;padding:.15rem .2rem;background:${t?`color-mix(in srgb,${bg} 28%,var(--elevated))`:"var(--elevated)"}">${t||"·"}</button></td>`;
+      });
+      html+=`<td class="muted" style="white-space:nowrap">ainda ${s.ainda} · casa ${s.casa}</td></tr>`;
+    });
+    html+=`</table>
+      <p class="muted" style="margin-top:.5rem">X folga · P plantão · F falta · toque na célula para mudar · domingo X = obrigatória · P ou vazio no domingo = folga na casa</p>
+    </div>`;
   }
 
   if(page==="equatorial"){
@@ -1110,7 +1197,18 @@ function bind(){
     b.onclick=()=>{ sortPessoas=b.getAttribute("data-sort-pes"); render(); };
   });
   const sfm=document.getElementById("sel-folga-mes");
-  if(sfm) sfm.onchange=()=>{ folgaMes=sfm.value; folgaPessoa=null; render(); };
+  if(sfm) sfm.onchange=()=>{ folgaMes=sfm.value; folgaPessoa=null; folgaSemana=1; folgaMesTodo=false; render(); };
+  document.querySelectorAll("[data-semana]").forEach(b=>{
+    b.onclick=()=>{ folgaSemana=Number(b.getAttribute("data-semana")); folgaMesTodo=false; render(); };
+  });
+  const bmt=document.getElementById("btn-mes-todo");
+  if(bmt) bmt.onclick=()=>{ folgaMesTodo=!folgaMesTodo; render(); };
+  document.querySelectorAll("[data-cel-nome]").forEach(b=>{
+    b.onclick=()=>{
+      edit={kind:"cel-folga", nome:b.getAttribute("data-cel-nome"), dia:b.getAttribute("data-cel-dia")};
+      render();
+    };
+  });
   document.querySelectorAll("[data-folga-pes]").forEach(el=>{
     el.onclick=()=>{ folgaPessoa=el.getAttribute("data-folga-pes"); render(); };
   });
@@ -1161,6 +1259,14 @@ function bind(){
     setTimeout(()=>{ const el=document.getElementById("q-insumo"); if(el){ el.focus(); el.selectionStart=el.selectionEnd=el.value.length; } },0);
   }
   document.querySelectorAll("[data-edit]").forEach(b=>{ b.onclick=()=>{ openEdit(b.getAttribute("data-edit"), b.getAttribute("data-id")||null); }; });
+  document.querySelectorAll("[data-set-folga]").forEach(b=>{
+    b.onclick=()=>{
+      if(!edit || edit.kind!=="cel-folga") return;
+      setFolgaDia(edit.nome, edit.dia, b.getAttribute("data-set-folga")||"");
+      toast("Registro atualizado");
+      closeEdit();
+    };
+  });
   document.querySelectorAll("[data-new]").forEach(b=>{ b.onclick=()=>{ openEdit("novo-"+b.getAttribute("data-new"), null); }; });
   const dr=document.getElementById("drawer");
   if(dr) dr.onclick=(e)=>{ if(e.target===dr) closeEdit(); };
