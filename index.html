@@ -773,6 +773,31 @@ function renderDrawer(){
       <ul style="padding-left:1.1rem">${lis(d.domingoTrab,"Nenhum")}</ul>
       <p class="muted" style="margin-top:.6rem">Folga na casa acumula mês a mês. Extra de seg–sex além da 1 do mês abate da casa.</p>`;
   }
+  if(edit.kind==="hoje-tarefas"){
+    const hoje=hojeISO();
+    const listaRotina=rotinaHoje(hoje);
+    const feitas=listaRotina.filter(r=>state.rotinaFeita[r.id]===hoje).length;
+    body=`<h2>Tarefas de hoje</h2><p class="muted">${rotinaLegenda(hoje)} · ${feitas}/${listaRotina.length}</p>`;
+    if(!listaRotina.length){
+      body+=`<p class="muted" style="margin-top:.5rem">Nada obrigatório hoje. Segunda: frota, estoque e aniversariantes. Sexta antes das 8:30: diaristas. Fim do mês: inventário.</p>`;
+    } else {
+      const pendentes=listaRotina.filter(r=>state.rotinaFeita[r.id]!==hoje);
+      if(!pendentes.length) body+=`<p style="color:var(--ok);margin-top:.5rem">Tudo concluído por hoje. Voltam amanhã.</p>`;
+      else pendentes.forEach(r=>{
+        body+=`<label class="check"><input type="checkbox" data-rotina="${r.id}"/><span><span class="titulo" style="display:block">${esc(r.titulo)}</span><span class="muted">${esc(r.grupo)}</span></span></label>`;
+      });
+    }
+    const prox=proximosLembretes(hoje);
+    if(prox.length){
+      body+=`<p class="card-title" style="margin-top:.8rem">Próximos dias</p>`;
+      prox.forEach(p=>{ body+=`<p class="muted">${esc(p.iso.split("-").reverse().join("/"))} · ${esc(p.labels)}</p>`; });
+    }
+    body+=`<p class="card-title" style="margin-top:.8rem">Quando ocorrer</p>`;
+    ROTINA.filter(r=>r.freq==="evento").forEach(r=>{
+      const done=state.rotinaFeita[r.id]===hoje;
+      body+=`<label class="check ${done?"done":""}"><input type="checkbox" ${done?"checked":""} data-rotina="${r.id}"/><span><span class="titulo" style="display:block">${esc(r.titulo)}</span><span class="muted">${esc(r.grupo)}</span></span></label>`;
+    });
+  }
   if(edit.kind==="hoje-diesel"){
     const p=Math.round((state.diesel.litros/state.diesel.capacidade)*100);
     const col=p>=50?"var(--ok)":p>=25?"var(--warn)":"var(--danger)";
@@ -846,7 +871,14 @@ function render(){
       <p class="muted">${esc(state.farm.municipio)} · safra ${esc(state.farm.safra)} · ${n(state.farm.areaTotal,0)} ha</p>
       <p class="muted" style="margin-top:.35rem">Gerente: ${esc(state.farm.gerente)}</p>
       <p class="muted">Auxiliar administrativo: Marcos Antonio da Silva Morais</p>
-      <button class="btn sm" style="margin-top:.6rem" data-edit="farm">Editar fazenda</button>
+      <button class="btn" data-hoje="tarefas" style="margin-top:.75rem;width:100%;display:flex;align-items:center;gap:.8rem;text-align:left;background:transparent;border:0;padding:.2rem 0">
+        <div class="ring" style="--p:${pct}"><span class="pct">${pct}%</span></div>
+        <div>
+          <div style="font-weight:500">Tarefas de hoje</div>
+          <div class="muted">toque para ver</div>
+        </div>
+      </button>
+      <button class="btn sm" style="margin-top:.55rem" data-edit="farm">Editar fazenda</button>
     </div>`;
     // Bloco resumo
     html+=`<div class="grid2">
@@ -863,39 +895,6 @@ function render(){
         <div class="lbl">🗺 Área</div><div class="val">${n(state.farm.areaTotal,0)} ha</div><div class="muted">${state.talhoes.length} talhões</div>
       </button>
     </div>`;
-    {
-      const nPla=(typeof SAFRA!=="undefined" && SAFRA.plantio)?SAFRA.plantio.length:0;
-      let plaOk=0;
-      if(state.safraStatus && nPla){
-        for(let i=0;i<nPla;i++){
-          const st=(state.safraStatus["pla-"+i]||{}).status;
-          if(st==="concluido") plaOk++;
-        }
-      }
-      const jn=typeof statusJanela==="function"?statusJanela(hoje):null;
-      html+=`<div class="card"><p class="muted">${feitas}/${listaRotina.length} tarefas · diesel ${dieselPct}%${dieselPct<30?" (baixo)":""} · plantio ${plaOk}/${nPla}${jn?" · "+jn.label:""}</p></div>`;
-      const week=weekSlices(hoje.slice(0,7));
-      const w=week.find(arr=>arr.includes(hoje))||week[0]||[];
-      const nomes=typeof nomesDoMes==="function"?nomesDoMes(hoje.slice(0,7)):[];
-      const linhas=[];
-      nomes.forEach(nm=>{
-        const marks=w.map(d=>folgaTipoNoDia(nm,d)).filter(Boolean);
-        if(marks.length) linhas.push(nm.split(" ")[0]+" "+marks.join(""));
-      });
-      if(linhas.length){
-        html+=`<div class="card"><p class="card-title">Folgas nesta semana</p><p class="muted">${esc(linhas.slice(0,8).join(" · "))}</p></div>`;
-      }
-    }
-    // Atividades do dia
-    html+=`<div class="ring-wrap">
-      <div class="ring" style="--p:${pct}"><span class="pct">${pct}%</span></div>
-      <div class="ring-meta">
-        <div class="big">Tarefas de hoje</div>
-        <div class="muted">${feitas} de ${listaRotina.length} concluídas</div>
-        <div class="muted">${esc(rotinaLegenda(hoje))}</div>
-      </div>
-    </div>`;
-    html+=`<p class="sub">${dataLonga(hoje)}</p>`;
     if(niverHoje.length){
       html+=`<div class="card" style="border-color:var(--primary)"><p class="card-title">🎂 Aniversário hoje — avise o gerente</p><ul class="list">`;
       niverHoje.forEach(p=>{ html+=`<li><div style="flex:1"><div style="font-weight:500">${esc(p.nome)}</div><div class="muted">${esc(p.funcao)} · completa ${idadeEm(p.nascimento,hoje)+1} anos</div></div><span class="badge ok">Hoje</span></li>`; });
@@ -906,32 +905,6 @@ function render(){
       niver7.forEach(p=>{ html+=`<li><div style="flex:1"><div style="font-weight:500">${esc(p.nome)}</div><div class="muted">${esc(p.funcao)} · ${dataNascimentoFmt(p.nascimento)}</div></div><span class="badge warn">Em breve</span></li>`; });
       html+=`</ul></div>`;
     }
-    html+=`<div class="card"><p class="card-title">Lembretes</p><p class="muted" style="margin-bottom:.6rem">${rotinaLegenda(hoje)}</p>`;
-    if(!listaRotina.length){
-      html+=`<p class="muted">Nada obrigatório hoje. Na <b>segunda</b>: frota, estoque e aniversariantes. Na <b>sexta antes das 8:30</b>: diaristas. No <b>final do mês</b>: inventário e fechamentos.</p>`;
-    } else {
-      const pendentes=listaRotina.filter(r=>state.rotinaFeita[r.id]!==hoje);
-      if(!pendentes.length){
-        html+=`<p style="color:var(--ok);font-weight:500;margin:.35rem 0">Tudo concluído por hoje ✓</p><p class="muted">As tarefas voltam amanhã.</p>`;
-      } else {
-        html+=`<p class="muted" style="margin:0 0 .5rem">${pendentes.length} pendente(s) · marque para concluir</p>`;
-        pendentes.forEach(r=>{
-          html+=`<label class="check"><input type="checkbox" data-rotina="${r.id}"/><span><span class="titulo" style="display:block;font-size:.9rem">${esc(r.titulo)}</span><span class="muted">${esc(r.grupo)}</span></span></label>`;
-        });
-      }
-    }
-    const prox=proximosLembretes(hoje);
-    if(prox.length){
-      html+=`<div class="card"><p class="card-title">Próximos dias</p><ul class="list">`;
-      prox.forEach(p=>{ html+=`<li><div style="flex:1"><div style="font-weight:500">${esc(p.iso.split("-").reverse().join("/"))}</div><div class="muted">${esc(p.labels)}</div></div></li>`; });
-      html+=`</ul></div>`;
-    }
-    html+=`<div class="card"><p class="card-title">Quando ocorrer (marque se fez)</p>`;
-    ROTINA.filter(r=>r.freq==="evento").forEach(r=>{
-      const done=state.rotinaFeita[r.id]===hoje;
-      html+=`<label class="check ${done?"done":""}"><input type="checkbox" ${done?"checked":""} data-rotina="${r.id}"/><span><span class="titulo" style="display:block;font-size:.9rem">${esc(r.titulo)}</span><span class="muted">${esc(r.grupo)}</span></span></label>`;
-    });
-    html+=`</div>`;
   }
 
   if(page==="frota"){
@@ -1395,6 +1368,7 @@ function bind(){
       if(k==="diesel") edit={kind:"hoje-diesel"};
       if(k==="chuva") edit={kind:"hoje-chuva"};
       if(k==="area") edit={kind:"hoje-area"};
+      if(k==="tarefas") edit={kind:"hoje-tarefas"};
       render();
     };
   });
