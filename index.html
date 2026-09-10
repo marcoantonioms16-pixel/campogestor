@@ -5,1221 +5,904 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <meta name="theme-color" content="#10140f"/>
 <title>CampoGestor — Fazenda Santa Rita</title>
-
 <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&family=Fraunces:opsz,wght@9..144,500&display=swap" rel="stylesheet"/>
-
-<!-- Importando React, ReactDOM e Babel para renderizar o componente de Funcionários -->
-<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
 <style>
 :root{--bg:#10140f;--surface:#1a2018;--elevated:#232b20;--fg:#f0ece2;--muted:#9a9a88;--subtle:#6e7264;--primary:#7a9b6e;--border:#2c3529;--ok:#8fbc7a;--warn:#c4a35a;--danger:#c46a5a;--font:Figtree,system-ui,sans-serif;--display:Fraunces,Georgia,serif;--radius:12px}
 *{box-sizing:border-box;border-color:var(--border)}
 html,body{margin:0;min-height:100dvh;background:var(--bg);color:var(--fg);font-family:var(--font)}
-button,input,select,textarea{font:inherit;color:inherit}button{cursor:pointer}
+button,input,select{font:inherit;color:inherit}button{cursor:pointer}
 h1,h2,h3{font-family:var(--display);font-weight:500;margin:0}
-.app{max-width:720px;margin:0 auto;min-height:100dvh;padding-bottom:2rem}
-
-.header{padding:1.25rem 1rem .5rem;display:flex;align-items:center;justify-content:space-between;gap:.5rem}
-.header-info .kicker{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
-.header-info h1{font-size:1.4rem;margin-top:.15rem}
-.menu-btn{background:var(--elevated);border:1px solid var(--border);color:var(--fg);width:2.6rem;height:2.6rem;border-radius:10px;font-size:1.2rem;display:flex;align-items:center;justify-content:center}
-.sub{padding:0 1rem;font-size:.875rem;color:var(--muted)}
-
+.app{max-width:720px;margin:0 auto;min-height:100dvh;padding-bottom:5.5rem}
+.header{padding:1.25rem 1rem .5rem;display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem}
+.header .kicker{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.header h1{font-size:1.5rem;margin-top:.15rem}.sub{padding:0 1rem;font-size:.875rem;color:var(--muted)}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;margin:.75rem 1rem}
 .card-title{font-size:.875rem;font-weight:500;margin:0 0 .5rem}
 .row{display:flex;align-items:center;justify-content:space-between;gap:.75rem}
 .muted{color:var(--muted);font-size:.8rem}
 .list{list-style:none;margin:0;padding:0}
-.list li{display:flex;flex-direction:column;gap:.5rem;padding:.85rem 0;border-bottom:1px solid var(--border)}
+.list li{display:flex;align-items:center;gap:.75rem;padding:.75rem 0;border-bottom:1px solid var(--border)}
 .list li:last-child{border-bottom:none}
-
-.item-main{display:flex;align-items:center;justify-content:space-between;gap:.5rem;width:100%}
-.badge{display:inline-flex;border-radius:999px;padding:.2rem .65rem;font-size:.75rem;font-weight:600}
+.badge{display:inline-flex;border-radius:999px;padding:.15rem .55rem;font-size:.7rem;font-weight:500}
 .badge.ok{background:color-mix(in srgb,var(--ok) 20%,transparent);color:var(--ok)}
 .badge.warn{background:color-mix(in srgb,var(--warn) 20%,transparent);color:var(--warn)}
-.badge.danger{background:color-mix(in srgb,var(--danger) 30%,transparent);color:var(--danger);border:1px solid var(--danger)}
 .badge.muted{background:var(--elevated);color:var(--muted)}
-
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:.35rem;border:1px solid var(--border);background:var(--elevated);color:var(--fg);border-radius:8px;padding:.45rem .75rem;font-size:.8rem;font-weight:500;text-decoration:none}
-.btn.primary{background:var(--primary);color:var(--bg);border-color:transparent;font-weight:600}
-.btn.whatsapp{background:#25d366;color:#000;font-weight:700;border-color:transparent}
-.btn.block{width:100%}
-.btn.sm{padding:.25rem .5rem;font-size:.75rem}
-
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.35rem;border:1px solid var(--border);background:var(--elevated);color:var(--fg);border-radius:10px;padding:.5rem .85rem;font-size:.85rem;font-weight:500}
+.btn.primary{background:var(--primary);color:var(--bg);border-color:transparent}
+.btn.block{width:100%}.btn.sm{padding:.3rem .55rem;font-size:.75rem}.btn.icon{width:2.2rem;height:2.2rem;padding:0}
 .field{display:flex;flex-direction:column;gap:.3rem;margin-bottom:.75rem}
 .field label{font-size:.75rem;color:var(--muted)}
-.field input,.field select,.field textarea{background:var(--elevated);border:1px solid var(--border);border-radius:8px;padding:.55rem .7rem;color:var(--fg)}
-
-.drawer-bg{position:fixed;inset:0;background:rgba(12, 16, 11, 0.75);backdrop-filter:blur(4px);z-index:90;display:none}
-.drawer-bg.open{display:flex}
-.drawer{position:fixed;top:0;bottom:0;left:0;width:80%;max-width:320px;background:var(--surface);border-right:1px solid var(--border);padding:1.25rem 1rem;z-index:100;display:flex;flex-direction:column;justify-content:space-between;overflow-y:auto;transform:translateX(-100%);transition:transform .25s ease-in-out}
-.drawer-bg.open + .drawer, .drawer.open{transform:translateX(0)}
-.drawer-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;border-bottom:1px solid var(--border);padding-bottom:.75rem}
-.drawer-menu{display:flex;flex-direction:column;gap:.4rem}
-.drawer-menu button{display:flex;align-items:center;gap:.75rem;width:100%;padding:.75rem .85rem;background:transparent;border:none;border-radius:10px;color:var(--fg);font-size:.9rem;text-align:left}
-.drawer-menu button.active{background:color-mix(in srgb,var(--primary) 15%,transparent);color:var(--primary);font-weight:600}
-
+.field input,.field select{background:var(--elevated);border:1px solid var(--border);border-radius:10px;padding:.55rem .7rem}
+.search{margin:.5rem 1rem}
+.search input{width:100%;background:var(--elevated);border:1px solid var(--border);border-radius:10px;padding:.65rem .85rem}
+.progress{height:6px;background:var(--elevated);border-radius:999px;overflow:hidden}
+.progress>span{display:block;height:100%;background:var(--primary)}
+.check{display:flex;align-items:flex-start;gap:.75rem;padding:.6rem 0;border-bottom:1px solid var(--border);cursor:pointer}
+.check:last-child{border-bottom:none}.check input{margin-top:.2rem;accent-color:var(--primary)}
+.check.done .titulo{text-decoration:line-through;color:var(--muted)}
+.nav{position:fixed;bottom:0;left:0;right:0;background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(12px);border-top:1px solid var(--border);display:flex;justify-content:center;padding:.35rem .4rem calc(.35rem + env(safe-area-inset-bottom));z-index:50}
+.nav-inner{display:flex;width:100%;max-width:720px}
+.nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:.1rem;padding:.35rem .2rem;font-size:.62rem;color:var(--subtle);background:transparent;border:none;border-radius:10px}
+.nav button.active{color:var(--primary);background:color-mix(in srgb,var(--primary) 12%,transparent)}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin:.75rem 1rem}
 .stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.75rem}
 .stat .lbl{font-size:.7rem;color:var(--muted)}.stat .val{font-size:.95rem;font-weight:500;margin-top:.2rem}
+.drawer-bg{position:fixed;inset:0;background:rgb(12 16 11 / .72);z-index:60;display:flex;align-items:flex-end;justify-content:center}
+.drawer{background:var(--surface);border:1px solid var(--border);border-radius:16px 16px 0 0;width:100%;max-width:720px;max-height:88dvh;overflow:auto;padding:1.15rem 1rem 1.4rem}
+.drawer h2{margin-bottom:.85rem;font-size:1.1rem}
+.chips{display:flex;gap:.35rem;overflow-x:auto;padding:.4rem 1rem}
+.chip{white-space:nowrap;border:1px solid var(--border);background:var(--surface);border-radius:999px;padding:.3rem .7rem;font-size:.72rem;color:var(--muted)}
+.chip.on{background:color-mix(in srgb,var(--primary) 18%,transparent);color:var(--primary);border-color:transparent}
+.toast{position:fixed;top:1rem;left:50%;transform:translateX(-50%);background:var(--elevated);border:1px solid var(--border);padding:.55rem 1rem;border-radius:999px;font-size:.85rem;z-index:100}
+.hidden{display:none!important}
+.table{width:100%;border-collapse:collapse;font-size:.8rem}
+.table th,.table td{text-align:left;padding:.4rem .3rem;border-bottom:1px solid var(--border);vertical-align:top}
+.table th{color:var(--muted);font-weight:500}
 .sec{margin:.75rem 1rem;font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
-
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:110;display:none;align-items:center;justify-content:center;padding:1rem}
-.modal-bg.open{display:flex}
-.modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);width:100%;max-width:520px;padding:1.2rem;max-height:90vh;overflow-y:auto}
-
-.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:var(--primary);color:var(--bg);padding:.6rem 1.2rem;border-radius:999px;font-size:.85rem;font-weight:600;z-index:200;display:none;box-shadow:0 4px 12px rgba(0,0,0,0.4)}
-.search-box{background:var(--elevated);border:1px solid var(--border);border-radius:10px;padding:.5rem .75rem;width:100%;color:var(--fg);margin-bottom:.75rem}
-.coletivo-item{background:var(--elevated);padding:.6rem;border-radius:8px;margin-bottom:.5rem;border:1px solid var(--border)}
-
-/* Estilos adicionais para harmonizar o componente de funcionários com o CampoGestor */
-.func-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 0.75rem; overflow: hidden; }
-.func-header { padding: 1rem; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: var(--elevated); }
-.func-nome { margin: 0; font-size: 0.95rem; color: var(--primary); font-family: var(--font); font-weight: 600; }
-.func-cargo { font-size: 0.75rem; color: var(--muted); }
-.func-details { padding: 1rem; border-top: 1px solid var(--border); background: var(--surface); }
-.func-row { display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.825rem; }
-.func-row:last-child { margin-bottom: 0; }
-.func-highlight { color: var(--ok); font-weight: 600; }
 </style>
 </head>
 <body>
-
-<div class="toast" id="toast"></div>
-<div class="drawer-bg" id="drawer-bg" onclick="toggleDrawer(false)"></div>
-
-<div class="drawer" id="drawer">
-  <div>
-    <div class="drawer-header">
-      <div>
-        <span style="font-size:.7rem;color:var(--muted);text-transform:uppercase;">Sistema Agrícola</span>
-        <h3 style="font-size:1.1rem;color:var(--primary);">CampoGestor</h3>
-      </div>
-      <button onclick="toggleDrawer(false)" style="background:transparent;border:none;font-size:1.2rem;">✕</button>
-    </div>
-    
-    <div class="drawer-menu">
-      <button id="menu-resumo" class="active" onclick="selectTab('resumo')">📊 Resumo Geral</button>
-      <button id="menu-maquinas" onclick="selectTab('maquinas')">🚜 Frota de Máquinas</button>
-      <button id="menu-insumos" onclick="selectTab('insumos')">📦 Estoque de Insumos</button>
-      <button id="menu-talhoes" onclick="selectTab('talhoes')">🌱 Talhões e Áreas</button>
-      <button id="menu-equatorial" onclick="selectTab('equatorial')">⚡ Equatorial / Energia</button>
-      <button id="menu-pessoas" onclick="selectTab('pessoas')">👥 Equipe da Fazenda</button>
-    </div>
-  </div>
-
-  <div style="font-size:.75rem;color:var(--subtle);padding-top:1rem;border-top:1px solid var(--border);">
-    Fazenda Santa Rita — Safra 2026/27
-  </div>
-</div>
-
-<div class="app">
-  <div class="header">
-    <div class="header-info">
-      <span class="kicker" id="muni-safra">Grupo Segredo • Safra 2026/27</span>
-      <h1 id="page-title">CampoGestor</h1>
-    </div>
-    <button class="menu-btn" onclick="toggleDrawer(true)">☰</button>
-  </div>
-  <div class="sub" id="sub-info">Usuário: Marcos Morais (Auxiliar administrativo)</div>
-
-  <div id="content"></div>
-</div>
-
-<div class="modal-bg" id="modal-bg">
-  <div class="modal" id="modal-body"></div>
-</div>
-
-<!-- Componente React de Funcionários -->
-<script type="text/babel">
-  const funcionariosData = [
-    {
-      id: 1,
-      nome: "SEBASTIAO CLAUDIONOR REZENDE",
-      cargo: "MOTORISTA E",
-      cpf: "773.993.741-04",
-      admissao: "01/09/2024",
-      nascimento: "20/01/1972",
-      planoSaude: "02282205000069004"
-    },
-    {
-      id: 2,
-      nome: "JEFERSON LUIZ BOTIN",
-      cargo: "OPERADOR MAQ C",
-      cpf: "087.771.269-71",
-      admissao: "03/06/2026",
-      nascimento: "25/01/1993",
-      planoSaude: null
-    },
-    {
-      id: 3,
-      nome: "GENILTON GUSTAVO DE OLIVEIRA",
-      cargo: "OP DE MAQUINAS AGRIC JR E",
-      cpf: "098.644.111-28",
-      admissao: "06/02/2026",
-      nascimento: "13/04/2007",
-      planoSaude: "02282205000076000"
-    },
-    {
-      id: 4,
-      nome: "JOAO PEDRO VIEIRA ALMEIDA",
-      cargo: "OP DE MAQ AGRIC JR F",
-      cpf: "714.966.761-90",
-      admissao: "15/06/2026",
-      nascimento: "28/04/2008",
-      planoSaude: null
-    },
-    {
-      id: 5,
-      nome: "ANDRESSA LEAL FERREIRA",
-      cargo: "COZINHEIRA RURAL E",
-      cpf: "102.727.609-19",
-      admissao: "22/06/2026",
-      nascimento: "07/05/1995",
-      planoSaude: null
-    },
-    {
-      id: 6,
-      nome: "LEANDRO ALVES MORAES DE SOUZA",
-      cargo: "OP DE MAQUINAS AGRIC A",
-      cpf: "709.352.761-22",
-      admissao: "29/04/2026",
-      nascimento: "15/05/2003",
-      planoSaude: null
-    },
-    {
-      id: 7,
-      nome: "CELIO CARLOS CANEDO JUNIOR",
-      cargo: "GERENTE AGROP E",
-      cpf: "052.747.301-40",
-      admissao: "01/04/2025",
-      nascimento: "25/06/1994",
-      planoSaude: null
-    },
-    {
-      id: 8,
-      nome: "DILMAR ALVES KAYSER",
-      cargo: "OP DE MAQ AGRIC JR F",
-      cpf: "068.263.651-70",
-      admissao: "07/02/2026",
-      nascimento: "11/10/2003",
-      planoSaude: "02282205000077007"
-    },
-    {
-      id: 9,
-      nome: "GABRIEL PEREIRA DE FARIA",
-      cargo: "OP DE MAQUINAS AGRIC A",
-      cpf: "072.161.721-24",
-      admissao: "29/01/2026",
-      nascimento: "16/10/2003",
-      planoSaude: "02282205000078003"
-    },
-    {
-      id: 10,
-      nome: "MARCOS ANTONIO DA SILVA MORAIS",
-      cargo: "AUX ADMINISTRATIVO D",
-      cpf: "045.230.731-71",
-      admissao: "23/02/2026",
-      nascimento: "06/11/1993",
-      planoSaude: "02282205000075004"
-    },
-    {
-      id: 11,
-      nome: "JOSE ADAO CARDOSO",
-      cargo: "TRAB AGROP EM GERAL D",
-      cpf: "897.519.571-68",
-      admissao: "01/09/2024",
-      nascimento: "25/12/1973",
-      planoSaude: "02282205000068008"
-    }
-  ];
-
-  const calcularTempoTrabalhado = (dataAdmissaoStr) => {
-    const [dia, mes, ano] = dataAdmissaoStr.split('/').map(Number);
-    const dataAdmissao = new Date(ano, mes - 1, dia);
-    const hoje = new Date();
-
-    let anos = hoje.getFullYear() - dataAdmissao.getFullYear();
-    let meses = hoje.getMonth() - dataAdmissao.getMonth();
-    let dias = hoje.getDate() - dataAdmissao.getDate();
-
-    if (dias < 0) {
-      meses -= 1;
-      const ultimoDiaMesAnterior = new Date(hoje.getFullYear(), hoje.getMonth(), 0).getDate();
-      dias += ultimoDiaMesAnterior;
-    }
-
-    if (meses < 0) {
-      anos -= 1;
-      meses += 12;
-    }
-
-    const partes = [];
-    if (anos > 0) partes.push(`${anos} ${anos === 1 ? 'ano' : 'anos'}`);
-    if (meses > 0) partes.push(`${meses} ${meses === 1 ? 'mês' : 'meses'}`);
-    if (dias > 0) partes.push(`${dias} ${dias === 1 ? 'dia' : 'dias'}`);
-
-    return partes.length > 0 ? partes.join(', ') : 'Admitido hoje';
-  };
-
-  function FuncionariosList() {
-    const [abertoId, setAbertoId] = React.useState(null);
-    const [search, setSearch] = React.useState("");
-
-    const toggleAccordion = (id) => {
-      setAbertoId(abertoId === id ? null : id);
-    };
-
-    const filtrados = funcionariosData.filter(f => 
-      f.nome.toLowerCase().includes(search.toLowerCase()) || 
-      f.cargo.toLowerCase().includes(search.toLowerCase()) ||
-      f.cpf.includes(search)
-    );
-
-    return (
-      <div style={{ padding: '0 1rem' }}>
-        <div class="card" style={{ margin: '0 0 1rem 0' }}>
-          <input 
-            type="text" 
-            class="search-box" 
-            style={{ marginBottom: 0 }} 
-            placeholder="🔍 Buscar funcionário por nome, cargo ou CPF..." 
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-          <div class="muted" style={{ marginTop: '0.5rem' }}>
-            Total de colaboradores: <strong>{filtrados.length} ativos</strong>
-          </div>
-        </div>
-
-        <div class="sec" style={{ margin: '0 0 0.75rem 0' }}>Equipe Cadastrada</div>
-
-        {filtrados.map((f) => {
-          const isExpanded = abertoId === f.id;
-          const tempoTrabalhado = calcularTempoTrabalhado(f.admissao);
-
-          return (
-            <div key={f.id} class="func-card">
-              <div class="func-header" onClick={() => toggleAccordion(f.id)}>
-                <div>
-                  <h3 class="func-nome">{f.nome}</h3>
-                  <span class="func-cargo">{f.cargo}</span>
-                </div>
-                <span class="muted" style={{ fontSize: '0.8rem' }}>{isExpanded ? '▲' : '▼'}</span>
-              </div>
-
-              {isExpanded && (
-                <div class="func-details">
-                  <div class="func-row">
-                    <strong>CPF:</strong> <span>{f.cpf}</span>
-                  </div>
-                  <div class="func-row">
-                    <strong>Data de Nascimento:</strong> <span>{f.nascimento}</span>
-                  </div>
-                  <div class="func-row">
-                    <strong>Data de Admissão:</strong> <span>{f.admissao}</span>
-                  </div>
-                  <div class="func-row">
-                    <strong>Tempo de Empresa:</strong> <span class="func-highlight">{tempoTrabalhado}</span>
-                  </div>
-                  <div class="func-row">
-                    <strong>Plano de Saúde (Unimed):</strong>{' '}
-                    <span>{f.planoSaude ? f.planoSaude : 'Não cadastrado'}</span>
-                  </div>
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
-    );
-  }
-
-  window.renderEquipeModule = function() {
-    const container = document.getElementById('content');
-    if (!container) return;
-    const rootDiv = document.createElement('div');
-    rootDiv.id = 'react-equipe-root';
-    container.innerHTML = '';
-    container.appendChild(rootDiv);
-    
-    const root = ReactDOM.createRoot(rootDiv);
-    root.render(<FuncionariosList />);
-  };
-</script>
-
+<div class="app" id="app"></div>
 <script>
-const PRINCIPIOS_ATIVOS = [
-  {"comercial": "2,4 D TECNOMYL", "ativo": "2,4-D (Sal Dimetilamina)"},
-  {"comercial": "ALMAX", "ativo": "Glifosato de Amônio"},
-  {"comercial": "APROCH POWER", "ativo": "Ciproconazol + Azoxistrobina"},
-  {"comercial": "TA35 ULTRA", "ativo": "Óleo Mineral Emulsionável"},
-  {"comercial": "AURORA", "ativo": "Carfentrazona-etílica"},
-  {"comercial": "AZIMUT", "ativo": "Azoxistrobina + Tebuconazol"},
-  {"comercial": "AZURE", "ativo": "Clorotalonil + Tebuconazol"},
-  {"comercial": "CALCARIO", "ativo": "Carbonato de Cálcio e Magnésio"},
-  {"comercial": "CLORETO POTASSIO KCL", "ativo": "Cloreto de Potássio 60% K2O"},
-  {"comercial": "CLORFENAPIN", "ativo": "Clorfenapir"},
-  {"comercial": "DIESEL S500", "ativo": "Óleo Diesel S500 (Combustível)"},
-  {"comercial": "DIESEL S10", "ativo": "Óleo Diesel S10 (Combustível)"}
-];
+const SEED = {"farm": {"nome": "Fazenda Santa Rita", "municipio": "Grupo Segredo", "cargo": "Auxiliar administrativo", "safra": "2026/27", "areaTotal": 1581.13, "gerente": "Célio Carlos Canedo Júnior"}, "diesel": {"capacidade": 15000, "litros": 7400}, "rotinaFeita": {}, "sementes": [], "maquinas": [{"id": "mq-1", "nome": "Trator Case Steiger 450", "tipo": "trator", "modelo": "Steiger 450 (2016)", "status": "operando", "placa": "2404"}, {"id": "mq-2", "nome": "Trator Valtra BH194", "tipo": "trator", "modelo": "BH194 (2018)", "status": "operando", "placa": "2411"}, {"id": "mq-3", "nome": "Trator Valtra BH194", "tipo": "trator", "modelo": "BH194 (2018)", "status": "operando", "placa": "2412"}, {"id": "mq-4", "nome": "Trator Valtra BH194", "tipo": "trator", "modelo": "BH194 (2018)", "status": "operando", "placa": "2413"}, {"id": "mq-5", "nome": "Trator Valtra BH194", "tipo": "trator", "modelo": "BH194 (2018)", "status": "operando", "placa": "2414"}, {"id": "mq-6", "nome": "Trator Valtra BH194", "tipo": "trator", "modelo": "BH194 (2018)", "status": "operando", "placa": "2415"}, {"id": "mq-7", "nome": "Colheitadeira Case 9230", "tipo": "colheitadeira", "modelo": "Axial-Flow 9230 (2018)", "status": "parada", "placa": "0707"}, {"id": "mq-8", "nome": "Colheitadeira Case 9230", "tipo": "colheitadeira", "modelo": "Axial-Flow 9230 (2018)", "status": "parada", "placa": "0708"}, {"id": "mq-9", "nome": "Colheitadeira Case 9230", "tipo": "colheitadeira", "modelo": "Axial-Flow 9230 (2018)", "status": "parada", "placa": "0709"}, {"id": "mq-10", "nome": "Plantadeira John Deere DB50", "tipo": "plantadeira", "modelo": "DB 50 - 31 linhas (2016)", "status": "operando", "placa": "1603"}, {"id": "mq-11", "nome": "Plantadeira John Deere DB74", "tipo": "plantadeira", "modelo": "DB 74 - 45 linhas (2014)", "status": "operando", "placa": "1602"}, {"id": "mq-12", "nome": "Pulverizador Stara Imperador", "tipo": "pulverizador", "modelo": "Imperador (2016)", "status": "operando", "placa": "1903"}, {"id": "mq-13", "nome": "Caminhão Ford Cargo 2422", "tipo": "caminhao", "modelo": "Cargo 2422 (2011)", "status": "operando", "placa": "OGX6650"}, {"id": "mq-14", "nome": "Caminhão Volvo FH 420", "tipo": "caminhao", "modelo": "FH 12 420 4X2T (2006)", "status": "operando", "placa": "CNR7396"}, {"id": "mq-15", "nome": "Caminhão Ford Cargo 1932", "tipo": "caminhao", "modelo": "Cargo 1932 (2011/12)", "status": "operando", "placa": "OGM1930"}, {"id": "mq-16", "nome": "Distribuidor Stara Super Bruttus", "tipo": "outros", "modelo": "Super Bruttus (2018)", "status": "operando", "placa": "0803"}, {"id": "mq-17", "nome": "Distribuidor Stara Hercules 6.0", "tipo": "outros", "modelo": "Hercules 6.0 (2016)", "status": "operando", "placa": "0802"}], "insumos": [{"id": "in-01", "nome": "2,4-D Tecnomyl", "categoria": "defensivo", "unidade": "L", "quantidade": 900, "minimo": 100, "tecnico": "2,4-D", "tipoDef": "Herbicida"}, {"id": "in-02", "nome": "Almax", "categoria": "defensivo", "unidade": "L", "quantidade": 38, "minimo": 10, "tecnico": "Adjuvante (óleo/surfactante)", "tipoDef": "Adjuvante"}, {"id": "in-03", "nome": "Aproch Power", "categoria": "defensivo", "unidade": "L", "quantidade": 262, "minimo": 50, "tecnico": "Herbicida sistêmico (verificar rótulo)", "tipoDef": "Herbicida"}, {"id": "in-04", "nome": "TA35 Ultra", "categoria": "defensivo", "unidade": "L", "quantidade": 480, "minimo": 50, "tecnico": "Adjuvante / espalhante", "tipoDef": "Adjuvante"}, {"id": "in-05", "nome": "Aurora", "categoria": "defensivo", "unidade": "L", "quantidade": 104.8, "minimo": 20, "tecnico": "Carfentrazone-etílico (confirmar rótulo)", "tipoDef": "Herbicida"}, {"id": "in-06", "nome": "Azimut", "categoria": "defensivo", "unidade": "L", "quantidade": 205, "minimo": 30, "tecnico": "Tebuconazol (confirmar rótulo)", "tipoDef": "Fungicida"}, {"id": "in-07", "nome": "Azure", "categoria": "defensivo", "unidade": "L", "quantidade": 322.5, "minimo": 50, "tecnico": "Fungicida (confirmar rótulo)", "tipoDef": "Fungicida"}, {"id": "in-08", "nome": "Biomax Azum", "categoria": "outros", "unidade": "L", "quantidade": 21.6, "minimo": 10, "tecnico": "Inoculante / biológico", "tipoDef": "Biológico"}, {"id": "in-09", "nome": "Calaris", "categoria": "defensivo", "unidade": "L", "quantidade": 30, "minimo": 10, "tecnico": "Mesotriona + terbutilazina", "tipoDef": "Herbicida"}, {"id": "in-10", "nome": "Calcário", "categoria": "fertilizante", "unidade": "kg", "quantidade": 575400, "minimo": 100000, "tecnico": "Carbonato de cálcio / magnésio", "tipoDef": "Corretivo"}, {"id": "in-11", "nome": "Carnadine", "categoria": "defensivo", "unidade": "L", "quantidade": 76.5, "minimo": 15, "tecnico": "Inseticida (confirmar rótulo)", "tipoDef": "Inseticida"}, {"id": "in-12", "nome": "Cloreto de potássio (KCl)", "categoria": "fertilizante", "unidade": "bags", "quantidade": 233, "minimo": 50, "tecnico": "KCl", "tipoDef": "Fertilizante"}, {"id": "in-13", "nome": "Clorfenapin", "categoria": "defensivo", "unidade": "L", "quantidade": 342, "minimo": 50, "tecnico": "Clorfenapir", "tipoDef": "Inseticida"}, {"id": "in-14", "nome": "Concentrat Fix", "categoria": "defensivo", "unidade": "L", "quantidade": 348, "minimo": 50, "tecnico": "Adjuvante concentrado", "tipoDef": "Adjuvante"}, {"id": "in-15", "nome": "Concorde", "categoria": "defensivo", "unidade": "L", "quantidade": 28.6, "minimo": 10, "tecnico": "Defensivo (confirmar rótulo)", "tipoDef": "Defensivo"}, {"id": "in-16", "nome": "Connect", "categoria": "defensivo", "unidade": "L", "quantidade": 15.2, "minimo": 5, "tecnico": "Imidacloprido + beta-ciflutrina", "tipoDef": "Inseticida"}, {"id": "in-17", "nome": "Curbix", "categoria": "defensivo", "unidade": "L", "quantidade": 1324, "minimo": 200, "tecnico": "Herbicida (confirmar rótulo)", "tipoDef": "Herbicida"}, {"id": "in-18", "nome": "Cyptrin", "categoria": "defensivo", "unidade": "L", "quantidade": 7, "minimo": 5, "tecnico": "Cipermetrina", "tipoDef": "Inseticida"}, {"id": "in-19", "nome": "Extravon", "categoria": "defensivo", "unidade": "L", "quantidade": 280, "minimo": 40, "tecnico": "Adjuvante não iônico", "tipoDef": "Adjuvante"}, {"id": "in-20", "nome": "Forspray", "categoria": "defensivo", "unidade": "L", "quantidade": 26, "minimo": 10, "tecnico": "Adjuvante / antideriva", "tipoDef": "Adjuvante"}, {"id": "in-21", "nome": "Grasidim", "categoria": "defensivo", "unidade": "L", "quantidade": 920, "minimo": 100, "tecnico": "Cletodim (confirmar rótulo)", "tipoDef": "Herbicida"}, {"id": "in-22", "nome": "Glufos Wyn 880", "categoria": "defensivo", "unidade": "kg", "quantidade": 780, "minimo": 100, "tecnico": "Glufosinato de amônio", "tipoDef": "Herbicida"}, {"id": "in-23", "nome": "Intrepid", "categoria": "defensivo", "unidade": "L", "quantidade": 122, "minimo": 20, "tecnico": "Metoxifenozida", "tipoDef": "Inseticida"}, {"id": "in-24", "nome": "MAP purificado", "categoria": "fertilizante", "unidade": "kg", "quantidade": 616, "minimo": 200, "tecnico": "Fosfato monoamônico (MAP)", "tipoDef": "Fertilizante"}, {"id": "in-25", "nome": "Master", "categoria": "defensivo", "unidade": "L", "quantidade": 10, "minimo": 5, "tecnico": "Defensivo (confirmar rótulo)", "tipoDef": "Defensivo"}, {"id": "in-26", "nome": "Meta Muvi Sólido", "categoria": "defensivo", "unidade": "kg", "quantidade": 243, "minimo": 50, "tecnico": "Metomil (confirmar rótulo)", "tipoDef": "Inseticida"}, {"id": "in-27", "nome": "NHT Manganês", "categoria": "fertilizante", "unidade": "L", "quantidade": 93, "minimo": 20, "tecnico": "Sulfato / quelato de manganês", "tipoDef": "Fertilizante"}, {"id": "in-28", "nome": "NHT Zinco", "categoria": "fertilizante", "unidade": "L", "quantidade": 7.7, "minimo": 5, "tecnico": "Sulfato / quelato de zinco", "tipoDef": "Fertilizante"}, {"id": "in-29", "nome": "Nimaxxa", "categoria": "defensivo", "unidade": "L", "quantidade": 8, "minimo": 5, "tecnico": "Biológico (UPL)", "tipoDef": "Biológico"}, {"id": "in-30", "nome": "Óleo mineral Du Fol (adjuvante)", "categoria": "defensivo", "unidade": "L", "quantidade": 75, "minimo": 20, "tecnico": "Óleo mineral", "tipoDef": "Adjuvante"}, {"id": "in-31", "nome": "Poli Flex", "categoria": "defensivo", "unidade": "L", "quantidade": 76.5, "minimo": 15, "tecnico": "Adjuvante polimérico", "tipoDef": "Adjuvante"}, {"id": "in-32", "nome": "Primóleo", "categoria": "defensivo", "unidade": "L", "quantidade": 97, "minimo": 20, "tecnico": "Óleo / adjuvante", "tipoDef": "Adjuvante"}, {"id": "in-33", "nome": "Select", "categoria": "defensivo", "unidade": "L", "quantidade": 200, "minimo": 50, "tecnico": "Cletodim", "tipoDef": "Herbicida"}, {"id": "in-34", "nome": "Silkon", "categoria": "defensivo", "unidade": "L", "quantidade": 266.9, "minimo": 40, "tecnico": "Organossilicone", "tipoDef": "Adjuvante"}, {"id": "in-35", "nome": "Soldier", "categoria": "defensivo", "unidade": "kg", "quantidade": 7784.5, "minimo": 500, "tecnico": "Inseticida / fungicida (confirmar rótulo)", "tipoDef": "Defensivo"}, {"id": "in-36", "nome": "Sulfato de magnésio", "categoria": "fertilizante", "unidade": "kg", "quantidade": 2041, "minimo": 300, "tecnico": "MgSO4", "tipoDef": "Fertilizante"}, {"id": "in-37", "nome": "Super simples", "categoria": "fertilizante", "unidade": "kg", "quantidade": 7010, "minimo": 1000, "tecnico": "Superfosfato simples (SSP)", "tipoDef": "Fertilizante"}, {"id": "in-38", "nome": "Yonon", "categoria": "defensivo", "unidade": "L", "quantidade": 3, "minimo": 2, "tecnico": "Defensivo (confirmar rótulo)", "tipoDef": "Defensivo"}, {"id": "in-39", "nome": "Assist EC", "categoria": "defensivo", "unidade": "L", "quantidade": 640, "minimo": 80, "tecnico": "Óleo mineral EC", "tipoDef": "Adjuvante"}, {"id": "in-40", "nome": "Nitrato de potássio", "categoria": "fertilizante", "unidade": "kg", "quantidade": 6000, "minimo": 500, "tecnico": "KNO3", "tipoDef": "Fertilizante"}, {"id": "in-41", "nome": "Zethamaxx", "categoria": "defensivo", "unidade": "L", "quantidade": 152.5, "minimo": 30, "tecnico": "Herbicida (confirmar rótulo)", "tipoDef": "Herbicida"}, {"id": "in-42", "nome": "Diesel S500", "categoria": "combustivel", "unidade": "L", "quantidade": 7400, "minimo": 3000, "tecnico": "Óleo diesel S500", "tipoDef": "Combustível"}, {"id": "in-43", "nome": "Diesel S10", "categoria": "combustivel", "unidade": "L", "quantidade": 0, "minimo": 2000, "tecnico": "Óleo diesel S10", "tipoDef": "Combustível"}], "pessoas": [{"id": "ps-1", "nome": "Sebastião Claudionor Rezende", "tipo": "efetivo", "funcao": "Motorista", "nascimento": "1972-01-20", "admissao": "2024-09-01"}, {"id": "ps-2", "nome": "Jeferson Luiz Botin", "tipo": "efetivo", "funcao": "Operador de máquinas", "nascimento": "1993-01-25", "admissao": "2026-06-03"}, {"id": "ps-3", "nome": "Genilton Gustavo de Oliveira", "tipo": "efetivo", "funcao": "Op. de máquinas agrícola Jr", "nascimento": "2007-04-13", "admissao": "2026-02-06"}, {"id": "ps-4", "nome": "João Pedro Vieira Almeida", "tipo": "efetivo", "funcao": "Op. de máq. agrícola Jr", "nascimento": "2008-04-28", "admissao": "2026-06-15"}, {"id": "ps-5", "nome": "Andressa Leal Ferreira", "tipo": "efetivo", "funcao": "Cozinheira rural", "nascimento": "1995-05-07", "admissao": "2026-06-22"}, {"id": "ps-6", "nome": "Leandro Alves Moraes de Souza", "tipo": "efetivo", "funcao": "Op. de máquinas agrícola", "nascimento": "2003-05-15", "admissao": "2026-04-29"}, {"id": "ps-7", "nome": "Célio Carlos Canedo Júnior", "tipo": "efetivo", "funcao": "Gerente agropecuário", "nascimento": "1994-06-25", "admissao": "2025-04-01"}, {"id": "ps-8", "nome": "Dilmar Alves Kayser", "tipo": "efetivo", "funcao": "Op. de máq. agrícola Jr", "nascimento": "2003-10-11", "admissao": "2026-02-07"}, {"id": "ps-9", "nome": "Gabriel Pereira de Faria", "tipo": "efetivo", "funcao": "Op. de máquinas agrícola", "nascimento": "2003-10-16", "admissao": "2026-01-29"}, {"id": "ps-10", "nome": "Marcos Antonio da Silva Morais", "tipo": "efetivo", "funcao": "Auxiliar administrativo", "nascimento": "1993-11-06", "admissao": "2026-02-23"}, {"id": "ps-11", "nome": "José Adão Cardoso", "tipo": "efetivo", "funcao": "Trab. agropecuário em geral", "nascimento": "1973-12-25", "admissao": "2024-09-01"}, {"id": "ps-12", "nome": "Cesar Bonifacio de Almeida", "tipo": "efetivo", "funcao": "Colaborador", "nascimento": null, "admissao": null}], "talhoes": [{"id": "tl-1", "codigo": "ENT", "nome": "Entrada", "area": 91.35, "cultura": "soja", "variedade": "Raptor I2X", "estagio": "planejado", "fazenda": "santa-rita"}, {"id": "tl-2", "codigo": "JAI", "nome": "Jaime", "area": 132.0, "cultura": "soja", "variedade": "Raptor I2X", "estagio": "planejado", "fazenda": "santa-rita"}, {"id": "tl-3", "codigo": "DUI", "nome": "Duilio", "area": 136.67, "cultura": "soja", "variedade": "Raptor I2X", "estagio": "planejado", "fazenda": "santa-rita"}, {"id": "tl-4", "codigo": "MAT", "nome": "Mato", "area": 12.88, "cultura": "soja", "variedade": "—", "estagio": "planejado", "fazenda": "santa-rita"}, {"id": "tl-5", "codigo": "SED", "nome": "Sede", "area": 109.13, "cultura": "soja", "variedade": "DM 72IX74 I2X", "estagio": "planejado", "fazenda": "santa-rita"}, {"id": "tl-6", "codigo": "PTP", "nome": "Pista Tapera", "area": 130.14, "cultura": "soja", "variedade": "DM 72IX74 I2X", "estagio": "planejado", "fazenda": "santa-rita"}, {"id": "tl-7", "codigo": "TAP", "nome": "Tapera", "area": 94.76, "cultura": "soja", "variedade": "NEO700 I2X", "estagio": "planejado", "fazenda": "santa-rita"}, {"id": "tl-8", "codigo": "LUI", "nome": "Luizinho", "area": 153.13, "cultura": "soja", "variedade": "NEO700 I2X", "estagio": "planejado", "fazenda": "santa-rita"}, {"id": "tl-9", "codigo": "AMA", "nome": "Amargoso", "area": 102.33, "cultura": "soja", "variedade": "76KA72 CE", "estagio": "planejado", "fazenda": "santa-rita"}, {"id": "tl-10", "codigo": "110", "nome": "110", "area": 109.0, "cultura": "soja", "variedade": "76KA72 CE", "estagio": "planejado", "fazenda": "santa-rita"}, {"id": "tl-11", "codigo": "190", "nome": "190", "area": 186.36, "cultura": "soja", "variedade": "76KA72 CE", "estagio": "planejado", "fazenda": "santa-rita"}, {"id": "tl-12", "codigo": "CAS", "nome": "Cascalheira", "area": 59.38, "cultura": "soja", "variedade": "ST 752 I2X", "estagio": "planejado", "fazenda": "campo-alegre"}, {"id": "tl-13", "codigo": "PV1", "nome": "Pivô 1", "area": 112.0, "cultura": "soja", "variedade": "NEO761 I2X", "estagio": "planejado", "fazenda": "campo-alegre"}, {"id": "tl-14", "codigo": "PV2", "nome": "Pivô 2", "area": 152.0, "cultura": "soja", "variedade": "NEO761 I2X", "estagio": "planejado", "fazenda": "campo-alegre"}], "equatorial": {"telefone": "0800-620-196", "ucs": [{"desc": "Faz Campo Alegre Paraúna (demanda 386)", "unid": "SANTA RITA", "uc": "980045368", "titular": "Paulo"}, {"desc": "ENEL Faz Campo Alegre (casa piscina)", "unid": "SANTA RITA", "uc": "980045940", "titular": "Paulo"}, {"desc": "Faz Campo Alegre (Sede, Alojamento, Célio)", "unid": "SANTA RITA", "uc": "10026027184", "titular": "Adriano"}, {"desc": "ENEL Faz Formoso (sem consumo)", "unid": "SANTA RITA", "uc": "980051009", "titular": "Jamil"}, {"desc": "ENEL Faz Pouso Alegre", "unid": "SANTA RITA", "uc": "980046051", "titular": "Jayme"}, {"desc": "ENEL Escritório", "unid": "ESCRITÓRIO", "uc": "630127864", "titular": "Adriano"}, {"desc": "ENEL Faz Segredo (demanda 150)", "unid": "SEGREDO", "uc": "630244492", "titular": "Adriano"}, {"desc": "ENEL Faz Monte Alegre (inativa)", "unid": "SEGREDO", "uc": "630490405", "titular": "Ari"}, {"desc": "ENEL Faz Santa Rita (inativa)", "unid": "SANTA RITA", "uc": "980045617", "titular": "Paulo"}, {"desc": "ENEL Faz Ken Tuch (Divino)", "unid": "KEN TUCH", "uc": "10014619499", "titular": "Paulo"}], "protocolos": [{"data": "2026-03-23", "hora": "07:26", "uc": "10026027184", "protocolo": "476513825", "hist": "Falta de energia", "local": "SANTA RITA"}, {"data": "2026-03-23", "hora": "09:33", "uc": "10026027184", "protocolo": "476544256", "hist": "Falta de energia", "local": "SANTA RITA"}, {"data": "2026-04-15", "hora": "08:11", "uc": "980046051", "protocolo": "480215339", "hist": "Falta de energia", "local": "POUSO ALEGRE"}, {"data": "2026-04-22", "hora": "09:51", "uc": "10026027184", "protocolo": "481135486", "hist": "Falta de energia", "local": "SANTA RITA"}, {"data": "2026-05-19", "hora": "07:35", "uc": "10026027184", "protocolo": "485573798", "hist": "Falta de energia", "local": "SANTA RITA"}, {"data": "2026-05-19", "hora": "20:30", "uc": "10026027184", "protocolo": "48575720", "hist": "Falta de energia", "local": "SANTA RITA"}, {"data": "2026-05-20", "hora": "07:27", "uc": "10026027184", "protocolo": "485780385", "hist": "Falta de energia", "local": "SANTA RITA"}, {"data": "2026-07-10", "hora": "07:00", "uc": "10026027184", "protocolo": "493018848", "hist": "Falta de energia", "local": "SANTA RITA"}, {"data": "2026-07-21", "hora": "00:00", "uc": "10026027184", "protocolo": "494397090", "hist": "Falta de energia", "local": "SANTA RITA"}, {"data": "2026-07-27", "hora": "08:43", "uc": "10026027184", "protocolo": "495090858", "hist": "Falta de energia", "local": "SANTA RITA"}, {"data": "2026-07-27", "hora": "19:22", "uc": "10026027184", "protocolo": "495232772", "hist": "Falta de energia", "local": "SANTA RITA"}, {"data": "2026-07-28", "hora": "09:45", "uc": "10026027184", "protocolo": "495292116", "hist": "Falta de energia", "local": "SANTA RITA"}, {"data": "2026-08-05", "hora": "09:50", "uc": "10026027184", "protocolo": "496390441", "hist": "Falta de energia", "local": "SANTA RITA"}, {"data": "2026-08-10", "hora": "07:13", "uc": "10026027184", "protocolo": "499679147", "hist": "Falta de energia", "local": "SANTA RITA"}, {"data": "2026-08-10", "hora": "14:42", "uc": "10026027184", "protocolo": "497092477", "hist": "Falta de energia", "local": "SANTA RITA"}, {"data": "2026-08-19", "hora": "07:15", "uc": "980046051", "protocolo": "498250408", "hist": "Falta de energia", "local": "POUSO ALEGRE"}, {"data": "2026-08-19", "hora": "09:41", "uc": "10026027184", "protocolo": "498274640", "hist": "Falta de energia", "local": "SANTA RITA"}]}, "folgas": []};
+const SAFRA = {"titulo": "Safra 2026/27 — Caderno de Campo", "corretivo": [{"talhoes": "Sede, Pista Tapera", "ha": 240.15, "cultivar": "DM 72IX74 I2X", "insumo": "Calcário", "dose": "2 ton/ha", "volume": "480 ton"}, {"talhoes": "Amargoso, 110, 190", "ha": 399.74, "cultivar": "76KA72 CE", "insumo": "Calcário", "dose": "2 ton/ha", "volume": "800 ton"}, {"talhoes": "Entrada, Jaime", "ha": 235.58, "cultivar": "Raptor I2X", "insumo": "Calcário", "dose": "2 ton/ha", "volume": "472 ton"}], "fertilizante": [{"talhoes": "Tapera, Luizinho", "ha": 248.99, "cultivar": "NEO700 I2X", "itens": [{"insumo": "KCl", "dose": "150 kg/ha", "volume": "37.348,5 kg"}, {"insumo": "00-21-00", "dose": "440 kg/ha", "volume": "109.555,6 kg"}, {"insumo": "Gran Boro 10", "dose": "18 kg/ha", "volume": "4.480,2 kg"}]}, {"talhoes": "Sede, Pista Tapera", "ha": 240.15, "cultivar": "DM 72IX74 I2X", "itens": [{"insumo": "KCl", "dose": "150 kg/ha", "volume": "36.022,5 kg"}, {"insumo": "00-21-00", "dose": "440 kg/ha", "volume": "105.666 kg"}, {"insumo": "Gran Boro 10", "dose": "18 kg/ha", "volume": "4.322,7 kg"}]}, {"talhoes": "Cascalheira", "ha": 61.18, "cultivar": "ST 752 I2X", "itens": [{"insumo": "KCl", "dose": "150 kg/ha", "volume": "9.177 kg"}, {"insumo": "00-21-00", "dose": "440 kg/ha", "volume": "26.919,2 kg"}, {"insumo": "Gran Boro 10", "dose": "18 kg/ha", "volume": "1.101,24 kg"}]}, {"talhoes": "Amargoso, 110, 190", "ha": 399.74, "cultivar": "76KA72 CE", "itens": [{"insumo": "KCl", "dose": "150 kg/ha", "volume": "59.961 kg"}, {"insumo": "00-21-00", "dose": "440 kg/ha", "volume": "175.885,6 kg"}, {"insumo": "Gran Boro 10", "dose": "18 kg/ha", "volume": "7.195,32 kg"}]}, {"talhoes": "Entrada, Jaime", "ha": 235.58, "cultivar": "Raptor I2X", "itens": [{"insumo": "KCl", "dose": "150 kg/ha", "volume": "35.337 kg"}, {"insumo": "00-21-00", "dose": "440 kg/ha", "volume": "103.655,2 kg"}, {"insumo": "Gran Boro 10", "dose": "18 kg/ha", "volume": "4.240,44 kg"}]}, {"talhoes": "Pivô 1, Pivô 2", "ha": 265.39, "cultivar": "NEO761 I2X", "itens": [{"insumo": "KCl", "dose": "150 kg/ha", "volume": "39.808,5 kg"}, {"insumo": "00-21-00", "dose": "440 kg/ha", "volume": "116.771,6 kg"}, {"insumo": "Gran Boro 10", "dose": "18 kg/ha", "volume": "4.777,02 kg"}]}, {"talhoes": "Duilio", "ha": 136.08, "cultivar": "Raptor I2X", "itens": [{"insumo": "KCl", "dose": "150 kg/ha", "volume": "20.412 kg"}, {"insumo": "00-21-00", "dose": "440 kg/ha", "volume": "59.875,2 kg"}, {"insumo": "Gran Boro 10", "dose": "18 kg/ha", "volume": "2.449,44 kg"}]}], "plantio": [{"talhoes": "Amargoso, 110, 190", "ha": 399.74, "cultivar": "76KA72 CE", "sem_m": "14", "espac": "50 cm", "sem_ha": "280.000"}, {"talhoes": "Entrada, Jaime", "ha": 235.58, "cultivar": "Raptor I2X", "sem_m": "14,5", "espac": "50 cm", "sem_ha": "290.000"}, {"talhoes": "Pivô 1, Pivô 2", "ha": 265.39, "cultivar": "NEO761 I2X", "sem_m": "14,5", "espac": "50 cm", "sem_ha": "290.000"}, {"talhoes": "Duilio", "ha": 136.08, "cultivar": "Raptor I2X", "sem_m": "14,5", "espac": "50 cm", "sem_ha": "290.000"}, {"talhoes": "Tapera, Luizinho", "ha": 248.99, "cultivar": "NEO700 I2X", "sem_m": "14,5", "espac": "50 cm", "sem_ha": "290.000"}, {"talhoes": "Sede, Pista Tapera", "ha": 240.15, "cultivar": "DM 72IX74 I2X", "sem_m": "14,5", "espac": "50 cm", "sem_ha": "290.000"}, {"talhoes": "Cascalheira", "ha": 61.18, "cultivar": "ST 752 I2X", "sem_m": "13", "espac": "50 cm", "sem_ha": "260.000"}], "sulco": [{"atividade": "Manejo de sulco", "insumo": "Biomax Azos", "tipo": "Inoculante", "fabricante": "Vittia", "dose": "1 dose/ha"}, {"atividade": "Manejo de sulco", "insumo": "Nimaxxa", "tipo": "Biológico", "fabricante": "UPL", "dose": "0,1 L/ha"}, {"atividade": "Manejo de sulco", "insumo": "Biomax 10", "tipo": "Inoculante", "fabricante": "Vittia", "dose": "10 doses/ha"}]};
+const KEY = "campogestor-fsrt-dist-v8";
 
-const SEED = {
-  "farm": {"nome": "Fazenda Santa Rita", "municipio": "Grupo Segredo", "cargo": "Auxiliar administrativo", "safra": "2026/27"},
-  "talhoes": [
-    {"nome": "Entrada", "area": 91.35},
-    {"nome": "Jaime", "area": 132.00},
-    {"nome": "Duilio", "area": 136.67},
-    {"nome": "Mato", "area": 12.88},
-    {"nome": "Sede", "area": 109.13},
-    {"nome": "Pista Tapera", "area": 130.14},
-    {"nome": "Tapera", "area": 94.76},
-    {"nome": "Luizinho", "area": 153.13},
-    {"nome": "Amargoso", "area": 102.33},
-    {"nome": "110", "area": 109.00},
-    {"nome": "190", "area": 186.36},
-    {"nome": "Cascalheira", "area": 59.38},
-    {"nome": "Pivo 1", "area": 112.00},
-    {"nome": "Pivo 2", "area": 152.00}
-  ],
-  "maquinas": [
-    {"id": "mq-0102", "nome": "BAZUCA", "tipo": "Implemento", "modelo": "NINJA 32000 (2012)", "status": "operando", "placa": "-", "nr": "0102", "marca": "STARA"},
-    {"id": "mq-0107", "nome": "BAZUCA TRATADORA SEMENTE", "tipo": "Implemento", "modelo": "REB6000TS (2006)", "status": "operando", "placa": "-", "nr": "0107", "marca": "STARA"},
-    {"id": "mq-0109", "nome": "BAZUCA", "tipo": "Implemento", "modelo": "NINJA 33000 (2020)", "status": "operando", "placa": "-", "nr": "0109", "marca": "STARA"},
-    {"id": "mq-0202", "nome": "CAÇAMBA BASCULANTE", "tipo": "Equipamento", "modelo": "60X18F 1012 (2012)", "status": "operando", "placa": "-", "nr": "0202", "marca": "GRIMALDI"},
-    {"id": "mq-0303", "nome": "CAMINHAO", "tipo": "Veiculo", "modelo": "CARGO 2422 (07/08)", "status": "operando", "placa": "NKA3C99", "nr": "0303", "marca": "FORD ROLL ON"},
-    {"id": "mq-0314", "nome": "CAMINHAO", "tipo": "Veiculo", "modelo": "VM-270 (2016)", "status": "operando", "placa": "FPR2D69", "nr": "0314", "marca": "VOLVO TANQUE"},
-    {"id": "mq-0703", "nome": "COLHEITADEIRA", "tipo": "Maquina", "modelo": "2799 (2011)", "status": "operando", "placa": "-", "nr": "0703", "marca": "CASE"},
-    {"id": "mq-1908", "nome": "PULVERIZADOR e DISTRIBUIDOR", "tipo": "Maquina", "modelo": "IMPERADOR 3.0 (2020)", "status": "operando", "placa": "-", "nr": "1908", "marca": "STARA"},
-    {"id": "mq-2405", "nome": "TRATOR", "tipo": "Maquina", "modelo": "STEIGER 450 (2014)", "status": "operando", "placa": "-", "nr": "2405", "marca": "CASE"}
-  ],
-  "insumos": [
-    {"id": "ins-1242", "codigo": "1242", "nome": "2,4 D TECNOMYL", "ativo": "2,4-D (Sal Dimetilamina)", "unidade": "L", "quantidade": 900, "vencimento": "2027-05-20", "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-1003", "codigo": "1003", "nome": "ALMAX", "ativo": "Glifosato de Amônio", "unidade": "L", "quantidade": 38, "vencimento": "2026-03-10", "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-219", "codigo": "219", "nome": "APROCH POWER", "ativo": "Ciproconazol + Azoxistrobina", "unidade": "L", "quantidade": 262, "vencimento": "2026-11-15", "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-128", "codigo": "128", "nome": "TA35 ULTRA", "ativo": "Óleo Mineral Emulsionável", "unidade": "L", "quantidade": 480, "vencimento": "", "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-318", "codigo": "318", "nome": "AURORA", "ativo": "Carfentrazona-etílica", "unidade": "L", "quantidade": 104.8, "vencimento": "", "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-262", "codigo": "262", "nome": "CLORFENAPIN", "ativo": "Clorfenapir", "unidade": "L", "quantidade": 342, "vencimento": "2027-01-20", "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-132", "codigo": "132", "nome": "CALCARIO", "ativo": "Carbonato de Cálcio e Magnésio", "unidade": "KG", "quantidade": 575400, "vencimento": "", "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-75", "codigo": "75", "nome": "CLORETO POTASSIO KCL", "ativo": "Cloreto de Potássio 60% K2O", "unidade": "bags", "quantidade": 233, "vencimento": "", "categoria": "Defensivos / Nutrição"},
-    {"id": "ins-73", "codigo": "73", "nome": "DIESEL S500", "ativo": "Óleo Diesel S500 (Combustível)", "unidade": "L", "quantidade": 7400, "vencimento": "", "categoria": "Combustível"}
-  ],
-  "historicoInsumos": [],
-  "equatorialUCs": [
-    {
-      "id": "uc-campo-alegre",
-      "descricao": "FAZ CAMPO ALEGRE (Sede, Alojamento, Célio)",
-      "unidadeProd": "SANTA RITA",
-      "uc": "10026027184",
-      "ucAtualizada": "0.003.587.008.012-27",
-      "titular": "ADRIANO 597.573.291-34",
-      "inscricao": "11.563.523-8"
-    },
-    {
-      "id": "uc-pouso-alegre",
-      "descricao": "ENEL FAZ POUSO ALEGRE",
-      "unidadeProd": "SANTA RITA",
-      "uc": "980046051",
-      "ucAtualizada": "0.001.626.932.012-63",
-      "titular": "JAYME ACACIO - 328.043.188-34",
-      "inscricao": "11.243.742-7"
-    }
-  ],
-  "protocolosEquatorial": [
-    {"id": 1, "data": "2026-03-23", "hora": "07:26", "uc": "10026027184", "protocolo": "476513825", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "SANTA RITA"},
-    {"id": 2, "data": "2026-03-23", "hora": "09:33", "uc": "10026027184", "protocolo": "476544256", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "SANTA RITA"},
-    {"id": 3, "data": "2026-04-15", "hora": "08:11", "uc": "0.001.626.932.012-63", "protocolo": "480215339", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "POUSO ALEGRE"},
-    {"id": 4, "data": "2026-04-22", "hora": "09:51", "uc": "0.003.587.008.0122-7", "protocolo": "481135486", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "SANTA RITA"},
-    {"id": 5, "data": "2026-05-19", "hora": "07:35", "uc": "10026027184", "protocolo": "485573798", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "SANTA RITA"},
-    {"id": 6, "data": "2026-05-19", "hora": "20:30", "uc": "10026027184", "protocolo": "48575720", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "SANTA RITA"},
-    {"id": 7, "data": "2026-05-20", "hora": "07:27", "uc": "10026027184", "protocolo": "485780385", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "SANTA RITA"},
-    {"id": 8, "data": "2026-07-10", "hora": "07:00", "uc": "10026027184", "protocolo": "493018848", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "SANTA RITA"},
-    {"id": 9, "data": "2026-07-21", "hora": "00:00", "uc": "10026027184", "protocolo": "494397090", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "SANTA RITA"},
-    {"id": 10, "data": "2026-07-27", "hora": "08:43", "uc": "10026027184", "protocolo": "495090858", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "SANTA RITA"},
-    {"id": 11, "data": "2026-07-27", "hora": "19:22", "uc": "10026027184", "protocolo": "495232772", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "SANTA RITA"},
-    {"id": 12, "data": "2026-07-28", "hora": "09:45", "uc": "10026027184", "protocolo": "495292116", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "SANTA RITA"},
-    {"id": 13, "data": "2026-08-05", "hora": "09:50", "uc": "10026027184", "protocolo": "496390441", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "SANTA RITA"},
-    {"id": 14, "data": "2026-08-10", "hora": "07:13", "uc": "10026027184", "protocolo": "499679147", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "SANTA RITA"},
-    {"id": 15, "data": "2026-08-10", "hora": "14:42", "uc": "10026027184", "protocolo": "497092477", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "SANTA RITA"},
-    {"id": 16, "data": "2026-08-19", "hora": "07:15", "uc": "980046051", "protocolo": "498250408", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "POUSO ALEGRE"},
-    {"id": 17, "data": "2026-08-19", "hora": "09:41", "uc": "10026027184", "protocolo": "498274640", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "SANTA RITA"},
-    {"id": 18, "data": "2026-09-09", "hora": "07:07", "uc": "10026027184", "protocolo": "501085528", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "SANTA RITA"},
-    {"id": 19, "data": "2026-09-09", "hora": "08:26", "uc": "980046051", "protocolo": "501097429", "canal": "WHATSAPP", "historico": "FALTA DE ENERGIA", "solicitante": "MARCOS", "contato": "POUSO ALEGRE"}
-  ]
-};
+const SB_URL = "https://tetrqmzahbrfgrxzbnwj.supabase.co";
+const SB_KEY = "sb_publishable_tIgk-4oZtKneqljdgIqAWw_Ni6PtoIv";
+const SB_AUTH_KEY = "cg-sb-session";
 
-let state = JSON.parse(localStorage.getItem("campogestor_state"));
-
-if (!state || !state.insumos) {
-  state = JSON.parse(JSON.stringify(SEED));
-  localStorage.setItem("campogestor_state", JSON.stringify(state));
-} else {
-  state.talhoes = SEED.talhoes;
-  if (!state.equatorialUCs) state.equatorialUCs = SEED.equatorialUCs;
-  if (!state.protocolosEquatorial) state.protocolosEquatorial = SEED.protocolosEquatorial;
-  state.insumos.forEach(ins => {
-    if (!ins.ativo) {
-      const match = PRINCIPIOS_ATIVOS.find(p => p.comercial.toLowerCase() === ins.nome.toLowerCase());
-      ins.ativo = match ? match.ativo : ins.nome;
-    }
-  });
-  saveLocalState();
-}
-
-function saveLocalState() {
-  localStorage.setItem("campogestor_state", JSON.stringify(state));
-}
-
-function showToast(msg) {
-  const t = document.getElementById("toast");
-  t.textContent = msg;
-  t.style.display = "block";
-  setTimeout(() => { t.style.display = "none"; }, 2500);
-}
-
-function toggleDrawer(open) {
-  const bg = document.getElementById("drawer-bg");
-  const drawer = document.getElementById("drawer");
-  if (open) {
-    bg.classList.add("open");
-    drawer.classList.add("open");
-  } else {
-    bg.classList.remove("open");
-    drawer.classList.remove("open");
-  }
-}
-
-function closeModal() {
-  document.getElementById("modal-bg").classList.remove("open");
-}
-
-function openModal(html) {
-  document.getElementById("modal-body").innerHTML = html;
-  document.getElementById("modal-bg").classList.add("open");
-}
-
-function checarVencimento(dataStr) {
-  if (!dataStr) return { status: 'normal', texto: '' };
-  const hoje = new Date();
-  hoje.setHours(0,0,0,0);
-  const venc = new Date(dataStr + "T00:00:00");
-  const diffDias = Math.ceil((venc - hoje) / (1000 * 60 * 60 * 24));
-  
-  if (diffDias < 0) return { status: 'vencido', texto: `VENCIDO (${dataStr.split('-').reverse().join('/')})` };
-  if (diffDias <= 30) return { status: 'alerta', texto: `Vence em ${diffDias} dias (${dataStr.split('-').reverse().join('/')})` };
-  return { status: 'ok', texto: `Venc: ${dataStr.split('-').reverse().join('/')}` };
-}
-
-function selectTab(tab) {
-  document.querySelectorAll('.drawer-menu button').forEach(b => b.classList.remove('active'));
-  const btn = document.getElementById('menu-' + tab);
-  if (btn) btn.classList.add('active');
-
-  toggleDrawer(false);
-
-  const content = document.getElementById('content');
-  const pageTitle = document.getElementById('page-title');
-
-  if (tab === 'resumo') {
-    pageTitle.textContent = state.farm.nome;
-    content.innerHTML = renderResumo();
-  } else if (tab === 'maquinas') {
-    pageTitle.textContent = "Frota & Equipamentos";
-    content.innerHTML = renderMaquinas();
-  } else if (tab === 'insumos') {
-    pageTitle.textContent = "Estoque de Insumos";
-    content.innerHTML = renderInsumos();
-  } else if (tab === 'talhoes') {
-    pageTitle.textContent = "Talhões — Fazenda Santa Rita";
-    content.innerHTML = renderTalhoes();
-  } else if (tab === 'equatorial') {
-    pageTitle.textContent = "Equatorial / Energia";
-    content.innerHTML = renderEquatorial();
-  } else if (tab === 'pessoas') {
-    pageTitle.textContent = "Equipe da Fazenda";
-    if (window.renderEquipeModule) {
-      window.renderEquipeModule();
-    } else {
-      content.innerHTML = `<div class="card">Carregando módulo de equipe...</div>`;
-    }
-  }
-  window.scrollTo(0, 0);
-}
-
-// --- MÓDULO EQUATORIAL / ENERGIA ---
-function renderEquatorial() {
-  const ucs = state.equatorialUCs || [];
-  const listaProtocolos = [...(state.protocolosEquatorial || [])].sort((a,b) => {
-    const dtA = (a.data || '') + ' ' + (a.hora || '');
-    const dtB = (b.data || '') + ' ' + (b.hora || '');
-    return dtB.localeCompare(dtA);
-  });
-
-  return `
-    <div class="card" style="margin-bottom:.5rem; background:color-mix(in srgb, #25d366 10%, var(--surface)); border-color:#25d366;">
-      <a href="https://wa.me/556232432020" target="_blank" class="btn whatsapp block" style="font-size:.95rem; padding:.7rem;">
-        💬 Abrir Atendimento Clara no WhatsApp
-      </a>
-      <div class="muted" style="text-align:center; margin-top:.4rem; font-size:.75rem;">Equatorial Goiás • WhatsApp: (62) 3243-2020</div>
-    </div>
-
-    <div class="sec">Unidades Consumidoras (UCs Ativas)</div>
-    
-    ${ucs.map(u => `
-      <div class="card" style="margin-bottom:.75rem;">
-        <div class="row" style="margin-bottom:.5rem;">
-          <strong style="font-size:.9rem; color:var(--primary);">${u.descricao}</strong>
-          <span class="badge ok">${u.unidadeProd}</span>
-        </div>
-        <div class="muted" style="font-size:.8rem; display:flex; flex-direction:column; gap:.25rem;">
-          <div>⚡ <strong>UC Padrão:</strong> <code style="color:var(--fg); font-size:.9rem;">${u.uc}</code></div>
-          ${u.ucAtualizada ? `<div>⚡ <strong>UC Atualizada:</strong> <code style="color:var(--fg); font-size:.9rem;">${u.ucAtualizada}</code></div>` : ''}
-          <div>👤 <strong>Titular / CPF:</strong> ${u.titular}</div>
-          <div>📄 <strong>Inscrição Estadual:</strong> ${u.inscricao}</div>
-        </div>
-        <div style="display:flex; gap:.5rem; margin-top:.75rem;">
-          <button class="btn primary sm block" onclick="copiarTexto('${u.uc}', 'UC ${u.uc}')">📋 Copiar UC</button>
-          ${u.ucAtualizada ? `<button class="btn sm block" onclick="copiarTexto('${u.ucAtualizada}', 'UC Atualizada ${u.ucAtualizada}')">📋 Copiar UC Nova</button>` : ''}
-        </div>
-      </div>
-    `).join('')}
-
-    <div class="sec" style="margin-top:1.5rem; display:flex; justify-content:space-between; align-items:center;">
-      <span>📜 Histórico de Protocolos</span>
-      <button class="btn primary sm" onclick="modalNovoProtocolo()">＋ Registar Protocolo</button>
-    </div>
-
-    <div class="card">
-      ${listaProtocolos.length === 0 ? '<div class="muted">Nenhum protocolo registrado.</div>' : `
-        <ul class="list">
-          ${listaProtocolos.map(p => `
-            <li>
-              <div class="item-main">
-                <div>
-                  <strong>Protocolo: ${p.protocolo}</strong>
-                  <div class="muted" style="font-size:.8rem; margin-top:.2rem;">
-                    📍 UC: <strong>${p.uc}</strong> (${p.contato})<br>
-                    📝 Histórico: ${p.historico}<br>
-                    👤 Solicitante: ${p.solicitante} | Canal: ${p.canal}
-                  </div>
-                </div>
-                <div style="text-align:right;">
-                  <span class="badge warn" style="font-size:.7rem;">${p.data.split('-').reverse().join('/')}</span>
-                  <div class="muted" style="font-size:.75rem; margin-top:.2rem;">⏰ ${p.hora}</div>
-                </div>
-              </div>
-            </li>
-          `).join('')}
-        </ul>
-      `}
-    </div>
-  `;
-}
-
-function copiarTexto(texto, nome) {
-  navigator.clipboard.writeText(texto).then(() => {
-    showToast(`${nome} copiada para a área de transferência!`);
-  }).catch(() => {
-    prompt("Copie o código abaixo:", texto);
-  });
-}
-
-function modalNovoProtocolo() {
-  const hoje = new Date().toISOString().split('T')[0];
-  const agora = new Date().toTimeString().split(' ')[0].substring(0, 5);
-
-  openModal(`
-    <h3 style="margin-bottom:1rem;">⚡ Registar Novo Protocolo</h3>
-    <div class="field"><label>Data</label><input type="date" id="p-data" value="${hoje}"></div>
-    <div class="field"><label>Hora</label><input type="time" id="p-hora" value="${agora}"></div>
-    <div class="field">
-      <label>Unidade Consumidora (UC)</label>
-      <select id="p-uc">
-        <option value="10026027184">10026027184 — FAZ CAMPO ALEGRE (Sede, Alojamento)</option>
-        <option value="980046051">980046051 — ENEL FAZ POUSO ALEGRE</option>
-        <option value="0.003.587.008.012-27">0.003.587.008.012-27 — CAMPO ALEGRE (Nova UC)</option>
-        <option value="0.001.626.932.012-63">0.001.626.932.012-63 — POUSO ALEGRE (Nova UC)</option>
-      </select>
-    </div>
-    <div class="field"><label>Número do Protocolo</label><input type="text" id="p-nr" placeholder="Ex: 501097429"></div>
-    <div class="field">
-      <label>Canal de Atendimento</label>
-      <select id="p-canal">
-        <option value="WHATSAPP">WHATSAPP (Clara)</option>
-        <option value="TELEFONE 0800">TELEFONE 0800-620196</option>
-        <option value="APP / SITE">APP / SITE</option>
-      </select>
-    </div>
-    <div class="field"><label>Histórico do Acontecimento</label><input type="text" id="p-hist" value="FALTA DE ENERGIA"></div>
-    <div class="field"><label>Solicitante</label><input type="text" id="p-solic" value="MARCOS"></div>
-    <div class="field">
-      <label>Contato / Local para ENEL</label>
-      <select id="p-contato">
-        <option value="SANTA RITA">SANTA RITA</option>
-        <option value="POUSO ALEGRE">POUSO ALEGRE</option>
-        <option value="CAMPO ALEGRE">CAMPO ALEGRE</option>
-      </select>
-    </div>
-
-    <div class="row" style="margin-top:1.25rem;">
-      <button class="btn block" onclick="closeModal()">Cancelar</button>
-      <button class="btn primary block" onclick="salvarProtocolo()">Salvar Protocolo</button>
-    </div>
-  `);
-}
-
-function salvarProtocolo() {
-  const nr = document.getElementById("p-nr").value.trim();
-  if (!nr) return alert("Informe o número do protocolo gerado.");
-
-  if (!state.protocolosEquatorial) state.protocolosEquatorial = [];
-
-  const item = {
-    id: Date.now(),
-    data: document.getElementById("p-data").value,
-    hora: document.getElementById("p-hora").value,
-    uc: document.getElementById("p-uc").value,
-    protocolo: nr,
-    canal: document.getElementById("p-canal").value,
-    historico: document.getElementById("p-hist").value.trim() || 'FALTA DE ENERGIA',
-    solicitante: document.getElementById("p-solic").value.trim() || 'MARCOS',
-    contato: document.getElementById("p-contato").value
+function sbHeaders(token) {
+  const h = {
+    "apikey": SB_KEY,
+    "Content-Type": "application/json",
   };
-
-  state.protocolosEquatorial.unshift(item);
-  saveLocalState();
-  closeModal();
-  selectTab('equatorial');
-  showToast("Protocolo registrado com sucesso!");
+  if (token) h["Authorization"] = "Bearer " + token;
+  else h["Authorization"] = "Bearer " + SB_KEY;
+  return h;
 }
 
-// --- MÓDULO FROTA DE MÁQUINAS ---
-function renderMaquinas() {
-  return `
-    <div class="card" style="margin-bottom:.5rem;">
-      <div class="row" style="margin-bottom:.75rem;">
-        <input type="text" id="search-mq" class="search-box" style="margin-bottom:0;" placeholder="🔍 Buscar máquina, placa ou código..." onkeyup="filtrarMaquinas()"/>
-        <button class="btn primary" onclick="modalEditarMaquina()">＋ Adicionar</button>
-      </div>
-      <div class="muted">Total cadastrado: <strong>${state.maquinas.length} equipamentos</strong></div>
-    </div>
-
-    <div class="sec">Lista de Máquinas e Implementos</div>
-    <div class="card">
-      <ul class="list">
-        ${state.maquinas.map(m => `
-          <li class="mq-item">
-            <div class="item-main">
-              <div>
-                <strong>${m.nome}</strong> <span class="muted">(Nº ${m.nr})</span>
-                <div class="muted">${m.marca} ${m.modelo} ${m.placa !== '-' ? '• Placa: ' + m.placa : ''}</div>
-                <div class="muted" style="font-size:.7rem; text-transform:uppercase; margin-top:.1rem;">${m.tipo}</div>
-              </div>
-              <div style="display:flex; align-items:center; gap:.4rem;">
-                <button class="badge ${m.status === 'operando' ? 'ok' : 'muted'}" onclick="alternarStatusMaquina('${m.id}')">
-                  ${m.status}
-                </button>
-                <button class="btn sm" onclick="modalEditarMaquina('${m.id}')">✏️ Editar</button>
-              </div>
-            </div>
-          </li>
-        `).join('')}
-      </ul>
-    </div>
-  `;
+function loadSession() {
+  try { return JSON.parse(localStorage.getItem(SB_AUTH_KEY) || "null"); } catch(e) { return null; }
+}
+function saveSession(sess) {
+  if (sess) localStorage.setItem(SB_AUTH_KEY, JSON.stringify(sess));
+  else localStorage.removeItem(SB_AUTH_KEY);
 }
 
-function alternarStatusMaquina(id) {
-  const m = state.maquinas.find(x => x.id === id);
-  if (m) {
-    m.status = m.status === 'operando' ? 'parada' : 'operando';
-    saveLocalState();
-    selectTab('maquinas');
-    showToast(`Status de ${m.nome} alterado`);
-  }
-}
-
-function modalEditarMaquina(id = null) {
-  const m = id ? state.maquinas.find(x => x.id === id) : { nome: '', nr: '', marca: '', modelo: '', placa: '-', tipo: 'Maquina', status: 'operando' };
-  
-  openModal(`
-    <h3 style="margin-bottom:1rem;">${id ? '✏️ Editar Máquina' : '＋ Adicionar Nova Máquina'}</h3>
-    <div class="field"><label>Nome do Equipamento</label><input type="text" id="f-nome" value="${m.nome}"></div>
-    <div class="field"><label>Número / Código (NR)</label><input type="text" id="f-nr" value="${m.nr}"></div>
-    <div class="field"><label>Marca</label><input type="text" id="f-marca" value="${m.marca}"></div>
-    <div class="field"><label>Modelo / Ano</label><input type="text" id="f-modelo" value="${m.modelo}"></div>
-    <div class="field"><label>Placa (se houver)</label><input type="text" id="f-placa" value="${m.placa}"></div>
-    <div class="field">
-      <label>Tipo</label>
-      <select id="f-tipo">
-        <option value="Maquina" ${m.tipo === 'Maquina' ? 'selected' : ''}>Máquina</option>
-        <option value="Implemento" ${m.tipo === 'Implemento' ? 'selected' : ''}>Implemento</option>
-        <option value="Veiculo" ${m.tipo === 'Veiculo' ? 'selected' : ''}>Veículo</option>
-        <option value="Equipamento" ${m.tipo === 'Equipamento' ? 'selected' : ''}>Equipamento</option>
-      </select>
-    </div>
-    <div class="row" style="margin-top:1.25rem;">
-      <button class="btn block" onclick="closeModal()">Cancelar</button>
-      <button class="btn primary block" onclick="salvarMaquina('${id || ''}')">Salvar</button>
-    </div>
-  `);
-}
-
-function salvarMaquina(id) {
-  const nome = document.getElementById("f-nome").value.trim();
-  if (!nome) return alert("Informe o nome da máquina.");
-
-  const item = {
-    id: id || 'mq-' + Date.now(),
-    nome: nome,
-    nr: document.getElementById("f-nr").value.trim(),
-    marca: document.getElementById("f-marca").value.trim(),
-    modelo: document.getElementById("f-modelo").value.trim(),
-    placa: document.getElementById("f-placa").value.trim() || '-',
-    tipo: document.getElementById("f-tipo").value,
-    status: 'operando'
-  };
-
-  if (id) {
-    const idx = state.maquinas.findIndex(x => x.id === id);
-    if (idx !== -1) state.maquinas[idx] = item;
-  } else {
-    state.maquinas.unshift(item);
-  }
-
-  saveLocalState();
-  closeModal();
-  selectTab('maquinas');
-  showToast("Máquina salva com sucesso!");
-}
-
-function filtrarMaquinas() {
-  const query = document.getElementById("search-mq").value.toLowerCase();
-  document.querySelectorAll(".mq-item").forEach(item => {
-    item.style.display = item.innerText.toLowerCase().includes(query) ? "flex" : "none";
+async function sbSignup(email, password) {
+  const res = await fetch(SB_URL + "/auth/v1/signup", {
+    method: "POST",
+    headers: sbHeaders(),
+    body: JSON.stringify({ email, password }),
   });
-}
-
-// --- MÓDULO INSUMOS & HISTÓRICO INTEGRADO ---
-function renderInsumos() {
-  const listHist = state.historicoInsumos || [];
-  return `
-    <div class="card" style="margin-bottom:.5rem;">
-      <input type="text" id="search-ins" class="search-box" placeholder="🔍 Buscar por marca ou princípio ativo (ex: Clorfenapir)..." onkeyup="filtrarInsumos()"/>
-      <div style="display:flex; flex-direction:column; gap:.5rem;">
-        <button class="btn primary block" onclick="modalEditarInsumo()">＋ Novo Insumo</button>
-        <button class="btn block" style="background:var(--primary); color:var(--bg); font-weight:600;" onclick="modalLancamentoColetivo()">📋 Lançamento Único (Boletim de Calda)</button>
-      </div>
-      <div class="muted" style="margin-top:.75rem;">Total em estoque: <strong>${state.insumos.length} produtos</strong></div>
-    </div>
-
-    <div class="sec">Inventário de Produtos & Defensivos</div>
-    <div class="card">
-      <ul class="list">
-        ${state.insumos.map(i => {
-          const v = checarVencimento(i.vencimento);
-          let badgeClass = 'ok';
-          if (v.status === 'vencido') badgeClass = 'danger';
-          else if (v.status === 'alerta') badgeClass = 'warn';
-
-          return `
-            <li class="ins-item">
-              <div class="item-main">
-                <div>
-                  <strong>${i.nome}</strong> <span class="muted">(Cód: ${i.codigo})</span>
-                  <div style="font-size:.78rem; color:var(--primary); font-weight:600; margin-top:.15rem;">
-                    🧪 Ativo: ${i.ativo || 'Não informado'}
-                  </div>
-                  <div class="muted" style="font-size:.75rem; margin-top:.1rem;">
-                    Categoria: ${i.categoria}
-                    ${v.texto ? `<br><strong ${v.status === 'vencido' ? 'style="color:var(--danger)"' : ''}>${v.texto}</strong>` : ''}
-                  </div>
-                </div>
-                <div style="display:flex; align-items:center; gap:.4rem;">
-                  <div class="badge ${badgeClass}">
-                    ${typeof i.quantidade === 'number' ? i.quantidade.toLocaleString('pt-BR') : i.quantidade} ${i.unidade}
-                  </div>
-                  <button class="btn sm" onclick="modalEditarInsumo('${i.id}')" title="Editar estoque">✏️</button>
-                </div>
-              </div>
-              <div style="margin-top:.3rem;">
-                <button class="btn sm" onclick="modalMovimentacao('${i.id}')">🔄 Lançar Saída/Entrada Individual</button>
-              </div>
-            </li>
-          `;
-        }).join('')}
-      </ul>
-    </div>
-
-    <div class="sec" style="margin-top:1.5rem;">📜 Histórico de Movimentações (Entradas / Saídas)</div>
-    <div class="card">
-      ${listHist.length === 0 ? '<div class="muted">Nenhuma movimentação registrada ainda.</div>' : `
-        <ul class="list">
-          ${listHist.map(h => {
-            const isSaida = h.tipo.startsWith("saida");
-            return `
-              <li>
-                <div class="item-main">
-                  <div>
-                    <strong>${h.insumoNome}</strong> <span class="muted">(Ativo: ${h.insumoAtivo || 'N/I'})</span>
-                    <div class="muted" style="font-size:.8rem; margin-top:.1rem;">
-                      ${isSaida ? '🔴' : '🟢'} ${h.tipo.replace('_', ' ').toUpperCase()}<br>
-                      📍 Destino/Talhão: <strong>${h.destino}</strong> | 🚜 Máq: ${h.maquina || 'N/I'}<br>
-                      👤 Resp: ${h.responsavel} | Status: <strong>${h.statusApp}</strong> ${h.obs ? '• ' + h.obs : ''}
-                    </div>
-                  </div>
-                  <div style="text-align:right;">
-                    <div class="badge ${isSaida ? 'danger' : 'ok'}">
-                      ${isSaida ? '-' : '+'}${h.quantidade} ${h.unidade}
-                    </div>
-                    <div class="muted" style="font-size:.7rem; margin-top:.2rem;">${h.data.split('-').reverse().join('/')}</div>
-                  </div>
-                </div>
-              </li>
-            `;
-          }).join('')}
-        </ul>
-      `}
-    </div>
-  `;
-}
-
-function autoSugerirAtivo() {
-  const nomeComercial = document.getElementById("f-nome").value.trim().toLowerCase();
-  const fieldAtivo = document.getElementById("f-ativo");
-  const alertDiv = document.getElementById("f-alerta-ativo");
-  
-  if (!nomeComercial) {
-    alertDiv.innerHTML = '';
-    return;
-  }
-
-  const match = PRINCIPIOS_ATIVOS.find(p => p.comercial.toLowerCase() === nomeComercial || nomeComercial.includes(p.comercial.toLowerCase()));
-  if (match && !fieldAtivo.value) {
-    fieldAtivo.value = match.ativo;
-  }
-
-  const ativoAtual = fieldAtivo.value.trim().toLowerCase();
-  if (ativoAtual) {
-    const estoqueExistente = state.insumos.find(i => i.ativo && i.ativo.toLowerCase().includes(ativoAtual));
-    if (estoqueExistente) {
-      alertDiv.innerHTML = `<div style="font-size:.75rem; color:var(--warn); margin-top:.3rem;">💡 <strong>Atenção:</strong> Você já possui o produto <strong>${estoqueExistente.nome}</strong> com esse ativo no estoque!</div>`;
-    } else {
-      alertDiv.innerHTML = '';
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error_description || data.msg || data.error || data.message || ("Erro " + res.status));
+  if (data.access_token) {
+    saveSession(data);
+    sbUser = data.user;
+  } else if (data.user) {
+    // email confirmation required — try login anyway or inform
+    sbUser = data.user;
+    if (data.session && data.session.access_token) {
+      saveSession(data.session);
     }
   }
+  return data;
 }
 
-function modalEditarInsumo(id = null) {
-  const i = id ? state.insumos.find(x => x.id === id) : { codigo: '', nome: '', ativo: '', unidade: 'L', quantidade: 0, vencimento: '', categoria: 'Defensivos / Nutrição' };
-  
-  openModal(`
-    <h3 style="margin-bottom:1rem;">${id ? '✏️ Editar Insumo' : '＋ Adicionar Novo Insumo'}</h3>
-    <div class="field"><label>Código do Produto</label><input type="text" id="f-cod" value="${i.codigo}"></div>
-    <div class="field"><label>Nome Comercial</label><input type="text" id="f-nome" value="${i.nome}" onkeyup="autoSugerirAtivo()"></div>
-    <div class="field">
-      <label>Princípio Ativo (Nome Científico / Ingrediente Ativo)</label>
-      <input type="text" id="f-ativo" value="${i.ativo}" placeholder="Ex: Clorfenapir ou 2,4-D" onkeyup="autoSugerirAtivo()">
-      <div id="f-alerta-ativo"></div>
-    </div>
-    <div class="field">
-      <label>Unidade de Medida</label>
-      <select id="f-unidade">
-        <option value="L" ${i.unidade === 'L' ? 'selected' : ''}>Litros (L)</option>
-        <option value="KG" ${i.unidade === 'KG' ? 'selected' : ''}>Quilogramas (KG)</option>
-        <option value="bags" ${i.unidade === 'bags' ? 'selected' : ''}>Bags</option>
-        <option value="UN" ${i.unidade === 'UN' ? 'selected' : ''}>Unidades (UN)</option>
-      </select>
-    </div>
-    <div class="field"><label>Quantidade Atual</label><input type="number" step="any" id="f-qtd" value="${i.quantidade}"></div>
-    <div class="field"><label>Data de Vencimento</label><input type="date" id="f-venc" value="${i.vencimento || ''}"></div>
-    <div class="field"><label>Categoria</label><input type="text" id="f-cat" value="${i.categoria}"></div>
-    <div class="row" style="margin-top:1.25rem;">
-      <button class="btn block" onclick="closeModal()">Cancelar</button>
-      <button class="btn primary block" onclick="salvarInsumo('${id || ''}')">Salvar</button>
-    </div>
-  `);
-}
-
-function salvarInsumo(id) {
-  const nome = document.getElementById("f-nome").value.trim();
-  const ativo = document.getElementById("f-ativo").value.trim();
-
-  if (!nome) return alert("Informe o nome comercial do insumo.");
-  if (!ativo) return alert("Informe o Princípio Ativo / Nome Científico.");
-
-  const item = {
-    id: id || 'ins-' + Date.now(),
-    codigo: document.getElementById("f-cod").value.trim(),
-    nome: nome,
-    ativo: ativo,
-    unidade: document.getElementById("f-unidade").value,
-    quantidade: parseFloat(document.getElementById("f-qtd").value) || 0,
-    vencimento: document.getElementById("f-venc").value,
-    categoria: document.getElementById("f-cat").value.trim() || 'Geral'
-  };
-
-  if (id) {
-    const idx = state.insumos.findIndex(x => x.id === id);
-    if (idx !== -1) state.insumos[idx] = item;
-  } else {
-    state.insumos.unshift(item);
+async function sbLogin(email, password) {
+  const res = await fetch(SB_URL + "/auth/v1/token?grant_type=password", {
+    method: "POST",
+    headers: sbHeaders(),
+    body: JSON.stringify({ email, password }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const msg = data.error_description || data.msg || data.error || data.message || ("Erro " + res.status);
+    if (String(msg).toLowerCase().includes("confirm") || String(msg).toLowerCase().includes("email")) {
+      throw new Error("E-mail ainda não confirmado. No Supabase: Authentication → Users → confirme o usuário, ou desligue Confirm email.");
+    }
+    throw new Error(msg);
   }
-
-  saveLocalState();
-  closeModal();
-  selectTab('insumos');
-  showToast("Insumo salvo com sucesso!");
+  saveSession(data);
+  sbUser = data.user;
+  await pullCloud();
+  cloudStatus = "synced";
+  await pushCloud();
+  return data;
 }
 
-// --- LANÇAMENTO COLETIVO (BOLETIM DE CALDA) ---
-let itensColetivos = [];
-
-function modalLancamentoColetivo() {
-  itensColetivos = [{ insumoId: state.insumos[0].id, quantidade: '' }];
-  const hoje = new Date().toISOString().split('T')[0];
-
-  openModal(`
-    <h3 style="margin-bottom:.5rem;">📋 Lançamento Único (Boletim de Calda)</h3>
-    <div class="muted" style="margin-bottom:1rem;">Dê baixa em múltiplos produtos usados na mesma operação de uma vez.</div>
-
-    <div class="field">
-      <label>Talhão de Aplicação / Destino</label>
-      <select id="c-talhao">
-        ${state.talhoes.map(t => `<option value="${t.nome}">${t.nome} (${t.area} ha)</option>`).join('')}
-      </select>
-    </div>
-
-    <div class="field">
-      <label>Equipamento / Pulverizador Utilizado</label>
-      <select id="c-maquina">
-        <option value="Não informado">Nenhum / Não informado</option>
-        ${state.maquinas.map(m => `<option value="${m.nome} (${m.nr})">${m.nome} - Nº ${m.nr}</option>`).join('')}
-      </select>
-    </div>
-
-    <div class="field"><label>Data da Operação</label><input type="date" id="c-data" value="${hoje}"></div>
-    <div class="field"><label>Responsável</label><input type="text" id="c-resp" value="${state.farm.cargo}"></div>
-
-    <div style="margin-top:1rem; margin-bottom:.5rem; font-weight:600; font-size:.85rem;">Insumos Utilizados na Receita / Calda:</div>
-    <div id="coletivo-lista"></div>
-
-    <button class="btn sm" style="margin-top:.5rem;" onclick="adicionarItemColetivo()">＋ Adicionar Outro Produto</button>
-
-    <div class="row" style="margin-top:1.5rem;">
-      <button class="btn block" onclick="closeModal()">Cancelar</button>
-      <button class="btn primary block" onclick="confirmarLancamentoColetivo()">Confirmar Lançamento</button>
-    </div>
-  `);
-
-  renderItensColetivos();
+async function sbLogout() {
+  const sess = loadSession();
+  if (sess && sess.access_token) {
+    try {
+      await fetch(SB_URL + "/auth/v1/logout", { method: "POST", headers: sbHeaders(sess.access_token) });
+    } catch(e) {}
+  }
+  saveSession(null);
+  sbUser = null;
+  cloudStatus = "local";
 }
 
-function renderItensColetivos() {
-  const container = document.getElementById("coletivo-lista");
-  container.innerHTML = itensColetivos.map((item, idx) => `
-    <div class="coletivo-item">
-      <div class="field">
-        <label>Produto Insumo #${idx + 1}</label>
-        <select onchange="itensColetivos[${idx}].insumoId = this.value">
-          ${state.insumos.map(ins => `<option value="${ins.id}" ${ins.id === item.insumoId ? 'selected' : ''}>${ins.nome} (${ins.ativo}) - Est: ${ins.quantidade} ${ins.unidade}</option>`).join('')}
-        </select>
-      </div>
-      <div class="field">
-        <label>Quantidade Utilizada</label>
-        <input type="number" step="any" value="${item.quantidade}" placeholder="0.00" onkeyup="itensColetivos[${idx}].quantidade = this.value">
-      </div>
-    </div>
-  `).join('');
+async function initAuth() {
+  const sess = loadSession();
+  if (!sess || !sess.access_token) return;
+  // validate session
+  try {
+    const res = await fetch(SB_URL + "/auth/v1/user", { headers: sbHeaders(sess.access_token) });
+    if (!res.ok) { saveSession(null); return; }
+    const user = await res.json();
+    sbUser = user;
+    await pullCloud();
+  } catch(e) {
+    console.warn(e);
+  }
 }
 
-function adicionarItemColetivo() {
-  itensColetivos.push({ insumoId: state.insumos[0].id, quantidade: '' });
-  renderItensColetivos();
-}
-
-function confirmarLancamentoColetivo() {
-  const talhao = document.getElementById("c-talhao").value;
-  const maquina = document.getElementById("c-maquina").value;
-  const data = document.getElementById("c-data").value;
-  const resp = document.getElementById("c-resp").value.trim() || 'Sistema';
-
-  if (!state.historicoInsumos) state.historicoInsumos = [];
-
-  let processados = 0;
-
-  for (let item of itensColetivos) {
-    const qtd = parseFloat(item.quantidade);
-    if (!qtd || qtd <= 0) continue;
-
-    const ins = state.insumos.find(x => x.id === item.insumoId);
-    if (!ins) continue;
-
-    ins.quantidade -= qtd;
-
-    state.historicoInsumos.unshift({
-      id: 'hist-' + Date.now() + '-' + Math.random(),
-      insumoId: ins.id,
-      insumoNome: ins.nome,
-      insumoAtivo: ins.ativo,
-      unidade: ins.unidade,
-      tipo: 'saida_aplicacao',
-      quantidade: qtd,
-      data: data,
-      destino: `Talhão ${talhao}`,
-      maquina: maquina,
-      statusApp: '✅ Concluído',
-      responsavel: resp,
-      obs: 'Boletim de Calda Coletivo'
+async function pushCloud() {
+  if (!sbUser) return;
+  const sess = loadSession();
+  if (!sess || !sess.access_token) return;
+  try {
+    cloudStatus = "syncing";
+    const payload = { user_id: sbUser.id, data: state, updated_at: new Date().toISOString() };
+    const res = await fetch(SB_URL + "/rest/v1/app_state?on_conflict=user_id", {
+      method: "POST",
+      headers: Object.assign(sbHeaders(sess.access_token), {
+        "Prefer": "resolution=merge-duplicates,return=minimal",
+      }),
+      body: JSON.stringify(payload),
     });
+    if (!res.ok) {
+      const t = await res.text();
+      throw new Error(t || ("HTTP " + res.status));
+    }
+    cloudStatus = "synced";
+  } catch(e) {
+    console.warn("cloud save", e);
+    cloudStatus = "error";
+    cloudError = (e && e.message) ? e.message : String(e);
+  }
+  const el = document.getElementById("cloud-status");
+  if (el) el.textContent = cloudLabel();
+}
 
-    processados++;
+async function pullCloud() {
+  if (!sbUser) return false;
+  const sess = loadSession();
+  if (!sess || !sess.access_token) return false;
+  try {
+    const res = await fetch(SB_URL + "/rest/v1/app_state?user_id=eq." + encodeURIComponent(sbUser.id) + "&select=data,updated_at", {
+      headers: sbHeaders(sess.access_token),
+    });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const rows = await res.json();
+    if (rows && rows[0] && rows[0].data) {
+      const data = rows[0].data;
+      state = {
+        ...JSON.parse(JSON.stringify(SEED)),
+        ...data,
+        farm: { ...SEED.farm, ...(data.farm || {}) },
+        diesel: { ...SEED.diesel, ...(data.diesel || {}) },
+      };
+      if (!state.sementes) state.sementes = [];
+      if (!state.folgas) state.folgas = [];
+      if (!state.equatorial) state.equatorial = SEED.equatorial;
+      localStorage.setItem(KEY, JSON.stringify(state));
+      cloudStatus = "synced";
+      return true;
+    }
+  } catch(e) {
+    console.warn("cloud pull", e);
+    cloudStatus = "error";
+    cloudError = (e && e.message) ? e.message : String(e);
+  }
+  return false;
+}
+
+const ROTINA = [
+  {id:"d1",grupo:"Diário",titulo:"Recolher atividades mecanizadas e fichas de abastecimento",freq:"diario"},
+  {id:"d2",grupo:"Diário",titulo:"Verificar e lançar óleo diesel",freq:"diario"},
+  {id:"d3",grupo:"Quando chega",titulo:"Receber e conferir material e nota fiscal",freq:"evento"},
+  {id:"d4",grupo:"Quando chega",titulo:"Escanear documentos/NF-e e enviar ao escritório",freq:"evento"},
+  {id:"d5",grupo:"Contínuo",titulo:"Pesagem de mercadorias (entrada/saída) e registro",freq:"evento"},
+  {id:"d6",grupo:"Contínuo",titulo:"Conferência de frota e registro de manutenção",freq:"evento"},
+  {id:"d7",grupo:"Contínuo",titulo:"Controle de ordens de campo",freq:"evento"},
+  {id:"d8",grupo:"Contínuo",titulo:"Controle de devolução de embalagens vazias",freq:"evento"},
+  {id:"d9",grupo:"Contínuo",titulo:"Controlar vendas e transferências de produtos",freq:"evento"},
+  {id:"d10",grupo:"Quando precisar",titulo:"Solicitação de compra de óleo diesel",freq:"evento"},
+  {id:"d11",grupo:"Quando precisar",titulo:"Checklist de contratação e recolhimento de assinaturas",freq:"evento"},
+  {id:"s1",grupo:"Segunda-feira",titulo:"Contagem de insumos e atualização no servidor",freq:"segunda"},
+  {id:"s2",grupo:"Segunda-feira",titulo:"Verificação e solicitação de EPIs",freq:"segunda"},
+  {id:"x1",grupo:"Sexta-feira (antes 8:30)",titulo:"Controle de diaristas — passar lista ao gerente",freq:"sexta"},
+  {id:"m1",grupo:"Início do mês",titulo:"Recolher assinatura dos holerites",freq:"inicio_mes"},
+  {id:"m2",grupo:"Dia 30",titulo:"Solicitação de compra: cantina, alojamento e escritório",freq:"dia30"},
+  {id:"m3",grupo:"Final do mês (até dia 25)",titulo:"Controle de folgas — fechar até dia 25",freq:"folgas"},
+  {id:"m4",grupo:"Final do mês",titulo:"Gerar relatório de abastecimento e conferência",freq:"fim_mes"},
+  {id:"m5",grupo:"Final do mês",titulo:"Controle de refeições",freq:"fim_mes"},
+];
+const TIPO_MAQ = {trator:"Trator",colheitadeira:"Colheitadeira",pulverizador:"Pulverizador",plantadeira:"Plantadeira",caminhao:"Caminhão",outros:"Outros"};
+const CAT = {semente:"Semente",fertilizante:"Fertilizante",defensivo:"Defensivo",combustivel:"Combustível",epi:"EPI",cantina:"Cantina",outros:"Outros"};
+const CATS = Object.keys(CAT);
+const TIPOS_M = Object.keys(TIPO_MAQ);
+
+function load(){
+  try{
+    const raw = localStorage.getItem(KEY);
+    if(raw){
+      const d = JSON.parse(raw);
+      return {
+        ...JSON.parse(JSON.stringify(SEED)),
+        ...d,
+        farm:{...SEED.farm, ...(d.farm||{})},
+        diesel:{...SEED.diesel, ...(d.diesel||{})},
+        insumos: d.insumos && d.insumos.length ? d.insumos : SEED.insumos,
+        maquinas: d.maquinas && d.maquinas.length ? d.maquinas : SEED.maquinas,
+        pessoas: d.pessoas && d.pessoas.length ? d.pessoas : SEED.pessoas,
+        talhoes: d.talhoes && d.talhoes.length ? d.talhoes : SEED.talhoes,
+        sementes: Array.isArray(d.sementes) ? d.sementes : (SEED.sementes||[]),
+        folgas: Array.isArray(d.folgas) ? d.folgas : (SEED.folgas||[]),
+        equatorial: d.equatorial || SEED.equatorial,
+        rotinaFeita: d.rotinaFeita || {},
+      };
+    }
+  }catch(e){}
+  return JSON.parse(JSON.stringify(SEED));
+}
+function save(){
+  localStorage.setItem(KEY, JSON.stringify(state));
+  scheduleCloudSave();
+}
+let cloudTimer=null;
+function scheduleCloudSave(){
+  if(!sbUser) return;
+  cloudStatus="syncing";
+  clearTimeout(cloudTimer);
+  cloudTimer=setTimeout(pushCloud, 800);
+}
+
+
+function cloudLabel(){
+  if(!sbUser) return "Só neste aparelho (não logado)";
+  if(cloudStatus==="syncing") return "Salvando na nuvem…";
+  if(cloudStatus==="synced") return "Sincronizado na nuvem ✓ · " + (sbUser.email||"");
+  if(cloudStatus==="error") return "Erro sync: " + (cloudError || "falha") + " — dados locais ok";
+  return "Logado: "+(sbUser.email||"");
+}
+function uid(){ return (crypto.randomUUID && crypto.randomUUID()) || ("id-"+Date.now()+"-"+Math.random().toString(16).slice(2)); }
+
+let state = load();
+let sbUser = null;
+let cloudStatus = "local"; // local | syncing | synced | error
+let cloudError = "";
+
+let page = "hoje";
+let qInsumo = "";
+let catInsumo = "todos";
+let edit = null; // {kind, id} or {kind:'novo-...'}
+let toastTimer;
+
+function hojeISO(){ const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function diaSemana(ref){ return new Date(ref+"T12:00:00").getDay(); }
+function diaDoMes(ref){ return new Date(ref+"T12:00:00").getDate(); }
+function ultimoDiaMes(ref){ const d=new Date(ref+"T12:00:00"); return new Date(d.getFullYear(), d.getMonth()+1, 0).getDate(); }
+function isSegunda(ref){ return diaSemana(ref)===1; }
+function isSexta(ref){ return diaSemana(ref)===5; }
+function isInicioMes(ref){ return diaDoMes(ref)<=5; }
+function isDia30(ref){ const d=diaDoMes(ref), u=ultimoDiaMes(ref); return d===30 || (u<30 && d===u); }
+function isFolgas(ref){ const d=diaDoMes(ref); return d>=20 && d<=25; }
+function isFimMes(ref){ const d=diaDoMes(ref), u=ultimoDiaMes(ref); return d>=u-3; }
+function rotinaHoje(ref){
+  const list=[];
+  // diários sempre
+  list.push(...ROTINA.filter(r=>r.freq==="diario"));
+  if(isSegunda(ref)) list.push(...ROTINA.filter(r=>r.freq==="segunda"));
+  if(isSexta(ref)) list.push(...ROTINA.filter(r=>r.freq==="sexta"));
+  if(isInicioMes(ref)) list.push(...ROTINA.filter(r=>r.freq==="inicio_mes"));
+  if(isDia30(ref)) list.push(...ROTINA.filter(r=>r.freq==="dia30"));
+  if(isFolgas(ref)) list.push(...ROTINA.filter(r=>r.freq==="folgas"));
+  if(isFimMes(ref)) list.push(...ROTINA.filter(r=>r.freq==="fim_mes"));
+  return list;
+}
+function rotinaLegenda(ref){
+  const parts=["Diário"];
+  if(isSegunda(ref)) parts.push("Segunda");
+  if(isSexta(ref)) parts.push("Sexta · diaristas ≤8:30");
+  if(isInicioMes(ref)) parts.push("Início do mês");
+  if(isDia30(ref)) parts.push("Dia 30 · compras");
+  if(isFolgas(ref)) parts.push("Folgas (até dia 25)");
+  if(isFimMes(ref)) parts.push("Final do mês");
+  return "Lembretes de hoje: "+parts.join(" · ");
+}
+function proximosLembretes(ref){
+  const d=new Date(ref+"T12:00:00");
+  const avisos=[];
+  // look ahead 7 days for special
+  for(let i=1;i<=7;i++){
+    const x=new Date(d); x.setDate(d.getDate()+i);
+    const iso=x.getFullYear()+"-"+String(x.getMonth()+1).padStart(2,"0")+"-"+String(x.getDate()).padStart(2,"0");
+    const labels=[];
+    if(isSegunda(iso)) labels.push("insumos + EPIs");
+    if(isSexta(iso)) labels.push("diaristas");
+    if(isDia30(iso)) labels.push("compras cantina/alojamento");
+    if(isFolgas(iso) && diaDoMes(iso)===20) labels.push("iniciar fechamento de folgas");
+    if(isFimMes(iso) && diaDoMes(iso)===ultimoDiaMes(iso)-3) labels.push("relatório abastecimento + refeições");
+    if(isInicioMes(iso) && diaDoMes(iso)===1) labels.push("holerites");
+    if(labels.length) avisos.push({iso, labels:labels.join(", ")});
+  }
+  return avisos;
+}
+
+function n(v,d=1){ return Number(v).toLocaleString("pt-BR",{maximumFractionDigits:d}); }
+function ha(v){ return n(v, v>=100?0:1)+" ha"; }
+function dataLonga(iso){ const d=new Date(iso+"T12:00:00"); return d.toLocaleDateString("pt-BR",{weekday:"short",day:"2-digit",month:"short"}); }
+function dataNascimentoFmt(iso){ const d=new Date(iso+"T12:00:00"); return d.toLocaleDateString("pt-BR",{day:"2-digit",month:"long"}); }
+function mesDia(iso){ return iso.slice(5,10); }
+function aniversarioHoje(nasc, ref){ return nasc && mesDia(nasc)===mesDia(ref); }
+function aniversarioEmAte(nasc, dias, ref){
+  if(!nasc) return false;
+  const base=new Date(ref+"T12:00:00");
+  for(let i=0;i<=dias;i++){ const d=new Date(base); d.setDate(base.getDate()+i);
+    const md=String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+    if(mesDia(nasc)===md) return true; }
+  return false;
+}
+function idadeEm(nasc, ref){ const n0=new Date(nasc+"T12:00:00"), r=new Date(ref+"T12:00:00"); let idade=r.getFullYear()-n0.getFullYear(); const m=r.getMonth()-n0.getMonth(); if(m<0||(m===0&&r.getDate()<n0.getDate())) idade--; return idade; }
+function esc(s){ return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;"); }
+function exportCSV(filename, rows){
+  const csv = rows.map(r=>r.map(c=>{
+    const s=String(c??"");
+    return /[",\n;]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s;
+  }).join(";")).join("\n");
+  const blob = new Blob(["\ufeff"+csv], {type:"text/csv;charset=utf-8"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=filename; a.click();
+  toast("Arquivo gerado: "+filename);
+}
+function toast(msg){ let el=document.getElementById("toast"); if(!el){ el=document.createElement("div"); el.id="toast"; el.className="toast"; document.body.appendChild(el);} el.textContent=msg; el.classList.remove("hidden"); clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.add("hidden"),2000); }
+
+function notifyRotina(){
+  if(!("Notification" in window) || Notification.permission!=="granted") return;
+  const hoje=hojeISO();
+  const key="cg-rotina-"+hoje;
+  if(sessionStorage.getItem(key)) return;
+  const msgs=[];
+  if(isSexta(hoje)) msgs.push("Hoje é sexta: controle de diaristas antes das 8:30 e avise o gerente.");
+  if(isSegunda(hoje)) msgs.push("Segunda: contagem de insumos e solicitação de EPIs.");
+  if(isDia30(hoje)) msgs.push("Dia 30: solicitar compras de cantina, alojamento e escritório.");
+  if(isFolgas(hoje) && diaDoMes(hoje)>=23) msgs.push("Fechar controle de folgas até o dia 25.");
+  if(isFimMes(hoje)) msgs.push("Final do mês: relatório de abastecimento e controle de refeições.");
+  if(isInicioMes(hoje) && diaDoMes(hoje)<=3) msgs.push("Início do mês: recolher assinatura dos holerites.");
+  if(!msgs.length) return;
+  try{
+    new Notification("CampoGestor — lembrete", {body: msgs.join(" "), tag:key});
+    sessionStorage.setItem(key,"1");
+  }catch(e){}
+}
+
+function notifyBirthdays(){
+  const hoje=hojeISO();
+  const list=(state.pessoas||[]).filter(p=>aniversarioHoje(p.nascimento,hoje));
+  if(!list.length||!("Notification" in window)) return;
+  const key="cg-niver-"+hoje; if(sessionStorage.getItem(key)) return;
+  const body="Hoje: "+list.map(p=>p.nome).join("; ")+". Lembre o gerente "+state.farm.gerente+".";
+  const show=()=>{ try{ new Notification("Aniversário na fazenda",{body,tag:key}); sessionStorage.setItem(key,"1"); }catch(e){} };
+  if(Notification.permission==="granted") show();
+  else if(Notification.permission!=="denied") Notification.requestPermission().then(p=>{ if(p==="granted") show(); });
+}
+
+function openEdit(kind, id){ edit={kind,id}; render(); }
+function closeEdit(){ edit=null; render(); }
+
+function renderDrawer(){
+  if(!edit) return "";
+  let body="";
+  if(edit.kind==="insumo" || edit.kind==="novo-insumo"){
+    const i = edit.kind==="insumo" ? state.insumos.find(x=>x.id===edit.id) : {nome:"",categoria:"defensivo",unidade:"L",quantidade:0,minimo:0};
+    body=`<h2>${edit.kind==="insumo"?"Editar insumo":"Novo insumo"}</h2>
+      <div class="field"><label>Nome</label><input id="e-nome" value="${esc(i.nome||"")}"/></div>
+      <div class="field"><label>Categoria</label><select id="e-cat">${CATS.map(c=>`<option value="${c}" ${i.categoria===c?"selected":""}>${CAT[c]}</option>`).join("")}</select></div>
+      <div class="field"><label>Nome técnico / princípio ativo</label><input id="e-tec" value="${esc(i.tecnico||"")}"/></div>
+      <div class="field"><label>Tipo (herbicida, inseticida…)</label><input id="e-tipodef" value="${esc(i.tipoDef||"")}"/></div>
+      <div class="field"><label>Unidade</label><input id="e-un" value="${esc(i.unidade||"L")}"/></div>
+      <div class="field"><label>Quantidade</label><input id="e-qtd" inputmode="decimal" value="${i.quantidade??0}"/></div>
+      <div class="field"><label>Mínimo</label><input id="e-min" inputmode="decimal" value="${i.minimo??0}"/></div>
+      <button class="btn primary block" id="e-save">Salvar</button>
+      ${edit.kind==="insumo"?`<button class="btn block" id="e-del" style="margin-top:.5rem;color:var(--danger)">Excluir</button>`:""}`;
+  }
+  if(edit.kind==="maquina" || edit.kind==="novo-maquina"){
+    const m = edit.kind==="maquina" ? state.maquinas.find(x=>x.id===edit.id) : {nome:"",tipo:"trator",modelo:"",status:"operando",placa:""};
+    body=`<h2>${edit.kind==="maquina"?"Editar máquina":"Nova máquina"}</h2>
+      <div class="field"><label>Nome</label><input id="e-nome" value="${esc(m.nome||"")}"/></div>
+      <div class="field"><label>Tipo</label><select id="e-tipo">${TIPOS_M.map(t=>`<option value="${t}" ${m.tipo===t?"selected":""}>${TIPO_MAQ[t]}</option>`).join("")}</select></div>
+      <div class="field"><label>Modelo</label><input id="e-mod" value="${esc(m.modelo||"")}"/></div>
+      <div class="field"><label>Placa / nº</label><input id="e-placa" value="${esc(m.placa||"")}"/></div>
+      <div class="field"><label>Status</label><select id="e-st">
+        <option value="operando" ${m.status==="operando"?"selected":""}>Operando</option>
+        <option value="parada" ${m.status==="parada"?"selected":""}>Parada</option>
+        <option value="manutencao" ${m.status==="manutencao"?"selected":""}>Manutenção</option>
+      </select></div>
+      <button class="btn primary block" id="e-save">Salvar</button>
+      ${edit.kind==="maquina"?`<button class="btn block" id="e-del" style="margin-top:.5rem;color:var(--danger)">Excluir</button>`:""}`;
+  }
+  if(edit.kind==="pessoa" || edit.kind==="novo-pessoa"){
+    const p = edit.kind==="pessoa" ? state.pessoas.find(x=>x.id===edit.id) : {nome:"",tipo:"efetivo",funcao:"",nascimento:"",admissao:""};
+    body=`<h2>${edit.kind==="pessoa"?"Editar pessoa":"Nova pessoa"}</h2>
+      <div class="field"><label>Nome</label><input id="e-nome" value="${esc(p.nome||"")}"/></div>
+      <div class="field"><label>Função</label><input id="e-fun" value="${esc(p.funcao||"")}"/></div>
+      <div class="field"><label>Tipo</label><select id="e-tipo">
+        <option value="efetivo" ${p.tipo==="efetivo"?"selected":""}>Efetivo</option>
+        <option value="diarista" ${p.tipo==="diarista"?"selected":""}>Diarista</option>
+        <option value="candidato" ${p.tipo==="candidato"?"selected":""}>Candidato</option>
+      </select></div>
+      <div class="field"><label>Nascimento</label><input id="e-nasc" type="date" value="${esc(p.nascimento||"")}"/></div>
+      <div class="field"><label>Admissão</label><input id="e-adm" type="date" value="${esc(p.admissao||"")}"/></div>
+      <button class="btn primary block" id="e-save">Salvar</button>
+      ${edit.kind==="pessoa"?`<button class="btn block" id="e-del" style="margin-top:.5rem;color:var(--danger)">Excluir</button>`:""}`;
+  }
+  if(edit.kind==="semente" || edit.kind==="novo-semente"){
+    const cults=["76KA72 CE","RAPTOR I2X","NEO761 I2X","NEO700 I2X","DM 72IX74 I2X","ST 752 I2X"];
+    const s = edit.kind==="semente" ? (state.sementes||[]).find(x=>x.id===edit.id) : {cultivar:"76KA72 CE",lote:"",validade:"",peso:"",fornecedor:"",numero:"",pureza:"",germinacao:"",obs:""};
+    body=`<h2>${edit.kind==="semente"?"Editar big bag":"Registrar big bag"}</h2>
+      <p class="muted" style="margin-bottom:.6rem">Use a câmera do celular para ler a etiqueta e digite os dados. Depois confirme.</p>
+      <div class="field"><label>Cultivar</label><select id="e-cult">${cults.map(c=>`<option value="${c}" ${(s.cultivar||"")===c?"selected":""}>${c}</option>`).join("")}</select></div>
+      <div class="field"><label>Lote</label><input id="e-lote" value="${esc(s.lote||"")}"/></div>
+      <div class="field"><label>Validade</label><input id="e-val" type="date" value="${esc(s.validade||"")}"/></div>
+      <div class="field"><label>Peso (kg)</label><input id="e-peso" inputmode="decimal" value="${esc(s.peso||"")}"/></div>
+      <div class="field"><label>Fornecedor</label><input id="e-forn" value="${esc(s.fornecedor||"")}"/></div>
+      <div class="field"><label>Nº big bag</label><input id="e-num" value="${esc(s.numero||"")}"/></div>
+      <div class="field"><label>Pureza (%)</label><input id="e-pur" inputmode="decimal" value="${esc(s.pureza||"")}"/></div>
+      <div class="field"><label>Germinação (%)</label><input id="e-ger" inputmode="decimal" value="${esc(s.germinacao||"")}"/></div>
+      <div class="field"><label>Observação</label><input id="e-obs" value="${esc(s.obs||"")}"/></div>
+      <button class="btn primary block" id="e-save">Salvar conferência</button>
+      ${edit.kind==="semente"?`<button class="btn block" id="e-del" style="margin-top:.5rem;color:var(--danger)">Excluir</button>`:""}`;
+  }
+  if(edit.kind==="folga" || edit.kind==="novo-folga"){
+    const f = edit.kind==="folga" ? (state.folgas||[]).find(x=>x.id===edit.id) : {pessoaId:"",pessoaNome:"",data:hojeISO(),tipo:"X",obs:""};
+    const opts = state.pessoas.map(p=>`<option value="${p.id}" ${(f.pessoaId||"")===p.id?"selected":""}>${esc(p.nome)}</option>`).join("");
+    body=`<h2>${edit.kind==="folga"?"Editar registro":"Registrar folga / falta"}</h2>
+      <div class="field"><label>Pessoa</label><select id="e-pes"><option value="">—</option>${opts}</select></div>
+      <div class="field"><label>Data</label><input id="e-data" type="date" value="${esc(f.data||hojeISO())}"/></div>
+      <div class="field"><label>Tipo</label><select id="e-tipo">
+        <option value="X" ${f.tipo==="X"?"selected":""}>X — Folga</option>
+        <option value="P" ${f.tipo==="P"?"selected":""}>P — Plantão de incêndio</option>
+        <option value="F" ${f.tipo==="F"?"selected":""}>F — Falta</option>
+        <option value="T" ${f.tipo==="T"?"selected":""}>T — Trabalhado</option>
+        <option value="V" ${f.tipo==="V"?"selected":""}>V — Férias</option>
+        <option value="E" ${f.tipo==="E"?"selected":""}>E — Encerrou contrato</option>
+      </select></div>
+      <div class="field"><label>Observação</label><input id="e-obs" value="${esc(f.obs||"")}"/></div>
+      <button class="btn primary block" id="e-save">Salvar</button>
+      ${edit.kind==="folga"?`<button class="btn block" id="e-del" style="margin-top:.5rem;color:var(--danger)">Excluir</button>`:""}`;
+  }
+  if(edit.kind==="protocolo" || edit.kind==="novo-protocolo"){
+    const eq = state.equatorial || SEED.equatorial;
+    const ucOpts = (eq.ucs||[]).map(u=>`<option value="${esc(u.uc)}">${esc(u.uc)} — ${esc(u.desc)}</option>`).join("");
+    body=`<h2>Novo protocolo Equatorial</h2>
+      <div class="field"><label>Unidade (UC)</label><select id="e-uc">${ucOpts}</select></div>
+      <div class="field"><label>Nº protocolo</label><input id="e-prot" placeholder="Ex: 498274640"/></div>
+      <div class="field"><label>Data</label><input id="e-data" type="date" value="${hojeISO()}"/></div>
+      <div class="field"><label>Hora</label><input id="e-hora" type="time" value="${String(new Date().getHours()).padStart(2,"0")+":"+String(new Date().getMinutes()).padStart(2,"0")}"/></div>
+      <div class="field"><label>Ocorrência</label><input id="e-hist" value="Falta de energia"/></div>
+      <div class="field"><label>Local</label><input id="e-local" value="SANTA RITA"/></div>
+      <button class="btn primary block" id="e-save">Salvar protocolo</button>`;
+  }
+  if(edit.kind==="farm"){
+    body=`<h2>Editar fazenda</h2>
+      <div class="field"><label>Nome</label><input id="f-nome" value="${esc(state.farm.nome)}"/></div>
+      <div class="field"><label>Local</label><input id="f-mun" value="${esc(state.farm.municipio)}"/></div>
+      <div class="field"><label>Cargo</label><input id="f-cargo" value="${esc(state.farm.cargo)}"/></div>
+      <div class="field"><label>Gerente</label><input id="f-ger" value="${esc(state.farm.gerente)}"/></div>
+      <div class="field"><label>Safra</label><input id="f-safra" value="${esc(state.farm.safra)}"/></div>
+      <button class="btn primary block" id="e-save-farm">Salvar</button>`;
+  }
+  return `<div class="drawer-bg" id="drawer"><div class="drawer">${body}</div></div>`;
+}
+
+function render(){
+  const root=document.getElementById("app");
+  const hoje=hojeISO();
+  let html="";
+
+  if(page==="hoje"){
+    const listaRotina=rotinaHoje(hoje);
+    const feitas=listaRotina.filter(r=>state.rotinaFeita[r.id]===hoje).length;
+    const pct=listaRotina.length?Math.round((feitas/listaRotina.length)*100):0;
+    const dieselPct=Math.round((state.diesel.litros/state.diesel.capacidade)*100);
+    const baixo=state.insumos.filter(i=>i.quantidade<i.minimo).length;
+    const niverHoje=state.pessoas.filter(p=>aniversarioHoje(p.nascimento,hoje));
+    const niver7=state.pessoas.filter(p=>p.nascimento&&aniversarioEmAte(p.nascimento,7,hoje)&&!aniversarioHoje(p.nascimento,hoje));
+    html+=`<header class="header"><div><p class="kicker">${esc(state.farm.cargo)} · <span id="cloud-status">${cloudLabel()}</span></p><h1>${esc(state.farm.nome)}</h1></div></header>`;
+    html+=`<p class="sub">${dataLonga(hoje)} · Gerente: ${esc(state.farm.gerente)}</p>`;
+    if(niverHoje.length){
+      html+=`<div class="card" style="border-color:var(--primary)"><p class="card-title">🎂 Aniversário hoje — avise o gerente</p><ul class="list">`;
+      niverHoje.forEach(p=>{ html+=`<li><div style="flex:1"><div style="font-weight:500">${esc(p.nome)}</div><div class="muted">${esc(p.funcao)} · completa ${idadeEm(p.nascimento,hoje)+1} anos</div></div><span class="badge ok">Hoje</span></li>`; });
+      html+=`</ul><p class="muted" style="margin-top:.5rem">Lembrete para ${esc(state.farm.gerente)}</p></div>`;
+    }
+    if(niver7.length){
+      html+=`<div class="card"><p class="card-title">Próximos aniversários (7 dias)</p><ul class="list">`;
+      niver7.forEach(p=>{ html+=`<li><div style="flex:1"><div style="font-weight:500">${esc(p.nome)}</div><div class="muted">${esc(p.funcao)} · ${dataNascimentoFmt(p.nascimento)}</div></div><span class="badge warn">Em breve</span></li>`; });
+      html+=`</ul></div>`;
+    }
+    html+=`<div class="card"><p class="card-title">Lembretes</p><p class="muted" style="margin-bottom:.6rem">${rotinaLegenda(hoje)}</p>`;
+    if(!listaRotina.length){
+      html+=`<p class="muted">Nada obrigatório hoje. Na <b>segunda</b>: frota, estoque e aniversariantes. Na <b>sexta antes das 8:30</b>: diaristas. No <b>final do mês</b>: inventário e fechamentos.</p>`;
+    } else {
+      html+=`<div class="row"><span class="muted">${feitas}/${listaRotina.length}</span></div><div class="progress" style="margin:.4rem 0 .6rem"><span style="width:${pct}%"></span></div>`;
+      listaRotina.forEach(r=>{ const done=state.rotinaFeita[r.id]===hoje;
+        html+=`<label class="check ${done?"done":""}"><input type="checkbox" ${done?"checked":""} data-rotina="${r.id}"/><span><span class="titulo" style="display:block;font-size:.9rem">${esc(r.titulo)}</span><span class="muted">${esc(r.grupo)}</span></span></label>`; });
+    }
+    const prox=proximosLembretes(hoje);
+    if(prox.length){
+      html+=`<div class="card"><p class="card-title">Próximos dias</p><ul class="list">`;
+      prox.forEach(p=>{ html+=`<li><div style="flex:1"><div style="font-weight:500">${esc(p.iso.split("-").reverse().join("/"))}</div><div class="muted">${esc(p.labels)}</div></div></li>`; });
+      html+=`</ul></div>`;
+    }
+    html+=`<div class="card"><p class="card-title">Quando ocorrer (marque se fez)</p>`;
+    ROTINA.filter(r=>r.freq==="evento").forEach(r=>{
+      const done=state.rotinaFeita[r.id]===hoje;
+      html+=`<label class="check ${done?"done":""}"><input type="checkbox" ${done?"checked":""} data-rotina="${r.id}"/><span><span class="titulo" style="display:block;font-size:.9rem">${esc(r.titulo)}</span><span class="muted">${esc(r.grupo)}</span></span></label>`;
+    });
+    html+=`</div>`;
+    html+=`<div class="grid2">
+      <div class="stat"><div class="lbl">Diesel</div><div class="val">${n(state.diesel.litros,0)} L</div><div class="muted">${dieselPct}% do tanque</div></div>
+      <div class="stat"><div class="lbl">Insumos baixos</div><div class="val">${baixo}</div><div class="muted">abaixo do mínimo</div></div>
+      <div class="stat"><div class="lbl">Equipe</div><div class="val">${state.pessoas.length}</div><div class="muted">colaboradores</div></div>
+      <div class="stat"><div class="lbl">Área</div><div class="val">${n(state.farm.areaTotal,0)} ha</div><div class="muted">${state.talhoes.length} talhões</div></div>
+    </div>`;
   }
 
-  if (processados === 0) return alert("Informe a quantidade para pelo menos um produto.");
+  if(page==="frota"){
+    html+=`<header class="header"><div><p class="kicker">Máquinas</p><h1>Frota</h1></div><button class="btn primary sm" data-new="maquina">+ Nova</button></header>`;
+    const dieselPct=Math.round((state.diesel.litros/state.diesel.capacidade)*100);
+    html+=`<div class="card"><div class="row"><p class="card-title">Tanque de diesel</p><span class="muted">${dieselPct}%</span></div><div class="progress"><span style="width:${dieselPct}%"></span></div><p class="muted" style="margin-top:.5rem">${n(state.diesel.litros,0)} L de ${n(state.diesel.capacidade,0)} L</p></div>`;
+    html+=`<ul class="list card" style="padding:.25rem 1rem">`;
+    state.maquinas.forEach(m=>{
+      const tone=m.status==="operando"?"ok":m.status==="manutencao"?"warn":"muted";
+      const label=m.status==="operando"?"Operando":m.status==="manutencao"?"Manutenção":"Parada";
+      html+=`<li><div style="flex:1"><div style="font-weight:500">${esc(m.nome)}</div><div class="muted">${TIPO_MAQ[m.tipo]||m.tipo} · ${esc(m.modelo)}${m.placa?" · "+esc(m.placa):""}</div></div>
+        <span class="badge ${tone}">${label}</span>
+        <button class="btn sm" data-edit="maquina" data-id="${m.id}">✎</button></li>`;
+    });
+    html+=`</ul>`;
+  }
 
-  saveLocalState();
-  closeModal();
-  selectTab('insumos');
-  showToast(`${processados} insumos lançados com sucesso!`);
+  if(page==="estoque"){
+    const lista = state.insumos.filter(i=>{
+      const okQ = !qInsumo || i.nome.toLowerCase().includes(qInsumo.toLowerCase());
+      const okC = catInsumo==="todos" || i.categoria===catInsumo;
+      return okQ && okC;
+    }).sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR"));
+    html+=`<header class="header"><div><p class="kicker">Almoxarifado · ${state.insumos.length} itens</p><h1>Estoque</h1></div><button class="btn primary sm" data-new="insumo">+ Novo</button></header>`;
+    html+=`<div class="search"><input id="q-insumo" placeholder="Pesquisar insumo..." value="${esc(qInsumo)}"/></div>`;
+    html+=`<div class="chips"><button class="chip ${catInsumo==="todos"?"on":""}" data-cat="todos">Todos</button>`;
+    CATS.forEach(c=>{ html+=`<button class="chip ${catInsumo===c?"on":""}" data-cat="${c}">${CAT[c]}</button>`; });
+    html+=`</div>`;
+    html+=`<ul class="list card" style="padding:.25rem 1rem">`;
+    if(!lista.length) html+=`<li class="muted">Nenhum insumo encontrado.</li>`;
+    lista.forEach(i=>{
+      const baixo=i.quantidade<i.minimo;
+      html+=`<li><div style="flex:1"><div style="font-weight:500">${esc(i.nome)}</div><div class="muted">${esc(i.tipoDef||CAT[i.categoria]||"")} · ${esc(i.tecnico||"—")}</div><div class="muted">mín. ${n(i.minimo,0)} ${esc(i.unidade)}</div></div>
+        <div style="text-align:right"><div style="font-weight:500">${n(i.quantidade,i.quantidade>=100?0:1)} ${esc(i.unidade)}</div>${baixo?'<span class="badge warn">Baixo</span>':''}</div>
+        <button class="btn sm" data-edit="insumo" data-id="${i.id}">✎</button></li>`;
+    });
+    html+=`</ul>`;
+  }
+
+  if(page==="pessoas"){
+    html+=`<header class="header"><div><p class="kicker">Equipe · ${esc(state.farm.gerente)}</p><h1>Pessoas</h1></div><button class="btn primary sm" data-new="pessoa">+ Nova</button></header>`;
+    html+=`<div style="padding:.5rem 1rem"><button class="btn block" id="btn-notif">Ativar avisos de aniversário</button></div>`;
+    html+=`<ul class="list card" style="padding:.25rem 1rem">`;
+    const ord=[...state.pessoas].sort((a,b)=>(a.nascimento||"99").slice(5).localeCompare((b.nascimento||"99").slice(5)));
+    ord.forEach(p=>{
+      const hojeN=aniversarioHoje(p.nascimento,hoje);
+      html+=`<li><div style="flex:1"><div style="font-weight:500">${esc(p.nome)}</div><div class="muted">${esc(p.funcao)}</div>`;
+      if(p.nascimento) html+=`<div class="muted">Aniversário: ${dataNascimentoFmt(p.nascimento)}${hojeN?` · completa ${idadeEm(p.nascimento,hoje)+1} anos`:``}</div>`;
+      if(p.admissao) html+=`<div class="muted">Admissão: ${String(p.admissao).split("-").reverse().join("/")}</div>`;
+      html+=`</div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:.25rem">${hojeN?'<span class="badge ok">Hoje</span>':''}<span class="badge muted">${esc(p.tipo)}</span>
+        <button class="btn sm" data-edit="pessoa" data-id="${p.id}">✎</button></div></li>`;
+    });
+    html+=`</ul>`;
+  }
+
+  if(page==="safra"){
+    html+=`<header class="header"><div><p class="kicker">Caderno de campo</p><h1>Safra 2026/27</h1></div></header>`;
+    html+=`<p class="sub">Programação · Grupo Segredo · Fazenda Santa Rita</p>`;
+    html+=`<p class="sec">Corretivo (calcário)</p><div class="card" style="padding:.5rem .75rem;overflow:auto"><table class="table"><tr><th>Talhões</th><th>ha</th><th>Cultivar</th><th>Dose</th><th>Volume</th></tr>`;
+    SAFRA.corretivo.forEach(r=>{ html+=`<tr><td>${esc(r.talhoes)}</td><td>${n(r.ha,2)}</td><td>${esc(r.cultivar)}</td><td>${esc(r.dose)}</td><td>${esc(r.volume)}</td></tr>`; });
+    html+=`</table></div>`;
+    html+=`<p class="sec">Fertilizante</p>`;
+    SAFRA.fertilizante.forEach(g=>{
+      html+=`<div class="card"><p class="card-title">${esc(g.talhoes)} · ${n(g.ha,2)} ha · ${esc(g.cultivar)}</p><ul class="list">`;
+      g.itens.forEach(it=>{ html+=`<li><div style="flex:1"><div style="font-weight:500">${esc(it.insumo)}</div><div class="muted">${esc(it.dose)}</div></div><div class="muted">${esc(it.volume)}</div></li>`; });
+      html+=`</ul></div>`;
+    });
+    html+=`<p class="sec">Plantio soja</p><div class="card" style="padding:.5rem .75rem;overflow:auto"><table class="table"><tr><th>Talhões</th><th>ha</th><th>Cultivar</th><th>Sem/m</th><th>Esp.</th><th>Sem/ha</th></tr>`;
+    SAFRA.plantio.forEach(r=>{ html+=`<tr><td>${esc(r.talhoes)}</td><td>${n(r.ha,2)}</td><td>${esc(r.cultivar)}</td><td>${esc(r.sem_m)}</td><td>${esc(r.espac)}</td><td>${esc(r.sem_ha)}</td></tr>`; });
+    html+=`</table><p class="muted" style="margin-top:.5rem">Total plantio ≈ 1.587,11 ha</p></div>`;
+    html+=`<p class="sec">Manejo de sulco (todos os talhões)</p><div class="card"><ul class="list">`;
+    SAFRA.sulco.forEach(s=>{ html+=`<li><div style="flex:1"><div style="font-weight:500">${esc(s.insumo)}</div><div class="muted">${esc(s.tipo)} · ${esc(s.fabricante)}</div></div><div class="muted">${esc(s.dose)}</div></li>`; });
+    html+=`</ul></div>`;
+    html+=`<p class="sec">Talhões cadastrados</p><ul class="list card" style="padding:.25rem 1rem">`;
+    state.talhoes.forEach(t=>{
+      const tag=t.fazenda==="campo-alegre"?"C. Alegre":"Sta Rita";
+      html+=`<li><div style="flex:1"><div style="font-weight:500">${esc(t.codigo)} · ${esc(t.nome)}</div><div class="muted">${ha(t.area)} · ${esc(t.variedade||"")} · ${tag}</div></div></li>`;
+    });
+    html+=`</ul>`;
+  }
+
+
+  if(page==="sementes"){
+    const cults=["76KA72 CE","RAPTOR I2X","NEO761 I2X","NEO700 I2X","DM 72IX74 I2X","ST 752 I2X"];
+    if(!state.sementes) state.sementes=[];
+    const resumo={};
+    cults.forEach(c=>resumo[c]={qtd:0,peso:0});
+    state.sementes.forEach(s=>{
+      if(!resumo[s.cultivar]) resumo[s.cultivar]={qtd:0,peso:0};
+      resumo[s.cultivar].qtd++; resumo[s.cultivar].peso+=Number(s.peso)||0;
+    });
+    html+=`<header class="header"><div><p class="kicker">Conferência de big bags</p><h1>Sementes soja</h1></div><button class="btn primary sm" data-new="semente">+ Registrar</button></header>`;
+    html+=`<p class="sub">Safra 2026/27 · tire foto da etiqueta e confira os dados no formulário (ou envie a foto no chat do Grok para extrair).</p>`;
+    html+=`<div class="card"><p class="card-title">Resumo por cultivar</p><ul class="list">`;
+    cults.forEach(c=>{
+      const r=resumo[c];
+      html+=`<li><div style="flex:1"><div style="font-weight:500">${esc(c)}</div><div class="muted">${r.qtd} big bag(s)</div></div><div class="muted">${n(r.peso,0)} kg</div></li>`;
+    });
+    html+=`</ul><p class="muted" style="margin-top:.5rem">Total: ${state.sementes.length} registros</p></div>`;
+    html+=`<p class="sec">Últimas conferências</p><ul class="list card" style="padding:.25rem 1rem">`;
+    const lista=[...state.sementes].reverse().slice(0,40);
+    if(!lista.length) html+=`<li class="muted">Nenhum big bag registrado ainda.</li>`;
+    lista.forEach(s=>{
+      html+=`<li><div style="flex:1"><div style="font-weight:500">${esc(s.cultivar)}</div><div class="muted">Lote ${esc(s.lote||"—")} · ${esc(s.peso||"—")} kg · ${esc(s.fornecedor||"—")}</div><div class="muted">${esc(s.data||"")} · Bag ${esc(s.numero||"—")}${s.validade?" · val. "+esc(s.validade):""}</div></div>
+        <button class="btn sm" data-edit="semente" data-id="${s.id}">✎</button></li>`;
+    });
+    html+=`</ul>`;
+  }
+
+
+  if(page==="folgas"){
+    if(!state.folgas) state.folgas=[];
+    const tipos={X:"Folga",P:"Plantão incêndio",F:"Falta",T:"Trabalhado",V:"Férias",E:"Encerrou contrato"};
+    html+=`<header class="header"><div><p class="kicker">Controle de equipe</p><h1>Folgas e faltas</h1></div><button class="btn primary sm" data-new="folga">+ Registrar</button></header>`;
+    html+=`<p class="sub">Registre no celular e exporte para o computador (CSV).</p>`;
+    html+=`<div style="padding:.25rem 1rem;display:flex;gap:.5rem;flex-wrap:wrap"><button class="btn" id="btn-exp-folgas">Exportar CSV</button></div>`;
+    html+=`<div class="card"><p class="card-title">Legenda</p><p class="muted">X = Folga · P = Plantão de incêndio · F = Falta · T = Trabalhado · V = Férias</p></div>`;
+    const lista=[...state.folgas].sort((a,b)=>(b.data||"").localeCompare(a.data||""));
+    html+=`<ul class="list card" style="padding:.25rem 1rem">`;
+    if(!lista.length) html+=`<li class="muted">Nenhum registro ainda.</li>`;
+    lista.forEach(f=>{
+      html+=`<li><div style="flex:1"><div style="font-weight:500">${esc(f.pessoaNome||"—")}</div>
+        <div class="muted">${esc(f.data||"")} · ${esc(tipos[f.tipo]||f.tipo)}${f.obs?" · "+esc(f.obs):""}</div></div>
+        <span class="badge muted">${esc(f.tipo)}</span>
+        <button class="btn sm" data-edit="folga" data-id="${f.id}">✎</button></li>`;
+    });
+    html+=`</ul>`;
+  }
+
+  if(page==="equatorial"){
+    const eq = state.equatorial || SEED.equatorial;
+    html+=`<header class="header"><div><p class="kicker">Energia · Equatorial / ENEL</p><h1>Unidades</h1></div><button class="btn primary sm" data-new="protocolo">+ Protocolo</button></header>`;
+    html+=`<div class="card"><p class="card-title">Atendimento</p><p style="font-size:1.1rem;font-weight:500">${esc(eq.telefone)}</p>
+      <p class="muted">Anote o protocolo após o atendimento.</p>
+      <a class="btn primary block" style="margin-top:.6rem;text-align:center" href="tel:0800620196">Ligar 0800-620-196</a>
+    </div>`;
+    html+=`<p class="sec">Unidades consumidoras</p><ul class="list card" style="padding:.25rem 1rem">`;
+    (eq.ucs||[]).forEach(u=>{
+      html+=`<li><div style="flex:1"><div style="font-weight:500">${esc(u.desc)}</div>
+        <div class="muted">UC ${esc(u.uc)} · ${esc(u.unid)} · ${esc(u.titular)}</div></div>
+        <button class="btn sm" data-copy="${esc(u.uc)}">Copiar UC</button></li>`;
+    });
+    html+=`</ul>`;
+    html+=`<p class="sec">Protocolos</p>
+      <div style="padding:0 1rem .5rem"><button class="btn" id="btn-exp-prot">Exportar protocolos CSV</button></div>
+      <ul class="list card" style="padding:.25rem 1rem">`;
+    const prots=[...(eq.protocolos||[])].slice().reverse();
+    if(!prots.length) html+=`<li class="muted">Nenhum protocolo.</li>`;
+    prots.forEach(p=>{
+      html+=`<li><div style="flex:1"><div style="font-weight:500">${esc(p.protocolo||"—")}</div>
+        <div class="muted">${esc(p.data||"")} ${esc(p.hora||"")} · UC ${esc(p.uc||"")}</div>
+        <div class="muted">${esc(p.hist||"")} · ${esc(p.local||"")}</div></div></li>`;
+    });
+    html+=`</ul>`;
+  }
+
+  if(page==="mais"){
+    html+=`<header class="header"><div><p class="kicker">CampoGestor</p><h1>Mais</h1></div></header>`;
+    html+=`<div class="card"><p class="card-title">Conta e sincronização</p>
+      <p class="muted" id="cloud-status">${cloudLabel()}</p>`;
+    if(!sbUser){
+      html+=`<div class="field"><label>E-mail</label><input id="auth-email" type="email" placeholder="seu@email.com" autocomplete="username"/></div>
+        <div class="field"><label>Senha (mín. 6)</label><input id="auth-pass" type="password" placeholder="••••••" autocomplete="current-password"/></div>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+          <button class="btn primary" id="btn-login">Entrar</button>
+          <button class="btn" id="btn-signup">Criar conta</button>
+        </div>
+        <p class="muted" style="margin-top:.5rem">Com login, celular e PC compartilham os mesmos dados.</p>`;
+    } else {
+      html+=`<p class="muted">E-mail: ${esc(sbUser.email||"")}</p>
+        <button class="btn" id="btn-logout" style="margin-top:.5rem">Sair</button>
+        <button class="btn" id="btn-push" style="margin-top:.5rem">Salvar na nuvem agora</button>
+        <button class="btn" id="btn-pull" style="margin-top:.5rem">Buscar da nuvem</button>`;
+    }
+    html+=`</div>`;
+    html+=`<div class="card"><p class="muted" style="text-transform:uppercase;letter-spacing:.06em;font-size:.7rem">Propriedade</p>
+      <p style="font-family:var(--display);font-size:1.25rem;margin:.25rem 0">${esc(state.farm.nome)}</p>
+      <p class="muted">${esc(state.farm.municipio)} · safra ${esc(state.farm.safra)} · ${ha(state.farm.areaTotal)}</p>
+      <p class="muted">${esc(state.farm.cargo)} · Gerente: ${esc(state.farm.gerente)}</p>
+      <button class="btn" style="margin-top:.75rem" data-edit="farm">Editar fazenda</button>
+    </div>
+    <div style="padding:.5rem 1rem;display:flex;flex-direction:column;gap:.5rem">
+      <button class="btn block" data-go="safra">Abrir programação da safra</button>
+      <button class="btn block" data-go="equatorial">Equatorial / energia (UCs)</button>
+      <button class="btn block" data-go="folgas">Folgas, plantão e faltas</button>
+      <button class="btn block" id="btn-reset">Restaurar dados da fazenda</button>
+    </div>
+    <p class="sub" style="margin-top:1rem;line-height:1.5">Pesquise e edite insumos, frota e pessoas nas abas. A safra 2026/27 vem do caderno de campo.</p>`;
+  }
+
+  html+=`<nav class="nav"><div class="nav-inner">
+    <button data-go="hoje" class="${page==="hoje"?"active":""}"><span>🏠</span><span>Hoje</span></button>
+    <button data-go="frota" class="${page==="frota"?"active":""}"><span>🚜</span><span>Frota</span></button>
+    <button data-go="estoque" class="${page==="estoque"?"active":""}"><span>📦</span><span>Estoque</span></button>
+    <button data-go="pessoas" class="${page==="pessoas"?"active":""}"><span>👥</span><span>Pessoas</span></button>
+    <button data-go="safra" class="${page==="safra"?"active":""}"><span>🌾</span><span>Safra</span></button>
+    <button data-go="sementes" class="${page==="sementes"?"active":""}"><span>🌱</span><span>Sementes</span></button>
+    <button data-go="folgas" class="${page==="folgas"?"active":""}"><span>📅</span><span>Folgas</span></button>
+    <button data-go="mais" class="${page==="mais"?"active":""}"><span>⋯</span><span>Mais</span></button>
+  </div></nav>`;
+  html+=renderDrawer();
+  root.innerHTML=html;
+  bind();
+  if(page==="hoje"){ notifyBirthdays(); notifyRotina(); }
 }
 
-function modalMovimentacao(insumoId) {
-  const ins = state.insumos.find(x => x.id === insumoId);
-  if (!ins) return;
+function bind(){
+  document.querySelectorAll("[data-go]").forEach(btn=>{ btn.onclick=()=>{ page=btn.getAttribute("data-go"); edit=null; render(); }; });
+  document.querySelectorAll("[data-rotina]").forEach(cb=>{ cb.onchange=()=>{ const id=cb.getAttribute("data-rotina"); const hoje=hojeISO();
+    if(state.rotinaFeita[id]===hoje) delete state.rotinaFeita[id]; else state.rotinaFeita[id]=hoje; save(); render(); }; });
+  document.querySelectorAll("[data-cat]").forEach(b=>{ b.onclick=()=>{ catInsumo=b.getAttribute("data-cat"); render(); }; });
+  const qi=document.getElementById("q-insumo");
+  if(qi){ qi.oninput=()=>{ qInsumo=qi.value; /* live filter without full redraw of input focus - debounce simple */ clearTimeout(qi._t); qi._t=setTimeout(()=>render(),200); };
+    setTimeout(()=>{ const el=document.getElementById("q-insumo"); if(el){ el.focus(); el.selectionStart=el.selectionEnd=el.value.length; } },0);
+  }
+  document.querySelectorAll("[data-edit]").forEach(b=>{ b.onclick=()=>{ openEdit(b.getAttribute("data-edit"), b.getAttribute("data-id")||null); }; });
+  document.querySelectorAll("[data-new]").forEach(b=>{ b.onclick=()=>{ openEdit("novo-"+b.getAttribute("data-new"), null); }; });
+  const dr=document.getElementById("drawer");
+  if(dr) dr.onclick=(e)=>{ if(e.target===dr) closeEdit(); };
 
-  const hoje = new Date().toISOString().split('T')[0];
+  const es=document.getElementById("e-save");
+  if(es) es.onclick=()=>{
+    if(edit.kind==="insumo"||edit.kind==="novo-insumo"){
+      const row={ nome:document.getElementById("e-nome").value.trim(), categoria:document.getElementById("e-cat").value,
+        tecnico:(document.getElementById("e-tec")&&document.getElementById("e-tec").value.trim())||"",
+        tipoDef:(document.getElementById("e-tipodef")&&document.getElementById("e-tipodef").value.trim())||"",
+        unidade:document.getElementById("e-un").value.trim()||"un", quantidade:Number(String(document.getElementById("e-qtd").value).replace(",",".")||0),
+        minimo:Number(String(document.getElementById("e-min").value).replace(",",".")||0) };
+      if(!row.nome){ toast("Informe o nome"); return; }
+      if(edit.kind==="insumo"){ state.insumos=state.insumos.map(x=>x.id===edit.id?{...x,...row}:x); }
+      else state.insumos.push({id:uid(),...row});
+      save(); toast("Insumo salvo"); closeEdit(); return;
+    }
+    if(edit.kind==="maquina"||edit.kind==="novo-maquina"){
+      const row={ nome:document.getElementById("e-nome").value.trim(), tipo:document.getElementById("e-tipo").value,
+        modelo:document.getElementById("e-mod").value.trim(), placa:document.getElementById("e-placa").value.trim(), status:document.getElementById("e-st").value };
+      if(!row.nome){ toast("Informe o nome"); return; }
+      if(edit.kind==="maquina") state.maquinas=state.maquinas.map(x=>x.id===edit.id?{...x,...row}:x);
+      else state.maquinas.push({id:uid(),...row});
+      save(); toast("Máquina salva"); closeEdit(); return;
+    }
+    if(edit.kind==="semente"||edit.kind==="novo-semente"){
+      if(!state.sementes) state.sementes=[];
+      const row={ cultivar:document.getElementById("e-cult").value, lote:document.getElementById("e-lote").value.trim(),
+        validade:document.getElementById("e-val").value||"", peso:document.getElementById("e-peso").value.trim(),
+        fornecedor:document.getElementById("e-forn").value.trim(), numero:document.getElementById("e-num").value.trim(),
+        pureza:document.getElementById("e-pur").value.trim(), germinacao:document.getElementById("e-ger").value.trim(),
+        obs:document.getElementById("e-obs").value.trim(), data: new Date().toLocaleString("pt-BR") };
+      if(edit.kind==="semente") state.sementes=state.sementes.map(x=>x.id===edit.id?{...x,...row}:x);
+      else state.sementes.push({id:uid(),...row});
+      save(); toast("Big bag registrado"); closeEdit(); return;
+    }
+    if(edit.kind==="pessoa"||edit.kind==="novo-pessoa"){
+      const row={ nome:document.getElementById("e-nome").value.trim(), funcao:document.getElementById("e-fun").value.trim(),
+        tipo:document.getElementById("e-tipo").value, nascimento:document.getElementById("e-nasc").value||null, admissao:document.getElementById("e-adm").value||null };
+      if(!row.nome){ toast("Informe o nome"); return; }
+      if(edit.kind==="pessoa") state.pessoas=state.pessoas.map(x=>x.id===edit.id?{...x,...row}:x);
+      else state.pessoas.push({id:uid(),...row});
+      save(); toast("Pessoa salva"); closeEdit(); return;
+    }
+  };
+  const ed=document.getElementById("e-del");
+  if(ed) ed.onclick=()=>{
+    if(!confirm("Excluir este registro?")) return;
+    if(edit.kind==="insumo") state.insumos=state.insumos.filter(x=>x.id!==edit.id);
+    if(edit.kind==="maquina") state.maquinas=state.maquinas.filter(x=>x.id!==edit.id);
+    if(edit.kind==="pessoa") state.pessoas=state.pessoas.filter(x=>x.id!==edit.id);
+    save(); toast("Excluído"); closeEdit();
+  };
+  const ef=document.getElementById("e-save-farm");
+  if(ef) ef.onclick=()=>{
+    state.farm.nome=document.getElementById("f-nome").value.trim()||state.farm.nome;
+    state.farm.municipio=document.getElementById("f-mun").value.trim()||state.farm.municipio;
+    state.farm.cargo=document.getElementById("f-cargo").value.trim()||state.farm.cargo;
+    state.farm.gerente=document.getElementById("f-ger").value.trim()||state.farm.gerente;
+    state.farm.safra=document.getElementById("f-safra").value.trim()||state.farm.safra;
+    save(); toast("Fazenda atualizada"); closeEdit();
+  };
+  const bn=document.getElementById("btn-notif");
+  if(bn) bn.onclick=()=>{ if(!("Notification" in window)){ toast("Sem suporte a notificação"); return; }
+    Notification.requestPermission().then(p=>{ if(p==="granted"){ toast("Avisos ativados"); new Notification("CampoGestor",{body:"Aniversários ativos"}); } else toast("Permissão negada"); }); };
 
-  openModal(`
-    <h3 style="margin-bottom:.5rem;">🔄 Movimentação Individual</h3>
-    <div class="muted" style="margin-bottom:1rem;">Produto: <strong>${ins.nome}</strong> (Ativo: ${ins.ativo})<br>Estoque Atual: ${ins.quantidade} ${ins.unidade}</div>
-    
-    <div class="field">
-      <label>Tipo de Operação</label>
-      <select id="m-tipo">
-        <option value="saida_aplicacao">➖ Saída: Aplicação em Talhão</option>
-        <option value="saida_transferencia">➖ Saída: Empréstimo / Transferência</option>
-        <option value="entrada_compra">➕ Entrada: Compra / Recebimento</option>
-        <option value="entrada_devolucao">➕ Entrada: Devolução / Ajuste</option>
-      </select>
-    </div>
-
-    <div class="field"><label>Quantidade (${ins.unidade})</label><input type="number" step="any" id="m-qtd" placeholder="0.00"></div>
-    <div class="field"><label>Data do Lançamento</label><input type="date" id="m-data" value="${hoje}"></div>
-    <div class="field">
-      <label>Talhão / Destino</label>
-      <select id="m-destino">
-        <option value="Geral / Outros">Geral / Outros</option>
-        ${state.talhoes.map(t => `<option value="Talhão ${t.nome}">Talhão ${t.nome} (${t.area} ha)</option>`).join('')}
-      </select>
-    </div>
-    <div class="field"><label>Responsável pelo Lançamento</label><input type="text" id="m-resp" value="${state.farm.cargo}"></div>
-    <div class="field"><label>Observações</label><textarea id="m-obs" rows="2" placeholder="Detalhes adicionais..."></textarea></div>
-
-    <div class="row" style="margin-top:1.25rem;">
-      <button class="btn block" onclick="closeModal()">Cancelar</button>
-      <button class="btn primary block" onclick="confirmarMovimentacao('${ins.id}')">Registrar</button>
-    </div>
-  `);
-}
-
-function confirmarMovimentacao(insumoId) {
-  const ins = state.insumos.find(x => x.id === insumoId);
-  const qtd = parseFloat(document.getElementById("m-qtd").value);
-  if (!qtd || qtd <= 0) return alert("Informe uma quantidade válida.");
-
-  const tipo = document.getElementById("m-tipo").value;
-  const isSaida = tipo.startsWith("saida");
-
-  if (isSaida) ins.quantidade -= qtd;
-  else ins.quantidade += qtd;
-
-  if (!state.historicoInsumos) state.historicoInsumos = [];
-  
-  state.historicoInsumos.unshift({
-    id: 'hist-' + Date.now(),
-    insumoId: ins.id,
-    insumoNome: ins.nome,
-    insumoAtivo: ins.ativo,
-    unidade: ins.unidade,
-    tipo: tipo,
-    quantidade: qtd,
-    data: document.getElementById("m-data").value,
-    destino: document.getElementById("m-destino").value,
-    statusApp: '✅ Concluído',
-    responsavel: document.getElementById("m-resp").value.trim() || 'Sistema',
-    obs: document.getElementById("m-obs").value.trim()
+  const bex=document.getElementById("btn-exp-folgas");
+  if(bex) bex.onclick=()=>{
+    const tipos={X:"Folga",P:"Plantão incêndio",F:"Falta",T:"Trabalhado",V:"Férias",E:"Encerrou"};
+    const rows=[["Data","Pessoa","Tipo","Codigo","Observacao"]];
+    (state.folgas||[]).forEach(f=>rows.push([f.data||"", f.pessoaNome||"", tipos[f.tipo]||f.tipo, f.tipo||"", f.obs||""]));
+    exportCSV("folgas-santa-rita.csv", rows);
+  };
+  const bep=document.getElementById("btn-exp-prot");
+  if(bep) bep.onclick=()=>{
+    const eq=state.equatorial||SEED.equatorial;
+    const rows=[["Data","Hora","UC","Protocolo","Ocorrencia","Local"]];
+    (eq.protocolos||[]).forEach(p=>rows.push([p.data||"",p.hora||"",p.uc||"",p.protocolo||"",p.hist||"",p.local||""]));
+    exportCSV("protocolos-equatorial.csv", rows);
+  };
+  document.querySelectorAll("[data-copy]").forEach(b=>{
+    b.onclick=async()=>{ try{ await navigator.clipboard.writeText(b.getAttribute("data-copy")); toast("UC copiada"); }catch(e){ toast(b.getAttribute("data-copy")); } };
   });
 
-  saveLocalState();
-  closeModal();
-  selectTab('insumos');
-  showToast("Movimentação registrada com sucesso!");
+
+  const bl=document.getElementById("btn-login");
+  if(bl) bl.onclick=async()=>{
+    const email=document.getElementById("auth-email").value.trim();
+    const pass=document.getElementById("auth-pass").value;
+    if(!email||!pass){ toast("Preencha e-mail e senha"); return; }
+    try{ await sbLogin(email, pass); toast("Login ok — dados sincronizados"); render(); }
+    catch(e){ toast(e.message||"Falha no login"); }
+  };
+  const bs=document.getElementById("btn-signup");
+  if(bs) bs.onclick=async()=>{
+    const email=document.getElementById("auth-email").value.trim();
+    const pass=document.getElementById("auth-pass").value;
+    if(!email||pass.length<6){ toast("Senha com pelo menos 6 caracteres"); return; }
+    try{
+      await sbSignup(email, pass);
+      try { await sbLogin(email, pass); toast("Conta criada e logada"); }
+      catch(e2){ toast("Conta criada — confirme o e-mail no Supabase ou tente Entrar"); }
+      render();
+    } catch(e){ toast(e.message||"Falha ao criar conta"); }
+  };
+  const bo=document.getElementById("btn-logout");
+  if(bo) bo.onclick=async()=>{ await sbLogout(); toast("Saiu da conta"); render(); };
+  const bp=document.getElementById("btn-push");
+  if(bp) bp.onclick=async()=>{ await pushCloud(); toast(cloudStatus==="synced"?"Salvo na nuvem":"Erro ao salvar"); render(); };
+  const bpull=document.getElementById("btn-pull");
+  if(bpull) bpull.onclick=async()=>{ const ok=await pullCloud(); toast(ok?"Dados da nuvem carregados":"Nada na nuvem ou erro"); render(); };
+
+  const br=document.getElementById("btn-reset");
+  if(br) br.onclick=()=>{ state=JSON.parse(JSON.stringify(SEED)); state.rotinaFeita={}; save(); toast("Dados restaurados"); render(); };
 }
 
-function filtrarInsumos() {
-  const query = document.getElementById("search-ins").value.toLowerCase();
-  document.querySelectorAll(".ins-item").forEach(item => {
-    item.style.display = item.innerText.toLowerCase().includes(query) ? "flex" : "none";
-  });
-}
-
-// --- MÓDULO TALHÕES ---
-function renderTalhoes() {
-  const totalArea = state.talhoes.reduce((acc, t) => acc + t.area, 0);
-  return `
-    <div class="card" style="margin-bottom:.5rem;">
-      <div class="muted">Área Total Agrícola Cadastrada: <strong>${totalArea.toLocaleString('pt-BR', {minimumFractionDigits: 2})} ha</strong></div>
-    </div>
-
-    <div class="sec">Relação de Talhões (Fazenda Santa Rita)</div>
-    <div class="card">
-      <ul class="list">
-        ${state.talhoes.map(t => `
-          <li>
-            <div class="item-main">
-              <div>
-                <strong>Talhão ${t.nome}</strong>
-                <div class="muted">Fazenda Santa Rita</div>
-              </div>
-              <div class="badge ok">${t.area.toLocaleString('pt-BR', {minimumFractionDigits: 2})} ha</div>
-            </div>
-          </li>
-        `).join('')}
-      </ul>
-    </div>
-  `;
-}
-
-function renderResumo() {
-  const operando = state.maquinas.filter(m => m.status === 'operando').length;
-  const diesel = state.insumos.find(i => i.codigo === "73") || { quantidade: 7400 };
-  const vencidos = state.insumos.filter(i => checarVencimento(i.vencimento).status === 'vencido').length;
-  const totalArea = state.talhoes.reduce((acc, t) => acc + t.area, 0);
-
-  return `
-    <div class="grid2">
-      <div class="stat"><div class="lbl">Área Agrícola</div><div class="val" style="color:var(--ok);">${totalArea.toLocaleString('pt-BR')} ha</div></div>
-      <div class="stat"><div class="lbl">Frota Operando</div><div class="val">${operando} / ${state.maquinas.length}</div></div>
-      <div class="stat"><div class="lbl">Estoque Diesel</div><div class="val" style="color:var(--warn);">${diesel.quantidade.toLocaleString('pt-BR')} L</div></div>
-      <div class="stat"><div class="lbl">Produtos Vencidos</div><div class="val" style="color:${vencidos > 0 ? 'var(--danger)' : 'var(--fg)'};">${vencidos} Alertas</div></div>
-    </div>
-    <div class="card">
-      <div class="card-title">Resumo do Sistema</div>
-      <p class="muted">Painel operacional da Fazenda Santa Rita atualizado com controle completo de inventário, equipe de colaboradores, ingredientes ativos e boletim de calda.</p>
-    </div>
-  `;
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-  selectTab('resumo');
-});
-
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js');
-}
+initAuth().then(()=>render()).catch(()=>render());
 </script>
 </body>
 </html>
