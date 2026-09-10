@@ -322,6 +322,7 @@ let page = "hoje";
 let menuOpen = false;
 let qInsumo = "";
 let catInsumo = "todos";
+let catMaq = "todos";
 let safraFiltro = "todos"; // todos | pendente | andamento | concluido
 let sortPessoas = "nome"; // nome | aniversario
 let folgaMes = (new Date().getFullYear()+"-"+String(new Date().getMonth()+1).padStart(2,"0"));
@@ -869,11 +870,21 @@ function render(){
   }
 
   if(page==="frota"){
-    html+=headerBar(`Máquinas · ${state.maquinas.length}`,"Frota",`<button class="btn primary sm" data-new="maquina">+ Nova</button>`);
+    const ordem=["trator","colheitadeira","plantadeira","pulverizador","distribuidor","veiculo","implemento","equipamento","maquina","outros"];
+    const presentes=new Set(state.maquinas.map(m=>m.tipo||"outros"));
+    const lista=state.maquinas.filter(m=>catMaq==="todos" || (m.tipo||"outros")===catMaq);
+    html+=headerBar(`Máquinas · ${lista.length}/${state.maquinas.length}`,"Frota",`<button class="btn primary sm" data-new="maquina">+ Nova</button>`);
     const dieselPct=Math.round((state.diesel.litros/state.diesel.capacidade)*100);
     html+=`<div class="card"><div class="row"><p class="card-title">Tanque de diesel</p><span class="muted">${dieselPct}%</span></div><div class="progress"><span style="width:${dieselPct}%"></span></div><p class="muted" style="margin-top:.5rem">${n(state.diesel.litros,0)} L de ${n(state.diesel.capacidade,0)} L</p></div>`;
+    html+=`<div class="chips"><button class="chip ${catMaq==="todos"?"on":""}" data-cat-maq="todos">Todos</button>`;
+    ordem.filter(t=>presentes.has(t)).forEach(t=>{
+      const q=state.maquinas.filter(m=>(m.tipo||"outros")===t).length;
+      html+=`<button class="chip ${catMaq===t?"on":""}" data-cat-maq="${t}">${TIPO_MAQ[t]||t} (${q})</button>`;
+    });
+    html+=`</div>`;
     html+=`<ul class="list card" style="padding:.25rem 1rem">`;
-    state.maquinas.forEach(m=>{
+    if(!lista.length) html+=`<li class="muted">Nenhuma máquina nesta categoria.</li>`;
+    lista.forEach(m=>{
       const tone=m.status==="operando"?"ok":m.status==="manutencao"?"warn":"muted";
       const label=m.status==="operando"?"Operando":m.status==="manutencao"?"Manutenção":"Parada";
       html+=`<li><div style="flex:1"><div style="font-weight:500">${esc(m.nome)}</div><div class="muted">${m.codigo?("Cód. "+esc(m.codigo)+" · "):""}${TIPO_MAQ[m.tipo]||m.tipo} · ${esc(m.modelo)}${m.placa && m.placa!==m.codigo?" · "+esc(m.placa):""}</div></div>
@@ -1352,6 +1363,7 @@ function bind(){
   document.querySelectorAll("[data-rotina]").forEach(cb=>{ cb.onchange=()=>{ const id=cb.getAttribute("data-rotina"); const hoje=hojeISO();
     if(state.rotinaFeita[id]===hoje) delete state.rotinaFeita[id]; else state.rotinaFeita[id]=hoje; save(); render(); }; });
   document.querySelectorAll("[data-cat]").forEach(b=>{ b.onclick=()=>{ catInsumo=b.getAttribute("data-cat"); render(); }; });
+  document.querySelectorAll("[data-cat-maq]").forEach(b=>{ b.onclick=()=>{ catMaq=b.getAttribute("data-cat-maq"); render(); }; });
   const qi=document.getElementById("q-insumo");
   if(qi){ qi.oninput=()=>{ qInsumo=qi.value; /* live filter without full redraw of input focus - debounce simple */ clearTimeout(qi._t); qi._t=setTimeout(()=>render(),200); };
     setTimeout(()=>{ const el=document.getElementById("q-insumo"); if(el){ el.focus(); el.selectionStart=el.selectionEnd=el.value.length; } },0);
