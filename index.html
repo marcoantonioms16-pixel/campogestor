@@ -372,7 +372,7 @@ function rotinaHoje(ref){
 function headerBar(kicker, title, rightHtml=""){
   return `<header class="header">
     <button type="button" class="menu-btn" id="btn-menu" aria-label="Menu">☰</button>
-    <div style="flex:1;min-width:0"><p class="kicker">${kicker}</p><h1>${title}</h1></div>
+    <div style="flex:1;min-width:0">${kicker?`<p class="kicker">${kicker}</p>`:""}<h1>${title}</h1></div>
     ${rightHtml||""}
   </header>`;
 }
@@ -991,7 +991,7 @@ function render(){
     const ultimaChuva = chuvaLista[0];
     const sol=temaAtual()==="sol";
     html+=headerBar(
-      `${esc(state.farm.cargo)} · <span id="cloud-status">${cloudLabel()}</span>`,
+      "",
       esc(state.farm.nome),
       `<button class="btn sm" id="btn-tema">${sol?"☀ Sol":"☾ Sombra"}</button>`
     );
