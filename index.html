@@ -81,9 +81,9 @@ h1,h2,h3{font-family:var(--display);font-weight:500;margin:0}
 <body>
 <div class="app" id="app"></div>
 <script>
-const SEED = {"farm": {"nome": "Fazenda Santa Rita", "municipio": "Grupo Segredo", "cargo": "Auxiliar administrativo", "safra": "2026/27", "areaTotal": 1581.13, "gerente": "Célio Carlos Canedo Júnior"}, "diesel": {"capacidade": 15000, "litros": 7400}, "rotinaFeita": {}, "sementes": [], "maquinas": [{"id": "mq-1", "nome": "Trator Case Steiger 450", "tipo": "trator", "modelo": "Steiger 450 (2016)", "status": "operando", "placa": "2404"}, {"id": "mq-2", "nome": "Trator Valtra BH194", "tipo": "trator", "modelo": "BH194 (2018)", "status": "operando", "placa": "2411"}, {"id": "mq-3", "nome": "Trator Valtra BH194", "tipo": "trator", "modelo": "BH194 (2018)", "status": "operando", "placa": "2412"}, {"id": "mq-4", "nome": "Trator Valtra BH194", "tipo": "trator", "modelo": "BH194 (2018)", "status": "operando", "placa": "2413"}, {"id": "mq-5", "nome": "Trator Valtra BH194", "tipo": "trator", "modelo": "BH194 (2018)", "status": "operando", "placa": "2414"}, {"id": "mq-6", "nome": "Trator Valtra BH194", "tipo": "trator", "modelo": "BH194 (2018)", "status": "operando", "placa": "2415"}, {"id": "mq-7", "nome": "Colheitadeira Case 9230", "tipo": "colheitadeira", "modelo": "Axial-Flow 9230 (2018)", "status": "parada", "placa": "0707"}, {"id": "mq-8", "nome": "Colheitadeira Case 9230", "tipo": "colheitadeira", "modelo": "Axial-Flow 9230 (2018)", "status": "parada", "placa": "0708"}, {"id": "mq-9", "nome": "Colheitadeira Case 9230", "tipo": "colheitadeira", "modelo": "Axial-Flow 9230 (2018)", "status": "parada", "placa": "0709"}, {"id": "mq-10", "nome": "Plantadeira John Deere DB50", "tipo": "plantadeira", "modelo": "DB 50 - 31 linhas (2016)", "status": "operando", "placa": "1603"}, {"id": "mq-11", "nome": "Plantadeira John Deere DB74", "tipo": "plantadeira", "modelo": "DB 74 - 45 linhas (2014)", "status": "operando", "placa": "1602"}, {"id": "mq-12", "nome": "Pulverizador Stara Imperador", "tipo": "pulverizador", "modelo": "Imperador (2016)", "status": "operando", "placa": "1903"}, {"id": "mq-13", "nome": "Caminhão Ford Cargo 2422", "tipo": "caminhao", "modelo": "Cargo 2422 (2011)", "status": "operando", "placa": "OGX6650"}, {"id": "mq-14", "nome": "Caminhão Volvo FH 420", "tipo": "caminhao", "modelo": "FH 12 420 4X2T (2006)", "status": "operando", "placa": "CNR7396"}, {"id": "mq-15", "nome": "Caminhão Ford Cargo 1932", "tipo": "caminhao", "modelo": "Cargo 1932 (2011/12)", "status": "operando", "placa": "OGM1930"}, {"id": "mq-16", "nome": "Distribuidor Stara Super Bruttus", "tipo": "outros", "modelo": "Super Bruttus (2018)", "status": "operando", "placa": "0803"}, {"id": "mq-17", "nome": "Distribuidor Stara Hercules 6.0", "tipo": "outros", "modelo": "Hercules 6.0 (2016)", "status": "operando", "placa": "0802"}], "insumos": [{"id": "in-01", "nome": "2,4-D Tecnomyl", "categoria": "defensivo", "unidade": "L", "quantidade": 900, "minimo": 100, "tecnico": "2,4-D", "tipoDef": "Herbicida"}, {"id": "in-02", "nome": "Almax", "categoria": "defensivo", "unidade": "L", "quantidade": 38, "minimo": 10, "tecnico": "Adjuvante (óleo/surfactante)", "tipoDef": "Adjuvante"}, {"id": "in-03", "nome": "Aproch Power", "categoria": "defensivo", "unidade": "L", "quantidade": 262, "minimo": 50, "tecnico": "Herbicida sistêmico (verificar rótulo)", "tipoDef": "Herbicida"}, {"id": "in-04", "nome": "TA35 Ultra", "categoria": "defensivo", "unidade": "L", "quantidade": 480, "minimo": 50, "tecnico": "Adjuvante / espalhante", "tipoDef": "Adjuvante"}, {"id": "in-05", "nome": "Aurora", "categoria": "defensivo", "unidade": "L", "quantidade": 104.8, "minimo": 20, "tecnico": "Carfentrazone-etílico (confirmar rótulo)", "tipoDef": "Herbicida"}, {"id": "in-06", "nome": "Azimut", "categoria": "defensivo", "unidade": "L", "quantidade": 205, "minimo": 30, "tecnico": "Tebuconazol (confirmar rótulo)", "tipoDef": "Fungicida"}, {"id": "in-07", "nome": "Azure", "categoria": "defensivo", "unidade": "L", "quantidade": 322.5, "minimo": 50, "tecnico": "Fungicida (confirmar rótulo)", "tipoDef": "Fungicida"}, {"id": "in-08", "nome": "Biomax Azum", "categoria": "outros", "unidade": "L", "quantidade": 21.6, "minimo": 10, "tecnico": "Inoculante / biológico", "tipoDef": "Biológico"}, {"id": "in-09", "nome": "Calaris", "categoria": "defensivo", "unidade": "L", "quantidade": 30, "minimo": 10, "tecnico": "Mesotriona + terbutilazina", "tipoDef": "Herbicida"}, {"id": "in-10", "nome": "Calcário", "categoria": "fertilizante", "unidade": "kg", "quantidade": 575400, "minimo": 100000, "tecnico": "Carbonato de cálcio / magnésio", "tipoDef": "Corretivo"}, {"id": "in-11", "nome": "Carnadine", "categoria": "defensivo", "unidade": "L", "quantidade": 76.5, "minimo": 15, "tecnico": "Inseticida (confirmar rótulo)", "tipoDef": "Inseticida"}, {"id": "in-12", "nome": "Cloreto de potássio (KCl)", "categoria": "fertilizante", "unidade": "bags", "quantidade": 233, "minimo": 50, "tecnico": "KCl", "tipoDef": "Fertilizante"}, {"id": "in-13", "nome": "Clorfenapin", "categoria": "defensivo", "unidade": "L", "quantidade": 342, "minimo": 50, "tecnico": "Clorfenapir", "tipoDef": "Inseticida"}, {"id": "in-14", "nome": "Concentrat Fix", "categoria": "defensivo", "unidade": "L", "quantidade": 348, "minimo": 50, "tecnico": "Adjuvante concentrado", "tipoDef": "Adjuvante"}, {"id": "in-15", "nome": "Concorde", "categoria": "defensivo", "unidade": "L", "quantidade": 28.6, "minimo": 10, "tecnico": "Defensivo (confirmar rótulo)", "tipoDef": "Defensivo"}, {"id": "in-16", "nome": "Connect", "categoria": "defensivo", "unidade": "L", "quantidade": 15.2, "minimo": 5, "tecnico": "Imidacloprido + beta-ciflutrina", "tipoDef": "Inseticida"}, {"id": "in-17", "nome": "Curbix", "categoria": "defensivo", "unidade": "L", "quantidade": 1324, "minimo": 200, "tecnico": "Herbicida (confirmar rótulo)", "tipoDef": "Herbicida"}, {"id": "in-18", "nome": "Cyptrin", "categoria": "defensivo", "unidade": "L", "quantidade": 7, "minimo": 5, "tecnico": "Cipermetrina", "tipoDef": "Inseticida"}, {"id": "in-19", "nome": "Extravon", "categoria": "defensivo", "unidade": "L", "quantidade": 280, "minimo": 40, "tecnico": "Adjuvante não iônico", "tipoDef": "Adjuvante"}, {"id": "in-20", "nome": "Forspray", "categoria": "defensivo", "unidade": "L", "quantidade": 26, "minimo": 10, "tecnico": "Adjuvante / antideriva", "tipoDef": "Adjuvante"}, {"id": "in-21", "nome": "Grasidim", "categoria": "defensivo", "unidade": "L", "quantidade": 920, "minimo": 100, "tecnico": "Cletodim (confirmar rótulo)", "tipoDef": "Herbicida"}, {"id": "in-22", "nome": "Glufos Wyn 880", "categoria": "defensivo", "unidade": "kg", "quantidade": 780, "minimo": 100, "tecnico": "Glufosinato de amônio", "tipoDef": "Herbicida"}, {"id": "in-23", "nome": "Intrepid", "categoria": "defensivo", "unidade": "L", "quantidade": 122, "minimo": 20, "tecnico": "Metoxifenozida", "tipoDef": "Inseticida"}, {"id": "in-24", "nome": "MAP purificado", "categoria": "fertilizante", "unidade": "kg", "quantidade": 616, "minimo": 200, "tecnico": "Fosfato monoamônico (MAP)", "tipoDef": "Fertilizante"}, {"id": "in-25", "nome": "Master", "categoria": "defensivo", "unidade": "L", "quantidade": 10, "minimo": 5, "tecnico": "Defensivo (confirmar rótulo)", "tipoDef": "Defensivo"}, {"id": "in-26", "nome": "Meta Muvi Sólido", "categoria": "defensivo", "unidade": "kg", "quantidade": 243, "minimo": 50, "tecnico": "Metomil (confirmar rótulo)", "tipoDef": "Inseticida"}, {"id": "in-27", "nome": "NHT Manganês", "categoria": "fertilizante", "unidade": "L", "quantidade": 93, "minimo": 20, "tecnico": "Sulfato / quelato de manganês", "tipoDef": "Fertilizante"}, {"id": "in-28", "nome": "NHT Zinco", "categoria": "fertilizante", "unidade": "L", "quantidade": 7.7, "minimo": 5, "tecnico": "Sulfato / quelato de zinco", "tipoDef": "Fertilizante"}, {"id": "in-29", "nome": "Nimaxxa", "categoria": "defensivo", "unidade": "L", "quantidade": 8, "minimo": 5, "tecnico": "Biológico (UPL)", "tipoDef": "Biológico"}, {"id": "in-30", "nome": "Óleo mineral Du Fol (adjuvante)", "categoria": "defensivo", "unidade": "L", "quantidade": 75, "minimo": 20, "tecnico": "Óleo mineral", "tipoDef": "Adjuvante"}, {"id": "in-31", "nome": "Poli Flex", "categoria": "defensivo", "unidade": "L", "quantidade": 76.5, "minimo": 15, "tecnico": "Adjuvante polimérico", "tipoDef": "Adjuvante"}, {"id": "in-32", "nome": "Primóleo", "categoria": "defensivo", "unidade": "L", "quantidade": 97, "minimo": 20, "tecnico": "Óleo / adjuvante", "tipoDef": "Adjuvante"}, {"id": "in-33", "nome": "Select", "categoria": "defensivo", "unidade": "L", "quantidade": 200, "minimo": 50, "tecnico": "Cletodim", "tipoDef": "Herbicida"}, {"id": "in-34", "nome": "Silkon", "categoria": "defensivo", "unidade": "L", "quantidade": 266.9, "minimo": 40, "tecnico": "Organossilicone", "tipoDef": "Adjuvante"}, {"id": "in-35", "nome": "Soldier", "categoria": "defensivo", "unidade": "kg", "quantidade": 7784.5, "minimo": 500, "tecnico": "Inseticida / fungicida (confirmar rótulo)", "tipoDef": "Defensivo"}, {"id": "in-36", "nome": "Sulfato de magnésio", "categoria": "fertilizante", "unidade": "kg", "quantidade": 2041, "minimo": 300, "tecnico": "MgSO4", "tipoDef": "Fertilizante"}, {"id": "in-37", "nome": "Super simples", "categoria": "fertilizante", "unidade": "kg", "quantidade": 7010, "minimo": 1000, "tecnico": "Superfosfato simples (SSP)", "tipoDef": "Fertilizante"}, {"id": "in-38", "nome": "Yonon", "categoria": "defensivo", "unidade": "L", "quantidade": 3, "minimo": 2, "tecnico": "Defensivo (confirmar rótulo)", "tipoDef": "Defensivo"}, {"id": "in-39", "nome": "Assist EC", "categoria": "defensivo", "unidade": "L", "quantidade": 640, "minimo": 80, "tecnico": "Óleo mineral EC", "tipoDef": "Adjuvante"}, {"id": "in-40", "nome": "Nitrato de potássio", "categoria": "fertilizante", "unidade": "kg", "quantidade": 6000, "minimo": 500, "tecnico": "KNO3", "tipoDef": "Fertilizante"}, {"id": "in-41", "nome": "Zethamaxx", "categoria": "defensivo", "unidade": "L", "quantidade": 152.5, "minimo": 30, "tecnico": "Herbicida (confirmar rótulo)", "tipoDef": "Herbicida"}, {"id": "in-42", "nome": "Diesel S500", "categoria": "combustivel", "unidade": "L", "quantidade": 7400, "minimo": 3000, "tecnico": "Óleo diesel S500", "tipoDef": "Combustível"}, {"id": "in-43", "nome": "Diesel S10", "categoria": "combustivel", "unidade": "L", "quantidade": 0, "minimo": 2000, "tecnico": "Óleo diesel S10", "tipoDef": "Combustível"}], "pessoas": [{"id": "ps-1", "nome": "Sebastião Claudionor Rezende", "tipo": "efetivo", "funcao": "Motorista", "nascimento": "1972-01-20", "admissao": "2024-09-01"}, {"id": "ps-2", "nome": "Jeferson Luiz Botin", "tipo": "efetivo", "funcao": "Operador de máquinas", "nascimento": "1993-01-25", "admissao": "2026-06-03"}, {"id": "ps-3", "nome": "Genilton Gustavo de Oliveira", "tipo": "efetivo", "funcao": "Op. de máquinas agrícola Jr", "nascimento": "2007-04-13", "admissao": "2026-02-06"}, {"id": "ps-4", "nome": "João Pedro Vieira Almeida", "tipo": "efetivo", "funcao": "Op. de máq. agrícola Jr", "nascimento": "2008-04-28", "admissao": "2026-06-15"}, {"id": "ps-5", "nome": "Andressa Leal Ferreira", "tipo": "efetivo", "funcao": "Cozinheira rural", "nascimento": "1995-05-07", "admissao": "2026-06-22"}, {"id": "ps-6", "nome": "Leandro Alves Moraes de Souza", "tipo": "efetivo", "funcao": "Op. de máquinas agrícola", "nascimento": "2003-05-15", "admissao": "2026-04-29"}, {"id": "ps-7", "nome": "Célio Carlos Canedo Júnior", "tipo": "efetivo", "funcao": "Gerente agropecuário", "nascimento": "1994-06-25", "admissao": "2025-04-01"}, {"id": "ps-8", "nome": "Dilmar Alves Kayser", "tipo": "efetivo", "funcao": "Op. de máq. agrícola Jr", "nascimento": "2003-10-11", "admissao": "2026-02-07"}, {"id": "ps-9", "nome": "Gabriel Pereira de Faria", "tipo": "efetivo", "funcao": "Op. de máquinas agrícola", "nascimento": "2003-10-16", "admissao": "2026-01-29"}, {"id": "ps-10", "nome": "Marcos Antonio da Silva Morais", "tipo": "efetivo", "funcao": "Auxiliar administrativo", "nascimento": "1993-11-06", "admissao": "2026-02-23"}, {"id": "ps-11", "nome": "José Adão Cardoso", "tipo": "efetivo", "funcao": "Trab. agropecuário em geral", "nascimento": "1973-12-25", "admissao": "2024-09-01"}, {"id": "ps-12", "nome": "Cesar Bonifacio de Almeida", "tipo": "efetivo", "funcao": "Colaborador", "nascimento": null, "admissao": null}], "talhoes": [{"id": "tl-1", "codigo": "ENT", "nome": "Entrada", "area": 91.35, "cultura": "soja", "variedade": "Raptor I2X", "estagio": "planejado", "fazenda": "santa-rita"}, {"id": "tl-2", "codigo": "JAI", "nome": "Jaime", "area": 132.0, "cultura": "soja", "variedade": "Raptor I2X", "estagio": "planejado", "fazenda": "santa-rita"}, {"id": "tl-3", "codigo": "DUI", "nome": "Duilio", "area": 136.67, "cultura": "soja", "variedade": "Raptor I2X", "estagio": "planejado", "fazenda": "santa-rita"}, {"id": "tl-4", "codigo": "MAT", "nome": "Mato", "area": 12.88, "cultura": "soja", "variedade": "—", "estagio": "planejado", "fazenda": "santa-rita"}, {"id": "tl-5", "codigo": "SED", "nome": "Sede", "area": 109.13, "cultura": "soja", "variedade": "DM 72IX74 I2X", "estagio": "planejado", "fazenda": "santa-rita"}, {"id": "tl-6", "codigo": "PTP", "nome": "Pista Tapera", "area": 130.14, "cultura": "soja", "variedade": "DM 72IX74 I2X", "estagio": "planejado", "fazenda": "santa-rita"}, {"id": "tl-7", "codigo": "TAP", "nome": "Tapera", "area": 94.76, "cultura": "soja", "variedade": "NEO700 I2X", "estagio": "planejado", "fazenda": "santa-rita"}, {"id": "tl-8", "codigo": "LUI", "nome": "Luizinho", "area": 153.13, "cultura": "soja", "variedade": "NEO700 I2X", "estagio": "planejado", "fazenda": "santa-rita"}, {"id": "tl-9", "codigo": "AMA", "nome": "Amargoso", "area": 102.33, "cultura": "soja", "variedade": "76KA72 CE", "estagio": "planejado", "fazenda": "santa-rita"}, {"id": "tl-10", "codigo": "110", "nome": "110", "area": 109.0, "cultura": "soja", "variedade": "76KA72 CE", "estagio": "planejado", "fazenda": "santa-rita"}, {"id": "tl-11", "codigo": "190", "nome": "190", "area": 186.36, "cultura": "soja", "variedade": "76KA72 CE", "estagio": "planejado", "fazenda": "santa-rita"}, {"id": "tl-12", "codigo": "CAS", "nome": "Cascalheira", "area": 59.38, "cultura": "soja", "variedade": "ST 752 I2X", "estagio": "planejado", "fazenda": "campo-alegre"}, {"id": "tl-13", "codigo": "PV1", "nome": "Pivô 1", "area": 112.0, "cultura": "soja", "variedade": "NEO761 I2X", "estagio": "planejado", "fazenda": "campo-alegre"}, {"id": "tl-14", "codigo": "PV2", "nome": "Pivô 2", "area": 152.0, "cultura": "soja", "variedade": "NEO761 I2X", "estagio": "planejado", "fazenda": "campo-alegre"}], "equatorial": {"telefone": "0800-620-196", "ucs": [{"desc": "Faz Campo Alegre Paraúna (demanda 386)", "unid": "SANTA RITA", "uc": "980045368", "titular": "Paulo"}, {"desc": "ENEL Faz Campo Alegre (casa piscina)", "unid": "SANTA RITA", "uc": "980045940", "titular": "Paulo"}, {"desc": "Faz Campo Alegre (Sede, Alojamento, Célio)", "unid": "SANTA RITA", "uc": "10026027184", "titular": "Adriano"}, {"desc": "ENEL Faz Formoso (sem consumo)", "unid": "SANTA RITA", "uc": "980051009", "titular": "Jamil"}, {"desc": "ENEL Faz Pouso Alegre", "unid": "SANTA RITA", "uc": "980046051", "titular": "Jayme"}, {"desc": "ENEL Escritório", "unid": "ESCRITÓRIO", "uc": "630127864", "titular": "Adriano"}, {"desc": "ENEL Faz Segredo (demanda 150)", "unid": "SEGREDO", "uc": "630244492", "titular": "Adriano"}, {"desc": "ENEL Faz Monte Alegre (inativa)", "unid": "SEGREDO", "uc": "630490405", "titular": "Ari"}, {"desc": "ENEL Faz Santa Rita (inativa)", "unid": "SANTA RITA", "uc": "980045617", "titular": "Paulo"}, {"desc": "ENEL Faz Ken Tuch (Divino)", "unid": "KEN TUCH", "uc": "10014619499", "titular": "Paulo"}], "protocolos": [{"data": "2026-03-23", "hora": "07:26", "uc": "10026027184", "protocolo": "476513825", "hist": "Falta de energia", "local": "SANTA RITA"}, {"data": "2026-03-23", "hora": "09:33", "uc": "10026027184", "protocolo": "476544256", "hist": "Falta de energia", "local": "SANTA RITA"}, {"data": "2026-04-15", "hora": "08:11", "uc": "980046051", "protocolo": "480215339", "hist": "Falta de energia", "local": "POUSO ALEGRE"}, {"data": "2026-04-22", "hora": "09:51", "uc": "10026027184", "protocolo": "481135486", "hist": "Falta de energia", "local": "SANTA RITA"}, {"data": "2026-05-19", "hora": "07:35", "uc": "10026027184", "protocolo": "485573798", "hist": "Falta de energia", "local": "SANTA RITA"}, {"data": "2026-05-19", "hora": "20:30", "uc": "10026027184", "protocolo": "48575720", "hist": "Falta de energia", "local": "SANTA RITA"}, {"data": "2026-05-20", "hora": "07:27", "uc": "10026027184", "protocolo": "485780385", "hist": "Falta de energia", "local": "SANTA RITA"}, {"data": "2026-07-10", "hora": "07:00", "uc": "10026027184", "protocolo": "493018848", "hist": "Falta de energia", "local": "SANTA RITA"}, {"data": "2026-07-21", "hora": "00:00", "uc": "10026027184", "protocolo": "494397090", "hist": "Falta de energia", "local": "SANTA RITA"}, {"data": "2026-07-27", "hora": "08:43", "uc": "10026027184", "protocolo": "495090858", "hist": "Falta de energia", "local": "SANTA RITA"}, {"data": "2026-07-27", "hora": "19:22", "uc": "10026027184", "protocolo": "495232772", "hist": "Falta de energia", "local": "SANTA RITA"}, {"data": "2026-07-28", "hora": "09:45", "uc": "10026027184", "protocolo": "495292116", "hist": "Falta de energia", "local": "SANTA RITA"}, {"data": "2026-08-05", "hora": "09:50", "uc": "10026027184", "protocolo": "496390441", "hist": "Falta de energia", "local": "SANTA RITA"}, {"data": "2026-08-10", "hora": "07:13", "uc": "10026027184", "protocolo": "499679147", "hist": "Falta de energia", "local": "SANTA RITA"}, {"data": "2026-08-10", "hora": "14:42", "uc": "10026027184", "protocolo": "497092477", "hist": "Falta de energia", "local": "SANTA RITA"}, {"data": "2026-08-19", "hora": "07:15", "uc": "980046051", "protocolo": "498250408", "hist": "Falta de energia", "local": "POUSO ALEGRE"}, {"data": "2026-08-19", "hora": "09:41", "uc": "10026027184", "protocolo": "498274640", "hist": "Falta de energia", "local": "SANTA RITA"}]}, "folgas": []};
+const SEED = {"farm": {"nome": "Fazenda Santa Rita", "municipio": "Grupo Segredo", "cargo": "Auxiliar administrativo", "safra": "2026/27", "areaTotal": 1581.13, "gerente": "Célio Carlos Canedo Júnior"}, "diesel": {"capacidade": 15000, "litros": 7400}, "rotinaFeita": {}, "sementes": [], "maquinas": [{"id": "mq-1", "nome": "Trator Case Steiger 450", "tipo": "trator", "modelo": "Steiger 450 (2016)", "status": "operando", "placa": "2404"}, {"id": "mq-2", "nome": "Trator Valtra BH194", "tipo": "trator", "modelo": "BH194 (2018)", "status": "operando", "placa": "2411"}, {"id": "mq-3", "nome": "Trator Valtra BH194", "tipo": "trator", "modelo": "BH194 (2018)", "status": "operando", "placa": "2412"}, {"id": "mq-4", "nome": "Trator Valtra BH194", "tipo": "trator", "modelo": "BH194 (2018)", "status": "operando", "placa": "2413"}, {"id": "mq-5", "nome": "Trator Valtra BH194", "tipo": "trator", "modelo": "BH194 (2018)", "status": "operando", "placa": "2414"}, {"id": "mq-6", "nome": "Trator Valtra BH194", "tipo": "trator", "modelo": "BH194 (2018)", "status": "operando", "placa": "2415"}, {"id": "mq-7", "nome": "Colheitadeira Case 9230", "tipo": "colheitadeira", "modelo": "Axial-Flow 9230 (2018)", "status": "parada", "placa": "0707"}, {"id": "mq-8", "nome": "Colheitadeira Case 9230", "tipo": "colheitadeira", "modelo": "Axial-Flow 9230 (2018)", "status": "parada", "placa": "0708"}, {"id": "mq-9", "nome": "Colheitadeira Case 9230", "tipo": "colheitadeira", "modelo": "Axial-Flow 9230 (2018)", "status": "parada", "placa": "0709"}, {"id": "mq-10", "nome": "Plantadeira John Deere DB50", "tipo": "plantadeira", "modelo": "DB 50 - 31 linhas (2016)", "status": "operando", "placa": "1603"}, {"id": "mq-11", "nome": "Plantadeira John Deere DB74", "tipo": "plantadeira", "modelo": "DB 74 - 45 linhas (2014)", "status": "operando", "placa": "1602"}, {"id": "mq-12", "nome": "Pulverizador Stara Imperador", "tipo": "pulverizador", "modelo": "Imperador (2016)", "status": "operando", "placa": "1903"}, {"id": "mq-13", "nome": "Caminhão Ford Cargo 2422", "tipo": "caminhao", "modelo": "Cargo 2422 (2011)", "status": "operando", "placa": "OGX6650"}, {"id": "mq-14", "nome": "Caminhão Volvo FH 420", "tipo": "caminhao", "modelo": "FH 12 420 4X2T (2006)", "status": "operando", "placa": "CNR7396"}, {"id": "mq-15", "nome": "Caminhão Ford Cargo 1932", "tipo": "caminhao", "modelo": "Cargo 1932 (2011/12)", "status": "operando", "placa": "OGM1930"}, {"id": "mq-16", "nome": "Distribuidor Stara Super Bruttus", "tipo": "outros", "modelo": "Super Bruttus (2018)", "status": "operando", "placa": "0803"}, {"id": "mq-17", "nome": "Distribuidor Stara Hercules 6.0", "tipo": "outros", "modelo": "Hercules 6.0 (2016)", "status": "operando", "placa": "0802"}], "insumos": [{"id": "in-01", "nome": "2,4-D Tecnomyl", "categoria": "defensivo", "unidade": "L", "quantidade": 900, "minimo": 100, "tecnico": "2,4-D", "tipoDef": "Herbicida"}, {"id": "in-02", "nome": "Almax", "categoria": "defensivo", "unidade": "L", "quantidade": 38, "minimo": 10, "tecnico": "Adjuvante (óleo/surfactante)", "tipoDef": "Adjuvante"}, {"id": "in-03", "nome": "Aproch Power", "categoria": "defensivo", "unidade": "L", "quantidade": 262, "minimo": 50, "tecnico": "Herbicida sistêmico (verificar rótulo)", "tipoDef": "Herbicida"}, {"id": "in-04", "nome": "TA35 Ultra", "categoria": "defensivo", "unidade": "L", "quantidade": 480, "minimo": 50, "tecnico": "Adjuvante / espalhante", "tipoDef": "Adjuvante"}, {"id": "in-05", "nome": "Aurora", "categoria": "defensivo", "unidade": "L", "quantidade": 104.8, "minimo": 20, "tecnico": "Carfentrazone-etílico (confirmar rótulo)", "tipoDef": "Herbicida"}, {"id": "in-06", "nome": "Azimut", "categoria": "defensivo", "unidade": "L", "quantidade": 205, "minimo": 30, "tecnico": "Tebuconazol (confirmar rótulo)", "tipoDef": "Fungicida"}, {"id": "in-07", "nome": "Azure", "categoria": "defensivo", "unidade": "L", "quantidade": 322.5, "minimo": 50, "tecnico": "Fungicida (confirmar rótulo)", "tipoDef": "Fungicida"}, {"id": "in-08", "nome": "Biomax Azum", "categoria": "outros", "unidade": "L", "quantidade": 21.6, "minimo": 10, "tecnico": "Inoculante / biológico", "tipoDef": "Biológico"}, {"id": "in-09", "nome": "Calaris", "categoria": "defensivo", "unidade": "L", "quantidade": 30, "minimo": 10, "tecnico": "Mesotriona + terbutilazina", "tipoDef": "Herbicida"}, {"id": "in-10", "nome": "Calcário", "categoria": "fertilizante", "unidade": "kg", "quantidade": 575400, "minimo": 100000, "tecnico": "Carbonato de cálcio / magnésio", "tipoDef": "Corretivo"}, {"id": "in-11", "nome": "Carnadine", "categoria": "defensivo", "unidade": "L", "quantidade": 76.5, "minimo": 15, "tecnico": "Inseticida (confirmar rótulo)", "tipoDef": "Inseticida"}, {"id": "in-12", "nome": "Cloreto de potássio (KCl)", "categoria": "fertilizante", "unidade": "bags", "quantidade": 233, "minimo": 50, "tecnico": "KCl", "tipoDef": "Fertilizante"}, {"id": "in-13", "nome": "Clorfenapin", "categoria": "defensivo", "unidade": "L", "quantidade": 342, "minimo": 50, "tecnico": "Clorfenapir", "tipoDef": "Inseticida"}, {"id": "in-14", "nome": "Concentrat Fix", "categoria": "defensivo", "unidade": "L", "quantidade": 348, "minimo": 50, "tecnico": "Adjuvante concentrado", "tipoDef": "Adjuvante"}, {"id": "in-15", "nome": "Concorde", "categoria": "defensivo", "unidade": "L", "quantidade": 28.6, "minimo": 10, "tecnico": "Defensivo (confirmar rótulo)", "tipoDef": "Defensivo"}, {"id": "in-16", "nome": "Connect", "categoria": "defensivo", "unidade": "L", "quantidade": 15.2, "minimo": 5, "tecnico": "Imidacloprido + beta-ciflutrina", "tipoDef": "Inseticida"}, {"id": "in-17", "nome": "Curbix", "categoria": "defensivo", "unidade": "L", "quantidade": 1324, "minimo": 200, "tecnico": "Herbicida (confirmar rótulo)", "tipoDef": "Herbicida"}, {"id": "in-18", "nome": "Cyptrin", "categoria": "defensivo", "unidade": "L", "quantidade": 7, "minimo": 5, "tecnico": "Cipermetrina", "tipoDef": "Inseticida"}, {"id": "in-19", "nome": "Extravon", "categoria": "defensivo", "unidade": "L", "quantidade": 280, "minimo": 40, "tecnico": "Adjuvante não iônico", "tipoDef": "Adjuvante"}, {"id": "in-20", "nome": "Forspray", "categoria": "defensivo", "unidade": "L", "quantidade": 26, "minimo": 10, "tecnico": "Adjuvante / antideriva", "tipoDef": "Adjuvante"}, {"id": "in-21", "nome": "Grasidim", "categoria": "defensivo", "unidade": "L", "quantidade": 920, "minimo": 100, "tecnico": "Cletodim (confirmar rótulo)", "tipoDef": "Herbicida"}, {"id": "in-22", "nome": "Glufos Wyn 880", "categoria": "defensivo", "unidade": "kg", "quantidade": 780, "minimo": 100, "tecnico": "Glufosinato de amônio", "tipoDef": "Herbicida"}, {"id": "in-23", "nome": "Intrepid", "categoria": "defensivo", "unidade": "L", "quantidade": 122, "minimo": 20, "tecnico": "Metoxifenozida", "tipoDef": "Inseticida"}, {"id": "in-24", "nome": "MAP purificado", "categoria": "fertilizante", "unidade": "kg", "quantidade": 616, "minimo": 200, "tecnico": "Fosfato monoamônico (MAP)", "tipoDef": "Fertilizante"}, {"id": "in-25", "nome": "Master", "categoria": "defensivo", "unidade": "L", "quantidade": 10, "minimo": 5, "tecnico": "Defensivo (confirmar rótulo)", "tipoDef": "Defensivo"}, {"id": "in-26", "nome": "Meta Muvi Sólido", "categoria": "defensivo", "unidade": "kg", "quantidade": 243, "minimo": 50, "tecnico": "Metomil (confirmar rótulo)", "tipoDef": "Inseticida"}, {"id": "in-27", "nome": "NHT Manganês", "categoria": "fertilizante", "unidade": "L", "quantidade": 93, "minimo": 20, "tecnico": "Sulfato / quelato de manganês", "tipoDef": "Fertilizante"}, {"id": "in-28", "nome": "NHT Zinco", "categoria": "fertilizante", "unidade": "L", "quantidade": 7.7, "minimo": 5, "tecnico": "Sulfato / quelato de zinco", "tipoDef": "Fertilizante"}, {"id": "in-29", "nome": "Nimaxxa", "categoria": "defensivo", "unidade": "L", "quantidade": 8, "minimo": 5, "tecnico": "Biológico (UPL)", "tipoDef": "Biológico"}, {"id": "in-30", "nome": "Óleo mineral Du Fol (adjuvante)", "categoria": "defensivo", "unidade": "L", "quantidade": 75, "minimo": 20, "tecnico": "Óleo mineral", "tipoDef": "Adjuvante"}, {"id": "in-31", "nome": "Poli Flex", "categoria": "defensivo", "unidade": "L", "quantidade": 76.5, "minimo": 15, "tecnico": "Adjuvante polimérico", "tipoDef": "Adjuvante"}, {"id": "in-32", "nome": "Primóleo", "categoria": "defensivo", "unidade": "L", "quantidade": 97, "minimo": 20, "tecnico": "Óleo / adjuvante", "tipoDef": "Adjuvante"}, {"id": "in-33", "nome": "Select", "categoria": "defensivo", "unidade": "L", "quantidade": 200, "minimo": 50, "tecnico": "Cletodim", "tipoDef": "Herbicida"}, {"id": "in-34", "nome": "Silkon", "categoria": "defensivo", "unidade": "L", "quantidade": 266.9, "minimo": 40, "tecnico": "Organossilicone", "tipoDef": "Adjuvante"}, {"id": "in-35", "nome": "Soldier", "categoria": "defensivo", "unidade": "kg", "quantidade": 7784.5, "minimo": 500, "tecnico": "Inseticida / fungicida (confirmar rótulo)", "tipoDef": "Defensivo"}, {"id": "in-36", "nome": "Sulfato de magnésio", "categoria": "fertilizante", "unidade": "kg", "quantidade": 2041, "minimo": 300, "tecnico": "MgSO4", "tipoDef": "Fertilizante"}, {"id": "in-37", "nome": "Super simples", "categoria": "fertilizante", "unidade": "kg", "quantidade": 7010, "minimo": 1000, "tecnico": "Superfosfato simples (SSP)", "tipoDef": "Fertilizante"}, {"id": "in-38", "nome": "Yonon", "categoria": "defensivo", "unidade": "L", "quantidade": 3, "minimo": 2, "tecnico": "Defensivo (confirmar rótulo)", "tipoDef": "Defensivo"}, {"id": "in-39", "nome": "Assist EC", "categoria": "defensivo", "unidade": "L", "quantidade": 640, "minimo": 80, "tecnico": "Óleo mineral EC", "tipoDef": "Adjuvante"}, {"id": "in-40", "nome": "Nitrato de potássio", "categoria": "fertilizante", "unidade": "kg", "quantidade": 6000, "minimo": 500, "tecnico": "KNO3", "tipoDef": "Fertilizante"}, {"id": "in-41", "nome": "Zethamaxx", "categoria": "defensivo", "unidade": "L", "quantidade": 152.5, "minimo": 30, "tecnico": "Herbicida (confirmar rótulo)", "tipoDef": "Herbicida"}, {"id": "in-42", "nome": "Diesel S500", "categoria": "combustivel", "unidade": "L", "quantidade": 7400, "minimo": 3000, "tecnico": "Óleo diesel S500", "tipoDef": "Combustível"}, {"id": "in-43", "nome": "Diesel S10", "categoria": "combustivel", "unidade": "L", "quantidade": 0, "minimo": 2000, "tecnico": "Óleo diesel S10", "tipoDef": "Combustível"}], "pessoas": [{"id": "ps-1", "nome": "Sebastião Claudionor Rezende", "tipo": "efetivo", "funcao": "Motorista", "nascimento": "1972-01-20", "admissao": "2024-09-01", "carteira": "02282205000069004"}, {"id": "ps-2", "nome": "Jeferson Luiz Botin", "tipo": "efetivo", "funcao": "Operador de máquinas", "nascimento": "1993-01-25", "admissao": "2026-06-03"}, {"id": "ps-3", "nome": "Genilton Gustavo de Oliveira", "tipo": "efetivo", "funcao": "Op. de máquinas agrícola Jr", "nascimento": "2007-04-13", "admissao": "2026-02-06", "carteira": "02282205000076000"}, {"id": "ps-4", "nome": "João Pedro Vieira Almeida", "tipo": "efetivo", "funcao": "Op. de máq. agrícola Jr", "nascimento": "2008-04-28", "admissao": "2026-06-15"}, {"id": "ps-5", "nome": "Andressa Leal Ferreira", "tipo": "efetivo", "funcao": "Cozinheira rural", "nascimento": "1995-05-07", "admissao": "2026-06-22"}, {"id": "ps-6", "nome": "Leandro Alves Moraes de Souza", "tipo": "efetivo", "funcao": "Op. de máquinas agrícola", "nascimento": "2003-05-15", "admissao": "2026-04-29"}, {"id": "ps-7", "nome": "Célio Carlos Canedo Júnior", "tipo": "efetivo", "funcao": "Gerente agropecuário", "nascimento": "1994-06-25", "admissao": "2025-04-01"}, {"id": "ps-8", "nome": "Dilmar Alves Kayser", "tipo": "efetivo", "funcao": "Op. de máq. agrícola Jr", "nascimento": "2003-10-11", "admissao": "2026-02-07", "carteira": "02282205000077007"}, {"id": "ps-9", "nome": "Gabriel Pereira de Faria", "tipo": "efetivo", "funcao": "Op. de máquinas agrícola", "nascimento": "2003-10-16", "admissao": "2026-01-29", "carteira": "02282205000078003"}, {"id": "ps-10", "nome": "Marcos Antonio da Silva Morais", "tipo": "efetivo", "funcao": "Auxiliar administrativo", "nascimento": "1993-11-06", "admissao": "2026-02-23", "carteira": "02282205000075004"}, {"id": "ps-11", "nome": "José Adão Cardoso", "tipo": "efetivo", "funcao": "Trab. agropecuário em geral", "nascimento": "1973-12-25", "admissao": "2024-09-01", "carteira": "02282205000068008"}], "talhoes": [{"id": "tl-1", "codigo": "ENT", "nome": "Entrada", "area": 91.35, "cultura": "soja", "variedade": "Raptor I2X", "estagio": "planejado", "fazenda": "santa-rita"}, {"id": "tl-2", "codigo": "JAI", "nome": "Jaime", "area": 132.0, "cultura": "soja", "variedade": "Raptor I2X", "estagio": "planejado", "fazenda": "santa-rita"}, {"id": "tl-3", "codigo": "DUI", "nome": "Duilio", "area": 136.67, "cultura": "soja", "variedade": "Raptor I2X", "estagio": "planejado", "fazenda": "santa-rita"}, {"id": "tl-4", "codigo": "MAT", "nome": "Mato", "area": 12.88, "cultura": "soja", "variedade": "—", "estagio": "planejado", "fazenda": "santa-rita"}, {"id": "tl-5", "codigo": "SED", "nome": "Sede", "area": 109.13, "cultura": "soja", "variedade": "DM 72IX74 I2X", "estagio": "planejado", "fazenda": "santa-rita"}, {"id": "tl-6", "codigo": "PTP", "nome": "Pista Tapera", "area": 130.14, "cultura": "soja", "variedade": "DM 72IX74 I2X", "estagio": "planejado", "fazenda": "santa-rita"}, {"id": "tl-7", "codigo": "TAP", "nome": "Tapera", "area": 94.76, "cultura": "soja", "variedade": "NEO700 I2X", "estagio": "planejado", "fazenda": "santa-rita"}, {"id": "tl-8", "codigo": "LUI", "nome": "Luizinho", "area": 153.13, "cultura": "soja", "variedade": "NEO700 I2X", "estagio": "planejado", "fazenda": "santa-rita"}, {"id": "tl-9", "codigo": "AMA", "nome": "Amargoso", "area": 102.33, "cultura": "soja", "variedade": "76KA72 CE", "estagio": "planejado", "fazenda": "santa-rita"}, {"id": "tl-10", "codigo": "110", "nome": "110", "area": 109.0, "cultura": "soja", "variedade": "76KA72 CE", "estagio": "planejado", "fazenda": "santa-rita"}, {"id": "tl-11", "codigo": "190", "nome": "190", "area": 186.36, "cultura": "soja", "variedade": "76KA72 CE", "estagio": "planejado", "fazenda": "santa-rita"}, {"id": "tl-12", "codigo": "CAS", "nome": "Cascalheira", "area": 59.38, "cultura": "soja", "variedade": "ST 752 I2X", "estagio": "planejado", "fazenda": "campo-alegre"}, {"id": "tl-13", "codigo": "PV1", "nome": "Pivô 1", "area": 112.0, "cultura": "soja", "variedade": "NEO761 I2X", "estagio": "planejado", "fazenda": "campo-alegre"}, {"id": "tl-14", "codigo": "PV2", "nome": "Pivô 2", "area": 152.0, "cultura": "soja", "variedade": "NEO761 I2X", "estagio": "planejado", "fazenda": "campo-alegre"}], "equatorial": {"telefone": "0800-620-196", "ucs": [{"desc": "Faz Campo Alegre Paraúna (demanda 386)", "unid": "SANTA RITA", "uc": "980045368", "titular": "Paulo"}, {"desc": "ENEL Faz Campo Alegre (casa piscina)", "unid": "SANTA RITA", "uc": "980045940", "titular": "Paulo"}, {"desc": "Faz Campo Alegre (Sede, Alojamento, Célio)", "unid": "SANTA RITA", "uc": "10026027184", "titular": "Adriano"}, {"desc": "ENEL Faz Formoso (sem consumo)", "unid": "SANTA RITA", "uc": "980051009", "titular": "Jamil"}, {"desc": "ENEL Faz Pouso Alegre", "unid": "SANTA RITA", "uc": "980046051", "titular": "Jayme"}, {"desc": "ENEL Escritório", "unid": "ESCRITÓRIO", "uc": "630127864", "titular": "Adriano"}, {"desc": "ENEL Faz Segredo (demanda 150)", "unid": "SEGREDO", "uc": "630244492", "titular": "Adriano"}, {"desc": "ENEL Faz Monte Alegre (inativa)", "unid": "SEGREDO", "uc": "630490405", "titular": "Ari"}, {"desc": "ENEL Faz Santa Rita (inativa)", "unid": "SANTA RITA", "uc": "980045617", "titular": "Paulo"}, {"desc": "ENEL Faz Ken Tuch (Divino)", "unid": "KEN TUCH", "uc": "10014619499", "titular": "Paulo"}], "protocolos": [{"data": "2026-03-23", "hora": "07:26", "uc": "10026027184", "protocolo": "476513825", "hist": "Falta de energia", "local": "SANTA RITA"}, {"data": "2026-03-23", "hora": "09:33", "uc": "10026027184", "protocolo": "476544256", "hist": "Falta de energia", "local": "SANTA RITA"}, {"data": "2026-04-15", "hora": "08:11", "uc": "980046051", "protocolo": "480215339", "hist": "Falta de energia", "local": "POUSO ALEGRE"}, {"data": "2026-04-22", "hora": "09:51", "uc": "10026027184", "protocolo": "481135486", "hist": "Falta de energia", "local": "SANTA RITA"}, {"data": "2026-05-19", "hora": "07:35", "uc": "10026027184", "protocolo": "485573798", "hist": "Falta de energia", "local": "SANTA RITA"}, {"data": "2026-05-19", "hora": "20:30", "uc": "10026027184", "protocolo": "48575720", "hist": "Falta de energia", "local": "SANTA RITA"}, {"data": "2026-05-20", "hora": "07:27", "uc": "10026027184", "protocolo": "485780385", "hist": "Falta de energia", "local": "SANTA RITA"}, {"data": "2026-07-10", "hora": "07:00", "uc": "10026027184", "protocolo": "493018848", "hist": "Falta de energia", "local": "SANTA RITA"}, {"data": "2026-07-21", "hora": "00:00", "uc": "10026027184", "protocolo": "494397090", "hist": "Falta de energia", "local": "SANTA RITA"}, {"data": "2026-07-27", "hora": "08:43", "uc": "10026027184", "protocolo": "495090858", "hist": "Falta de energia", "local": "SANTA RITA"}, {"data": "2026-07-27", "hora": "19:22", "uc": "10026027184", "protocolo": "495232772", "hist": "Falta de energia", "local": "SANTA RITA"}, {"data": "2026-07-28", "hora": "09:45", "uc": "10026027184", "protocolo": "495292116", "hist": "Falta de energia", "local": "SANTA RITA"}, {"data": "2026-08-05", "hora": "09:50", "uc": "10026027184", "protocolo": "496390441", "hist": "Falta de energia", "local": "SANTA RITA"}, {"data": "2026-08-10", "hora": "07:13", "uc": "10026027184", "protocolo": "499679147", "hist": "Falta de energia", "local": "SANTA RITA"}, {"data": "2026-08-10", "hora": "14:42", "uc": "10026027184", "protocolo": "497092477", "hist": "Falta de energia", "local": "SANTA RITA"}, {"data": "2026-08-19", "hora": "07:15", "uc": "980046051", "protocolo": "498250408", "hist": "Falta de energia", "local": "POUSO ALEGRE"}, {"data": "2026-08-19", "hora": "09:41", "uc": "10026027184", "protocolo": "498274640", "hist": "Falta de energia", "local": "SANTA RITA"}]}, "folgas": [], "chuva": [], "saidas": [], "safraStatus": {}};
 const SAFRA = {"titulo": "Safra 2026/27 — Caderno de Campo", "corretivo": [{"talhoes": "Sede, Pista Tapera", "ha": 240.15, "cultivar": "DM 72IX74 I2X", "insumo": "Calcário", "dose": "2 ton/ha", "volume": "480 ton"}, {"talhoes": "Amargoso, 110, 190", "ha": 399.74, "cultivar": "76KA72 CE", "insumo": "Calcário", "dose": "2 ton/ha", "volume": "800 ton"}, {"talhoes": "Entrada, Jaime", "ha": 235.58, "cultivar": "Raptor I2X", "insumo": "Calcário", "dose": "2 ton/ha", "volume": "472 ton"}], "fertilizante": [{"talhoes": "Tapera, Luizinho", "ha": 248.99, "cultivar": "NEO700 I2X", "itens": [{"insumo": "KCl", "dose": "150 kg/ha", "volume": "37.348,5 kg"}, {"insumo": "00-21-00", "dose": "440 kg/ha", "volume": "109.555,6 kg"}, {"insumo": "Gran Boro 10", "dose": "18 kg/ha", "volume": "4.480,2 kg"}]}, {"talhoes": "Sede, Pista Tapera", "ha": 240.15, "cultivar": "DM 72IX74 I2X", "itens": [{"insumo": "KCl", "dose": "150 kg/ha", "volume": "36.022,5 kg"}, {"insumo": "00-21-00", "dose": "440 kg/ha", "volume": "105.666 kg"}, {"insumo": "Gran Boro 10", "dose": "18 kg/ha", "volume": "4.322,7 kg"}]}, {"talhoes": "Cascalheira", "ha": 61.18, "cultivar": "ST 752 I2X", "itens": [{"insumo": "KCl", "dose": "150 kg/ha", "volume": "9.177 kg"}, {"insumo": "00-21-00", "dose": "440 kg/ha", "volume": "26.919,2 kg"}, {"insumo": "Gran Boro 10", "dose": "18 kg/ha", "volume": "1.101,24 kg"}]}, {"talhoes": "Amargoso, 110, 190", "ha": 399.74, "cultivar": "76KA72 CE", "itens": [{"insumo": "KCl", "dose": "150 kg/ha", "volume": "59.961 kg"}, {"insumo": "00-21-00", "dose": "440 kg/ha", "volume": "175.885,6 kg"}, {"insumo": "Gran Boro 10", "dose": "18 kg/ha", "volume": "7.195,32 kg"}]}, {"talhoes": "Entrada, Jaime", "ha": 235.58, "cultivar": "Raptor I2X", "itens": [{"insumo": "KCl", "dose": "150 kg/ha", "volume": "35.337 kg"}, {"insumo": "00-21-00", "dose": "440 kg/ha", "volume": "103.655,2 kg"}, {"insumo": "Gran Boro 10", "dose": "18 kg/ha", "volume": "4.240,44 kg"}]}, {"talhoes": "Pivô 1, Pivô 2", "ha": 265.39, "cultivar": "NEO761 I2X", "itens": [{"insumo": "KCl", "dose": "150 kg/ha", "volume": "39.808,5 kg"}, {"insumo": "00-21-00", "dose": "440 kg/ha", "volume": "116.771,6 kg"}, {"insumo": "Gran Boro 10", "dose": "18 kg/ha", "volume": "4.777,02 kg"}]}, {"talhoes": "Duilio", "ha": 136.08, "cultivar": "Raptor I2X", "itens": [{"insumo": "KCl", "dose": "150 kg/ha", "volume": "20.412 kg"}, {"insumo": "00-21-00", "dose": "440 kg/ha", "volume": "59.875,2 kg"}, {"insumo": "Gran Boro 10", "dose": "18 kg/ha", "volume": "2.449,44 kg"}]}], "plantio": [{"talhoes": "Amargoso, 110, 190", "ha": 399.74, "cultivar": "76KA72 CE", "sem_m": "14", "espac": "50 cm", "sem_ha": "280.000"}, {"talhoes": "Entrada, Jaime", "ha": 235.58, "cultivar": "Raptor I2X", "sem_m": "14,5", "espac": "50 cm", "sem_ha": "290.000"}, {"talhoes": "Pivô 1, Pivô 2", "ha": 265.39, "cultivar": "NEO761 I2X", "sem_m": "14,5", "espac": "50 cm", "sem_ha": "290.000"}, {"talhoes": "Duilio", "ha": 136.08, "cultivar": "Raptor I2X", "sem_m": "14,5", "espac": "50 cm", "sem_ha": "290.000"}, {"talhoes": "Tapera, Luizinho", "ha": 248.99, "cultivar": "NEO700 I2X", "sem_m": "14,5", "espac": "50 cm", "sem_ha": "290.000"}, {"talhoes": "Sede, Pista Tapera", "ha": 240.15, "cultivar": "DM 72IX74 I2X", "sem_m": "14,5", "espac": "50 cm", "sem_ha": "290.000"}, {"talhoes": "Cascalheira", "ha": 61.18, "cultivar": "ST 752 I2X", "sem_m": "13", "espac": "50 cm", "sem_ha": "260.000"}], "sulco": [{"atividade": "Manejo de sulco", "insumo": "Biomax Azos", "tipo": "Inoculante", "fabricante": "Vittia", "dose": "1 dose/ha"}, {"atividade": "Manejo de sulco", "insumo": "Nimaxxa", "tipo": "Biológico", "fabricante": "UPL", "dose": "0,1 L/ha"}, {"atividade": "Manejo de sulco", "insumo": "Biomax 10", "tipo": "Inoculante", "fabricante": "Vittia", "dose": "10 doses/ha"}]};
-const KEY = "campogestor-fsrt-dist-v9";
+const KEY = "campogestor-fsrt-dist-v10";
 
 const SB_URL = "https://tetrqmzahbrfgrxzbnwj.supabase.co";
 const SB_KEY = "sb_publishable_tIgk-4oZtKneqljdgIqAWw_Ni6PtoIv";
@@ -280,6 +280,9 @@ function load(){
         talhoes: d.talhoes && d.talhoes.length ? d.talhoes : SEED.talhoes,
         sementes: Array.isArray(d.sementes) ? d.sementes : (SEED.sementes||[]),
         folgas: Array.isArray(d.folgas) ? d.folgas : (SEED.folgas||[]),
+        chuva: Array.isArray(d.chuva) ? d.chuva : (SEED.chuva||[]),
+        saidas: Array.isArray(d.saidas) ? d.saidas : (SEED.saidas||[]),
+        safraStatus: d.safraStatus || {},
         equatorial: d.equatorial || SEED.equatorial,
         rotinaFeita: d.rotinaFeita || {},
       };
@@ -405,6 +408,23 @@ function aniversarioEmAte(nasc, dias, ref){
   return false;
 }
 function idadeEm(nasc, ref){ const n0=new Date(nasc+"T12:00:00"), r=new Date(ref+"T12:00:00"); let idade=r.getFullYear()-n0.getFullYear(); const m=r.getMonth()-n0.getMonth(); if(m<0||(m===0&&r.getDate()<n0.getDate())) idade--; return idade; }
+function tempoDeCasa(admissao, ref){
+  if(!admissao) return null;
+  const a=new Date(admissao+"T12:00:00"), r=new Date(ref+"T12:00:00");
+  if(r < a) return "Recém-admitido";
+  let anos = r.getFullYear() - a.getFullYear();
+  let meses = r.getMonth() - a.getMonth();
+  if(r.getDate() < a.getDate()) meses--;
+  if(meses < 0){ anos--; meses += 12; }
+  const partes=[];
+  if(anos > 0) partes.push(anos + (anos===1?" ano":" anos"));
+  if(meses > 0) partes.push(meses + (meses===1?" mês":" meses"));
+  if(!partes.length){
+    const dias = Math.floor((r - a) / 86400000);
+    return dias <= 1 ? "1 dia" : dias + " dias";
+  }
+  return partes.join(" e ");
+}
 function esc(s){ return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;"); }
 function exportCSV(filename, rows){
   const csv = rows.map(r=>r.map(c=>{
@@ -462,7 +482,6 @@ function renderDrawer(){
       <div class="field"><label>Tipo (herbicida, inseticida…)</label><input id="e-tipodef" value="${esc(i.tipoDef||"")}"/></div>
       <div class="field"><label>Unidade</label><input id="e-un" value="${esc(i.unidade||"L")}"/></div>
       <div class="field"><label>Quantidade</label><input id="e-qtd" inputmode="decimal" value="${i.quantidade??0}"/></div>
-      <div class="field"><label>Mínimo</label><input id="e-min" inputmode="decimal" value="${i.minimo??0}"/></div>
       <button class="btn primary block" id="e-save">Salvar</button>
       ${edit.kind==="insumo"?`<button class="btn block" id="e-del" style="margin-top:.5rem;color:var(--danger)">Excluir</button>`:""}`;
   }
@@ -543,6 +562,32 @@ function renderDrawer(){
       <div class="field"><label>Local</label><input id="e-local" value="SANTA RITA"/></div>
       <button class="btn primary block" id="e-save">Salvar protocolo</button>`;
   }
+  if(edit.kind==="chuva" || edit.kind==="novo-chuva"){
+    const c = edit.kind==="chuva" ? (state.chuva||[]).find(x=>x.id===edit.id) : {data:hojeISO(), mm:"", obs:""};
+    body=`<h2>${edit.kind==="chuva"?"Editar chuva":"Registrar chuva"}</h2>
+      <div class="field"><label>Data</label><input id="e-data" type="date" value="${esc(c.data||hojeISO())}"/></div>
+      <div class="field"><label>Milímetros (mm)</label><input id="e-mm" inputmode="decimal" value="${esc(c.mm??"")}"/></div>
+      <div class="field"><label>Observação</label><input id="e-obs" value="${esc(c.obs||"")}"/></div>
+      <button class="btn primary block" id="e-save">Salvar</button>
+      ${edit.kind==="chuva"?`<button class="btn block" id="e-del" style="margin-top:.5rem;color:var(--danger)">Excluir</button>`:""}`;
+  }
+  if(edit.kind==="saida" || edit.kind==="novo-saida"){
+    const prodOpts = state.insumos.map(i=>`<option value="${i.id}">${esc(i.nome)} (${n(i.quantidade,i.quantidade>=100?0:1)} ${esc(i.unidade)})</option>`).join("");
+    body=`<h2>Lançamento de saída</h2>
+      <div class="field"><label>Data</label><input id="e-data" type="date" value="${hojeISO()}"/></div>
+      <div class="field"><label>Tipo de saída</label><select id="e-tipo">
+        <option value="Aplicação">Aplicação</option>
+        <option value="Transferência">Transferência</option>
+        <option value="Empréstimo">Empréstimo</option>
+        <option value="Baixa">Baixa</option>
+      </select></div>
+      <div class="field"><label>Produto</label><select id="e-prod">${prodOpts}</select></div>
+      <div class="field"><label>Quantidade</label><input id="e-qtd" inputmode="decimal" value=""/></div>
+      <div class="field"><label>Destino (transferência / empréstimo)</label><input id="e-destino" placeholder="Opcional"/></div>
+      <div class="field"><label>Responsável</label><input id="e-resp" placeholder="Opcional"/></div>
+      <div class="field"><label>Observação</label><input id="e-obs" placeholder="Opcional"/></div>
+      <button class="btn primary block" id="e-save">Salvar e dar baixa</button>`;
+  }
   if(edit.kind==="farm"){
     body=`<h2>Editar fazenda</h2>
       <div class="field"><label>Nome</label><input id="f-nome" value="${esc(state.farm.nome)}"/></div>
@@ -565,13 +610,31 @@ function render(){
     const feitas=listaRotina.filter(r=>state.rotinaFeita[r.id]===hoje).length;
     const pct=listaRotina.length?Math.round((feitas/listaRotina.length)*100):0;
     const dieselPct=Math.round((state.diesel.litros/state.diesel.capacidade)*100);
-    const baixo=state.insumos.filter(i=>i.quantidade<i.minimo).length;
     const niverHoje=state.pessoas.filter(p=>aniversarioHoje(p.nascimento,hoje));
     const niver7=state.pessoas.filter(p=>p.nascimento&&aniversarioEmAte(p.nascimento,7,hoje)&&!aniversarioHoje(p.nascimento,hoje));
+    const chuvaLista = (state.chuva||[]).slice().sort((a,b)=>(b.data||"").localeCompare(a.data||""));
+    const ultimaChuva = chuvaLista[0];
     html+=headerBar(
       `${esc(state.farm.cargo)} · <span id="cloud-status">${cloudLabel()}</span>`,
       esc(state.farm.nome)
     );
+    // Card Propriedade
+    html+=`<div class="card">
+      <p class="muted" style="text-transform:uppercase;letter-spacing:.06em;font-size:.7rem;margin:0">Propriedade</p>
+      <p style="font-family:var(--display);font-size:1.2rem;margin:.2rem 0">${esc(state.farm.nome)}</p>
+      <p class="muted">${esc(state.farm.municipio)} · safra ${esc(state.farm.safra)} · ${n(state.farm.areaTotal,0)} ha</p>
+      <p class="muted" style="margin-top:.35rem">Gerente: ${esc(state.farm.gerente)}</p>
+      <p class="muted">Auxiliar administrativo: Marcos Antonio da Silva Morais</p>
+      <button class="btn sm" style="margin-top:.6rem" data-edit="farm">Editar fazenda</button>
+    </div>`;
+    // Bloco resumo
+    html+=`<div class="grid2">
+      <div class="stat"><div class="lbl">Diesel</div><div class="val">${n(state.diesel.litros,0)} L</div><div class="muted">${dieselPct}% do tanque</div></div>
+      <div class="stat"><div class="lbl">Última chuva</div><div class="val">${ultimaChuva ? n(ultimaChuva.mm,1)+" mm" : "—"}</div><div class="muted">${ultimaChuva ? (ultimaChuva.data||"").split("-").reverse().join("/") : "sem registro"}</div></div>
+      <div class="stat"><div class="lbl">Equipe</div><div class="val">${state.pessoas.length}</div><div class="muted">colaboradores</div></div>
+      <div class="stat"><div class="lbl">Área</div><div class="val">${n(state.farm.areaTotal,0)} ha</div><div class="muted">${state.talhoes.length} talhões</div></div>
+    </div>`;
+    // Atividades do dia
     html+=`<div class="ring-wrap">
       <div class="ring" style="--p:${pct}"><span class="pct">${pct}%</span></div>
       <div class="ring-meta">
@@ -580,7 +643,7 @@ function render(){
         <div class="muted">${esc(rotinaLegenda(hoje))}</div>
       </div>
     </div>`;
-    html+=`<p class="sub">${dataLonga(hoje)} · Gerente: ${esc(state.farm.gerente)}</p>`;
+    html+=`<p class="sub">${dataLonga(hoje)}</p>`;
     if(niverHoje.length){
       html+=`<div class="card" style="border-color:var(--primary)"><p class="card-title">🎂 Aniversário hoje — avise o gerente</p><ul class="list">`;
       niverHoje.forEach(p=>{ html+=`<li><div style="flex:1"><div style="font-weight:500">${esc(p.nome)}</div><div class="muted">${esc(p.funcao)} · completa ${idadeEm(p.nascimento,hoje)+1} anos</div></div><span class="badge ok">Hoje</span></li>`; });
@@ -617,12 +680,6 @@ function render(){
       html+=`<label class="check ${done?"done":""}"><input type="checkbox" ${done?"checked":""} data-rotina="${r.id}"/><span><span class="titulo" style="display:block;font-size:.9rem">${esc(r.titulo)}</span><span class="muted">${esc(r.grupo)}</span></span></label>`;
     });
     html+=`</div>`;
-    html+=`<div class="grid2">
-      <div class="stat"><div class="lbl">Diesel</div><div class="val">${n(state.diesel.litros,0)} L</div><div class="muted">${dieselPct}% do tanque</div></div>
-      <div class="stat"><div class="lbl">Insumos baixos</div><div class="val">${baixo}</div><div class="muted">abaixo do mínimo</div></div>
-      <div class="stat"><div class="lbl">Equipe</div><div class="val">${state.pessoas.length}</div><div class="muted">colaboradores</div></div>
-      <div class="stat"><div class="lbl">Área</div><div class="val">${n(state.farm.areaTotal,0)} ha</div><div class="muted">${state.talhoes.length} talhões</div></div>
-    </div>`;
   }
 
   if(page==="frota"){
@@ -647,6 +704,7 @@ function render(){
       return okQ && okC;
     }).sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR"));
     html+=headerBar(`Almoxarifado · ${state.insumos.length} itens`,"Estoque",`<button class="btn primary sm" data-new="insumo">+ Novo</button>`);
+    html+=`<div style="padding:.25rem 1rem"><button class="btn block" data-new="saida">Lançamento de saída</button></div>`;
     html+=`<div class="search"><input id="q-insumo" placeholder="Pesquisar insumo..." value="${esc(qInsumo)}"/></div>`;
     html+=`<div class="chips"><button class="chip ${catInsumo==="todos"?"on":""}" data-cat="todos">Todos</button>`;
     CATS.forEach(c=>{ html+=`<button class="chip ${catInsumo===c?"on":""}" data-cat="${c}">${CAT[c]}</button>`; });
@@ -654,28 +712,62 @@ function render(){
     html+=`<ul class="list card" style="padding:.25rem 1rem">`;
     if(!lista.length) html+=`<li class="muted">Nenhum insumo encontrado.</li>`;
     lista.forEach(i=>{
-      const baixo=i.quantidade<i.minimo;
-      html+=`<li><div style="flex:1"><div style="font-weight:500">${esc(i.nome)}</div><div class="muted">${esc(i.tipoDef||CAT[i.categoria]||"")} · ${esc(i.tecnico||"—")}</div><div class="muted">mín. ${n(i.minimo,0)} ${esc(i.unidade)}</div></div>
-        <div style="text-align:right"><div style="font-weight:500">${n(i.quantidade,i.quantidade>=100?0:1)} ${esc(i.unidade)}</div>${baixo?'<span class="badge warn">Baixo</span>':''}</div>
+      html+=`<li><div style="flex:1"><div style="font-weight:500">${esc(i.nome)}</div>
+        <div class="muted">${esc(i.tipoDef||CAT[i.categoria]||"")} · ${esc(i.tecnico||"—")}</div></div>
+        <div style="text-align:right"><div style="font-weight:500">${n(i.quantidade,i.quantidade>=100?0:1)} ${esc(i.unidade)}</div></div>
         <button class="btn sm" data-edit="insumo" data-id="${i.id}">✎</button></li>`;
     });
     html+=`</ul>`;
+    // Histórico de saídas
+    const saidas = (state.saidas||[]).slice().sort((a,b)=>(b.data||"").localeCompare(a.data||"")).slice(0,30);
+    if(saidas.length){
+      html+=`<p class="sec">Histórico de saídas</p><ul class="list card" style="padding:.25rem 1rem">`;
+      saidas.forEach(s=>{
+        const produtos = (s.itens||[]).map(it=>`${it.nome} (${it.qtd} ${it.un||""})`).join(", ");
+        html+=`<li><div style="flex:1"><div style="font-weight:500">${esc(s.tipo)} · ${(s.data||"").split("-").reverse().join("/")}</div>
+          <div class="muted">${esc(produtos)}${s.destino?" · "+esc(s.destino):""}${s.obs?" · "+esc(s.obs):""}</div>
+          ${s.tipo==="Empréstimo" && !s.devolvido?`<button class="btn sm" style="margin-top:.3rem" data-devolver="${s.id}">Devolvido</button>`:""}
+          ${s.devolvido?'<span class="badge ok">Devolvido</span>':""}
+        </div></li>`;
+      });
+      html+=`</ul>`;
+    }
   }
 
   if(page==="pessoas"){
-    html+=headerBar(`Equipe · ${esc(state.farm.gerente)}`,"Pessoas",`<button class="btn primary sm" data-new="pessoa">+ Nova</button>`);
-    html+=`<div style="padding:.5rem 1rem"><button class="btn block" id="btn-notif">Ativar avisos de aniversário</button></div>`;
-    html+=`<ul class="list card" style="padding:.25rem 1rem">`;
-    const ord=[...state.pessoas].sort((a,b)=>(a.nascimento||"99").slice(5).localeCompare((b.nascimento||"99").slice(5)));
-    ord.forEach(p=>{
-      const hojeN=aniversarioHoje(p.nascimento,hoje);
-      html+=`<li><div style="flex:1"><div style="font-weight:500">${esc(p.nome)}</div><div class="muted">${esc(p.funcao)}</div>`;
-      if(p.nascimento) html+=`<div class="muted">Aniversário: ${dataNascimentoFmt(p.nascimento)}${hojeN?` · completa ${idadeEm(p.nascimento,hoje)+1} anos`:``}</div>`;
-      if(p.admissao) html+=`<div class="muted">Admissão: ${String(p.admissao).split("-").reverse().join("/")}</div>`;
-      html+=`</div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:.25rem">${hojeN?'<span class="badge ok">Hoje</span>':''}<span class="badge muted">${esc(p.tipo)}</span>
-        <button class="btn sm" data-edit="pessoa" data-id="${p.id}">✎</button></div></li>`;
-    });
-    html+=`</ul>`;
+    const selPessoa = edit && edit.kind==="ver-pessoa" ? state.pessoas.find(x=>x.id===edit.id) : null;
+    if(selPessoa){
+      const p = selPessoa;
+      const tempo = tempoDeCasa(p.admissao, hoje);
+      html+=headerBar("Detalhes","Pessoa",`<button class="btn sm" data-go="pessoas">← Voltar</button>`);
+      html+=`<div class="card">
+        <p style="font-family:var(--display);font-size:1.25rem;margin:0 0 .5rem">${esc(p.nome)}</p>
+        <p class="muted">${esc(p.funcao)} · ${esc(p.tipo)}</p>
+        ${p.nascimento?`<p class="muted" style="margin-top:.4rem">Aniversário: ${dataNascimentoFmt(p.nascimento)}</p>`:""}
+        ${p.admissao?`<p class="muted">Admissão: ${String(p.admissao).split("-").reverse().join("/")}</p>`:""}
+        ${tempo?`<p style="margin-top:.5rem;font-weight:500">Tempo de casa: ${esc(tempo)}</p>`:""}
+        ${p.carteira?`<div style="margin-top:.75rem;padding:.6rem;background:var(--elevated);border-radius:10px;display:flex;align-items:center;justify-content:space-between;gap:.5rem">
+          <div><div class="muted" style="font-size:.7rem">Carteira Unimed</div><div style="font-weight:500;font-size:.9rem">${esc(p.carteira)}</div></div>
+          <button class="btn sm" data-copy="${esc(p.carteira)}">Copiar</button>
+        </div>`:`<p class="muted" style="margin-top:.5rem">Sem carteira cadastrada</p>`}
+        <button class="btn" style="margin-top:1rem" data-edit="pessoa" data-id="${p.id}">✎ Editar dados</button>
+      </div>`;
+    } else {
+      html+=headerBar(`Equipe · ${state.pessoas.length}`,"Pessoas",`<button class="btn primary sm" data-new="pessoa">+ Nova</button>`);
+      html+=`<div style="padding:.5rem 1rem"><button class="btn block" id="btn-notif">Ativar avisos de aniversário</button></div>`;
+      html+=`<ul class="list card" style="padding:.25rem 1rem">`;
+      const ord=[...state.pessoas].sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR"));
+      ord.forEach(p=>{
+        const hojeN=aniversarioHoje(p.nascimento,hoje);
+        html+=`<li style="cursor:pointer" data-ver-pessoa="${p.id}">
+          <div style="flex:1"><div style="font-weight:500">${esc(p.nome)}</div>
+          ${hojeN?'<div class="muted">🎂 Aniversário hoje</div>':''}
+          </div>
+          ${hojeN?'<span class="badge ok">Hoje</span>':''}
+        </li>`;
+      });
+      html+=`</ul>`;
+    }
   }
 
   if(page==="safra"){
@@ -732,6 +824,26 @@ function render(){
     html+=`</ul>`;
   }
 
+  if(page==="chuva"){
+    if(!state.chuva) state.chuva=[];
+    const lista=[...state.chuva].sort((a,b)=>(b.data||"").localeCompare(a.data||""));
+    html+=headerBar("Pluviometria","Chuva",`<button class="btn primary sm" data-new="chuva">+ Registrar</button>`);
+    html+=`<p class="sub">Registre a data e os milímetros. O mais recente aparece na tela principal.</p>`;
+    if(lista.length){
+      const u=lista[0];
+      html+=`<div class="card"><p class="card-title">Última chuva</p>
+        <p style="font-size:1.4rem;font-weight:500;margin:.2rem 0">${n(u.mm,1)} mm</p>
+        <p class="muted">${(u.data||"").split("-").reverse().join("/")}${u.obs?" · "+esc(u.obs):""}</p></div>`;
+    }
+    html+=`<p class="sec">Histórico</p><ul class="list card" style="padding:.25rem 1rem">`;
+    if(!lista.length) html+=`<li class="muted">Nenhum registro ainda.</li>`;
+    lista.forEach(c=>{
+      html+=`<li><div style="flex:1"><div style="font-weight:500">${n(c.mm,1)} mm</div>
+        <div class="muted">${(c.data||"").split("-").reverse().join("/")}${c.obs?" · "+esc(c.obs):""}</div></div>
+        <button class="btn sm" data-edit="chuva" data-id="${c.id}">✎</button></li>`;
+    });
+    html+=`</ul>`;
+  }
 
   if(page==="folgas"){
     if(!state.folgas) state.folgas=[];
@@ -819,6 +931,7 @@ function render(){
     {id:"estoque",ic:"📦",label:"Estoque"},
     {id:"pessoas",ic:"👥",label:"Pessoas"},
     {id:"safra",ic:"🌾",label:"Safra"},
+    {id:"chuva",ic:"🌧️",label:"Chuva"},
     {id:"sementes",ic:"🌱",label:"Sementes"},
     {id:"folgas",ic:"📅",label:"Folgas"},
     {id:"equatorial",ic:"⚡",label:"Energia"},
@@ -839,6 +952,9 @@ function render(){
 
 function bind(){
   document.querySelectorAll("[data-go]").forEach(btn=>{ btn.onclick=()=>{ page=btn.getAttribute("data-go"); edit=null; menuOpen=false; render(); }; });
+  document.querySelectorAll("[data-ver-pessoa]").forEach(el=>{
+    el.onclick=()=>{ edit={kind:"ver-pessoa", id:el.getAttribute("data-ver-pessoa")}; render(); };
+  });
 
   const bm=document.getElementById("btn-menu");
   if(bm) bm.onclick=()=>{ menuOpen=true; render(); };
@@ -864,7 +980,7 @@ function bind(){
         tecnico:(document.getElementById("e-tec")&&document.getElementById("e-tec").value.trim())||"",
         tipoDef:(document.getElementById("e-tipodef")&&document.getElementById("e-tipodef").value.trim())||"",
         unidade:document.getElementById("e-un").value.trim()||"un", quantidade:Number(String(document.getElementById("e-qtd").value).replace(",",".")||0),
-        minimo:Number(String(document.getElementById("e-min").value).replace(",",".")||0) };
+        minimo:0 };
       if(!row.nome){ toast("Informe o nome"); return; }
       if(edit.kind==="insumo"){ state.insumos=state.insumos.map(x=>x.id===edit.id?{...x,...row}:x); }
       else state.insumos.push({id:uid(),...row});
@@ -897,6 +1013,40 @@ function bind(){
       else state.pessoas.push({id:uid(),...row});
       save(); toast("Pessoa salva"); closeEdit(); return;
     }
+    if(edit.kind==="chuva"||edit.kind==="novo-chuva"){
+      if(!state.chuva) state.chuva=[];
+      const row={ data:document.getElementById("e-data").value||hojeISO(), mm:Number(String(document.getElementById("e-mm").value).replace(",",".")||0), obs:document.getElementById("e-obs").value.trim() };
+      if(!row.mm && row.mm!==0){ toast("Informe os mm"); return; }
+      if(edit.kind==="chuva") state.chuva=state.chuva.map(x=>x.id===edit.id?{...x,...row}:x);
+      else state.chuva.push({id:uid(),...row});
+      save(); toast("Chuva registrada"); closeEdit(); return;
+    }
+    if(edit.kind==="saida"||edit.kind==="novo-saida"){
+      if(!state.saidas) state.saidas=[];
+      const prodId=document.getElementById("e-prod").value;
+      const prod=state.insumos.find(x=>x.id===prodId);
+      const qtd=Number(String(document.getElementById("e-qtd").value).replace(",",".")||0);
+      if(!prod || !qtd){ toast("Selecione produto e quantidade"); return; }
+      if(qtd > prod.quantidade){ toast("Quantidade maior que o estoque"); return; }
+      const row={
+        id:uid(),
+        data:document.getElementById("e-data").value||hojeISO(),
+        tipo:document.getElementById("e-tipo").value,
+        itens:[{id:prod.id, nome:prod.nome, qtd, un:prod.unidade}],
+        destino:document.getElementById("e-destino").value.trim(),
+        responsavel:document.getElementById("e-resp").value.trim(),
+        obs:document.getElementById("e-obs").value.trim(),
+        devolvido:false
+      };
+      state.saidas.push(row);
+      // baixa automática
+      state.insumos=state.insumos.map(x=>x.id===prod.id?{...x, quantidade: Number((x.quantidade-qtd).toFixed(2))}:x);
+      // sync diesel se for diesel
+      if(prod.nome.toLowerCase().includes("diesel")){
+        state.diesel.litros = Math.max(0, Number((state.diesel.litros - qtd).toFixed(0)));
+      }
+      save(); toast("Saída lançada e baixa no estoque"); closeEdit(); return;
+    }
   };
   const ed=document.getElementById("e-del");
   if(ed) ed.onclick=()=>{
@@ -904,8 +1054,25 @@ function bind(){
     if(edit.kind==="insumo") state.insumos=state.insumos.filter(x=>x.id!==edit.id);
     if(edit.kind==="maquina") state.maquinas=state.maquinas.filter(x=>x.id!==edit.id);
     if(edit.kind==="pessoa") state.pessoas=state.pessoas.filter(x=>x.id!==edit.id);
+    if(edit.kind==="chuva") state.chuva=(state.chuva||[]).filter(x=>x.id!==edit.id);
     save(); toast("Excluído"); closeEdit();
   };
+  // Devolver empréstimo
+  document.querySelectorAll("[data-devolver]").forEach(btn=>{
+    btn.onclick=()=>{
+      const id=btn.getAttribute("data-devolver");
+      const s=(state.saidas||[]).find(x=>x.id===id);
+      if(!s || s.devolvido) return;
+      (s.itens||[]).forEach(it=>{
+        state.insumos=state.insumos.map(x=>x.id===it.id?{...x, quantidade: Number((x.quantidade+it.qtd).toFixed(2))}:x);
+        if((it.nome||"").toLowerCase().includes("diesel")){
+          state.diesel.litros = Number((state.diesel.litros + it.qtd).toFixed(0));
+        }
+      });
+      s.devolvido=true;
+      save(); toast("Empréstimo devolvido — estoque restaurado"); render();
+    };
+  });
   const ef=document.getElementById("e-save-farm");
   if(ef) ef.onclick=()=>{
     state.farm.nome=document.getElementById("f-nome").value.trim()||state.farm.nome;
