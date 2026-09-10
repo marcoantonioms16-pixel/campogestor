@@ -871,14 +871,7 @@ function render(){
       <p class="muted">${esc(state.farm.municipio)} · safra ${esc(state.farm.safra)} · ${n(state.farm.areaTotal,0)} ha</p>
       <p class="muted" style="margin-top:.35rem">Gerente: ${esc(state.farm.gerente)}</p>
       <p class="muted">Auxiliar administrativo: Marcos Antonio da Silva Morais</p>
-      <button class="btn" data-hoje="tarefas" style="margin-top:.75rem;width:100%;display:flex;align-items:center;gap:.8rem;text-align:left;background:transparent;border:0;padding:.2rem 0">
-        <div class="ring" style="--p:${pct}"><span class="pct">${pct}%</span></div>
-        <div>
-          <div style="font-weight:500">Tarefas de hoje</div>
-          <div class="muted">toque para ver</div>
-        </div>
-      </button>
-      <button class="btn sm" style="margin-top:.55rem" data-edit="farm">Editar fazenda</button>
+      <button class="btn sm" style="margin-top:.6rem" data-edit="farm">Editar fazenda</button>
     </div>`;
     // Bloco resumo
     html+=`<div class="grid2">
@@ -895,6 +888,13 @@ function render(){
         <div class="lbl">🗺 Área</div><div class="val">${n(state.farm.areaTotal,0)} ha</div><div class="muted">${state.talhoes.length} talhões</div>
       </button>
     </div>`;
+    html+=`<button class="card" data-hoje="tarefas" style="width:calc(100% - 2rem);margin:.15rem 1rem;display:flex;align-items:center;gap:.9rem;text-align:left">
+      <div class="ring" style="--p:${pct}"><span class="pct">${pct}%</span></div>
+      <div>
+        <div style="font-weight:500">Tarefas de hoje</div>
+        <div class="muted">toque para ver</div>
+      </div>
+    </button>`;
     if(niverHoje.length){
       html+=`<div class="card" style="border-color:var(--primary)"><p class="card-title">🎂 Aniversário hoje — avise o gerente</p><ul class="list">`;
       niverHoje.forEach(p=>{ html+=`<li><div style="flex:1"><div style="font-weight:500">${esc(p.nome)}</div><div class="muted">${esc(p.funcao)} · completa ${idadeEm(p.nascimento,hoje)+1} anos</div></div><span class="badge ok">Hoje</span></li>`; });
