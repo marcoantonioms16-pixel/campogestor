@@ -791,16 +791,21 @@ function renderDrawer(){
   }
   if(edit.kind==="protocolo" || edit.kind==="novo-protocolo"){
     const eq = state.equatorial || SEED.equatorial;
+    const lista=eq.protocolos||[];
+    const p = edit.kind==="protocolo" ? lista.find(x=>(x.id||(x.protocolo+"-"+x.data+"-"+x.hora))===edit.id) : null;
     const ucKeep=["10026027184","980046051"];
-    const ucOpts = (eq.ucs||[]).filter(u=>ucKeep.includes(String(u.uc))).map(u=>`<option value="${esc(u.uc)}">${esc(u.uc)} — ${esc(u.desc)}</option>`).join("");
-    body=`<h2>Novo protocolo Equatorial</h2>
+    const ucSel=p?p.uc:"";
+    const ucOpts = (eq.ucs||[]).filter(u=>ucKeep.includes(String(u.uc))).map(u=>`<option value="${esc(u.uc)}" ${String(u.uc)===String(ucSel)?"selected":""}>${esc(u.uc)} — ${esc(u.desc)}</option>`).join("");
+    const agora=String(new Date().getHours()).padStart(2,"0")+":"+String(new Date().getMinutes()).padStart(2,"0");
+    body=`<h2>${p?"Editar protocolo":"Novo protocolo Equatorial"}</h2>
       <div class="field"><label>Unidade (UC)</label><select id="e-uc">${ucOpts}</select></div>
-      <div class="field"><label>Nº protocolo</label><input id="e-prot" placeholder="Ex: 498274640"/></div>
-      <div class="field"><label>Data</label><input id="e-data" type="date" value="${hojeISO()}"/></div>
-      <div class="field"><label>Hora</label><input id="e-hora" type="time" value="${String(new Date().getHours()).padStart(2,"0")+":"+String(new Date().getMinutes()).padStart(2,"0")}"/></div>
-      <div class="field"><label>Ocorrência</label><input id="e-hist" value="Falta de energia"/></div>
-      <div class="field"><label>Local</label><input id="e-local" value="SANTA RITA"/></div>
-      <button class="btn primary block" id="e-save">Salvar protocolo</button>`;
+      <div class="field"><label>Nº protocolo</label><input id="e-prot" placeholder="Ex: 498274640" value="${esc(p&&p.protocolo||"")}"/></div>
+      <div class="field"><label>Data</label><input id="e-data" type="date" value="${esc((p&&p.data)||hojeISO())}"/></div>
+      <div class="field"><label>Hora</label><input id="e-hora" type="time" value="${esc((p&&p.hora)||agora)}"/></div>
+      <div class="field"><label>Ocorrência</label><input id="e-hist" value="${esc((p&&p.hist)||"Falta de energia")}"/></div>
+      <div class="field"><label>Local</label><input id="e-local" value="${esc((p&&p.local)||"SANTA RITA")}"/></div>
+      <button class="btn primary block" id="e-save">Salvar protocolo</button>
+      ${p?`<button class="btn danger block" id="e-del" style="margin-top:.4rem">Excluir</button>`:""}`;
   }
   if(edit.kind==="chuva" || edit.kind==="novo-chuva"){
     const c = edit.kind==="chuva" ? (state.chuva||[]).find(x=>x.id===edit.id) : {data:hojeISO(), mm:"", obs:""};
@@ -1426,9 +1431,11 @@ function render(){
     const prots=[...(eq.protocolos||[])].slice().reverse();
     if(!prots.length) html+=`<li class="muted">Nenhum protocolo.</li>`;
     prots.forEach(p=>{
+      const pid=p.id||(p.protocolo+"-"+p.data+"-"+p.hora);
       html+=`<li><div style="flex:1"><div style="font-weight:500">${esc(p.protocolo||"—")}</div>
         <div class="muted">${esc(p.data||"")} ${esc(p.hora||"")} · UC ${esc(p.uc||"")}</div>
-        <div class="muted">${esc(p.hist||"")} · ${esc(p.local||"")}</div></div></li>`;
+        <div class="muted">${esc(p.hist||"")} · ${esc(p.local||"")}</div></div>
+        <button class="btn sm" data-edit="protocolo" data-id="${esc(pid)}">✎</button></li>`;
     });
     html+=`</ul>`;
   }
@@ -1780,15 +1787,26 @@ function bind(){
       const ucEl=document.getElementById("e-uc");
       const uc=ucEl?ucEl.value:"";
       const ucObj=(state.equatorial.ucs||[]).find(u=>String(u.uc)===String(uc));
-      state.equatorial.protocolos.push({
-        id:uid(),
+      const row={
+        id: edit.kind==="protocolo" && edit.id && !String(edit.id).includes("-") ? edit.id : (edit.kind==="protocolo"?edit.id:uid()),
         data:document.getElementById("e-data").value||hojeISO(),
         hora:(document.getElementById("e-hora")&&document.getElementById("e-hora").value)||"",
         uc,
         protocolo:num,
         hist:(document.getElementById("e-hist")&&document.getElementById("e-hist").value.trim())||"",
         local:(document.getElementById("e-local")&&document.getElementById("e-local").value.trim())||(ucObj?ucObj.desc:"")
-      });
+      };
+      if(edit.kind==="protocolo"){
+        let found=false;
+        state.equatorial.protocolos=state.equatorial.protocolos.map(x=>{
+          const key=x.id||(x.protocolo+"-"+x.data+"-"+x.hora);
+          if(key===edit.id){ found=true; return {...x,...row, id:x.id||uid()}; }
+          return x;
+        });
+        if(!found) state.equatorial.protocolos.push({...row,id:uid()});
+      } else {
+        state.equatorial.protocolos.push({...row,id:uid()});
+      }
       save(); toast("Protocolo salvo"); closeEdit(); return;
     }
   };
@@ -1799,6 +1817,13 @@ function bind(){
     if(edit.kind==="maquina") state.maquinas=state.maquinas.filter(x=>x.id!==edit.id);
     if(edit.kind==="pessoa") state.pessoas=state.pessoas.filter(x=>x.id!==edit.id);
     if(edit.kind==="chuva") state.chuva=(state.chuva||[]).filter(x=>x.id!==edit.id);
+    if(edit.kind==="protocolo"){
+      if(!state.equatorial) state.equatorial={protocolos:[]};
+      state.equatorial.protocolos=(state.equatorial.protocolos||[]).filter(x=>{
+        const key=x.id||(x.protocolo+"-"+x.data+"-"+x.hora);
+        return key!==edit.id;
+      });
+    }
     save(); toast("Excluído"); closeEdit();
   };
   // Devolver empréstimo
