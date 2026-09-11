@@ -791,7 +791,8 @@ function renderDrawer(){
   }
   if(edit.kind==="protocolo" || edit.kind==="novo-protocolo"){
     const eq = state.equatorial || SEED.equatorial;
-    const ucOpts = (eq.ucs||[]).map(u=>`<option value="${esc(u.uc)}">${esc(u.uc)} — ${esc(u.desc)}</option>`).join("");
+    const ucKeep=["10026027184","980046051"];
+    const ucOpts = (eq.ucs||[]).filter(u=>ucKeep.includes(String(u.uc))).map(u=>`<option value="${esc(u.uc)}">${esc(u.uc)} — ${esc(u.desc)}</option>`).join("");
     body=`<h2>Novo protocolo Equatorial</h2>
       <div class="field"><label>Unidade (UC)</label><select id="e-uc">${ucOpts}</select></div>
       <div class="field"><label>Nº protocolo</label><input id="e-prot" placeholder="Ex: 498274640"/></div>
@@ -1770,6 +1771,25 @@ function bind(){
         state.diesel.litros = Math.max(0, Number((state.diesel.litros - qtd).toFixed(0)));
       }
       save(); toast("Saída lançada e baixa no estoque"); closeEdit(); return;
+    }
+    if(edit.kind==="protocolo"||edit.kind==="novo-protocolo"){
+      if(!state.equatorial) state.equatorial=JSON.parse(JSON.stringify(SEED.equatorial||{}));
+      if(!state.equatorial.protocolos) state.equatorial.protocolos=[];
+      const num=(document.getElementById("e-prot")&&document.getElementById("e-prot").value.trim())||"";
+      if(!num){ toast("Informe o número do protocolo"); return; }
+      const ucEl=document.getElementById("e-uc");
+      const uc=ucEl?ucEl.value:"";
+      const ucObj=(state.equatorial.ucs||[]).find(u=>String(u.uc)===String(uc));
+      state.equatorial.protocolos.push({
+        id:uid(),
+        data:document.getElementById("e-data").value||hojeISO(),
+        hora:(document.getElementById("e-hora")&&document.getElementById("e-hora").value)||"",
+        uc,
+        protocolo:num,
+        hist:(document.getElementById("e-hist")&&document.getElementById("e-hist").value.trim())||"",
+        local:(document.getElementById("e-local")&&document.getElementById("e-local").value.trim())||(ucObj?ucObj.desc:"")
+      });
+      save(); toast("Protocolo salvo"); closeEdit(); return;
     }
   };
   const ed=document.getElementById("e-del");
