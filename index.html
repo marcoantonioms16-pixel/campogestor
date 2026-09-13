@@ -1050,8 +1050,8 @@ function render(){
   if(page==="frota"){
     const ordem=["trator","colheitadeira","plantadeira","pulverizador","distribuidor","veiculo","implemento","equipamento","maquina","outros"];
     const fazendaDe=m=>{
-      const f=String(m.fazenda||"").toUpperCase();
-      if(f.includes("SANTA RITA")) return "SANTA RITA";
+      const f=String(m.fazenda||"").toUpperCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
+      if(f.includes("SANTA RITA")||f.includes("STA RITA")||f.includes("S. RITA")) return "SANTA RITA";
       if(f.includes("SEGREDO")) return "SEGREDO";
       return f||"";
     };
@@ -1638,14 +1638,20 @@ function bind(){
   document.querySelectorAll("[data-cat]").forEach(b=>{ b.onclick=()=>{ catInsumo=b.getAttribute("data-cat"); render(); }; });
   document.querySelectorAll("[data-cat-maq]").forEach(b=>{
     b.onclick=()=>{
-      catMaq=b.getAttribute("data-cat-maq")||"todos";
-      if(b.hasAttribute("data-cat-faz") && catMaq==="todos") catFaz=b.getAttribute("data-cat-faz")||"todos";
+      const v=b.getAttribute("data-cat-maq")||"todos";
+      if(v==="todos"){ catMaq="todos"; catFaz="todos"; }
+      else catMaq = (catMaq===v ? "todos" : v);
       render();
     };
   });
   document.querySelectorAll("[data-cat-faz]").forEach(b=>{
     if(b.hasAttribute("data-cat-maq")) return;
-    b.onclick=()=>{ catFaz=b.getAttribute("data-cat-faz"); render(); };
+    b.onclick=()=>{
+      const v=b.getAttribute("data-cat-faz");
+      catFaz = (catFaz===v ? "todos" : v);
+      catMaq="todos";
+      render();
+    };
   });
   document.querySelectorAll("[data-cat-ext]").forEach(b=>{
     b.onclick=()=>{ catExt=b.getAttribute("data-cat-ext"); render(); };
