@@ -1379,4 +1379,12 @@ function bind(){
   },{passive:true});
 })();
 applyTema();
+(function bootSplash(){
+  const splash=document.createElement("div");
+  splash.className="app-splash";
+  splash.innerHTML=`<div class="splash-inner"><div class="splash-mark" aria-hidden="true"></div><div class="splash-title">CAMPO<span>GESTOR</span></div><div class="splash-sub">Gestão inteligente do campo</div><div class="splash-loading"><span></span></div></div>`;
+  document.body.appendChild(splash);
+  window.setTimeout(()=>splash.classList.add("hide"),1100);
+  window.setTimeout(()=>splash.remove(),1650);
+})();
 initAuth().then(()=>render()).catch(()=>render());

@@ -43,13 +43,11 @@ window.CampoGestorTelas.frota = function() {
     html +=`<div class="chips" style="justify-content:center">`;
     html +=`<button class="chip ${catMaq==="todos"&&catFaz==="todos"?"on":""}" data-cat-maq="todos" data-cat-faz="todos">Todos</button>`;
     fazendas.forEach(f=>{
-      const qtd=state.maquinas.filter(m=>fazendaDe(m)===f).length;
       const nome=f==="SANTA RITA"?"Santa Rita":f==="SEGREDO"?"Segredo":f;
-      html +=`<button class="chip ${catFaz===f?"on":""}" data-cat-faz="${esc(f)}">${esc(nome)} · ${qtd}</button>`;
+      html +=`<button class="chip ${catFaz===f?"on":""}" data-cat-faz="${esc(f)}">${esc(nome)}</button>`;
     });
     ordem.filter(t=>presentes.has(t)).forEach(t=>{
-      const qtd=state.maquinas.filter(m=>canonTipo(m.tipo)===t).length;
-      html +=`<button class="chip ${catMaq===t?"on":""}" data-cat-maq="${t}">${TIPO_MAQ[t]||t} · ${qtd}</button>`;
+      html +=`<button class="chip ${catMaq===t?"on":""}" data-cat-maq="${t}">${TIPO_MAQ[t]||t}</button>`;
     });
     html +=`</div>`;
     html +=`<ul class="list card" style="padding:.25rem 1rem">`;
