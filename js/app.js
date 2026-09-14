@@ -917,6 +917,9 @@ function render(){
     {id:"mais",ic:"⋯",label:"Mais"},
   ];
   html+=`<div class="side-bg ${menuOpen?"open":""}" id="side-bg"></div>`;
+  html+=`<nav class="bottom-nav" aria-label="Navegação principal">
+    ${navItems.slice(0,5).map(it=>`<button class="bottom-item ${page===it.id?"active":""}" data-go="${it.id}"><span class="bi">${it.ic}</span><span>${it.label}</span></button>`).join("")}
+  </nav>`;
   html+=`<aside class="side ${menuOpen?"open":""}" id="side">
     <div class="brand"><div class="k">CampoGestor</div><div class="n">${esc(state.farm.nome)}</div></div>`;
   navItems.forEach(it=>{
@@ -1382,7 +1385,7 @@ applyTema();
 (function bootSplash(){
   const splash=document.createElement("div");
   splash.className="app-splash";
-  splash.innerHTML=`<div class="splash-inner"><div class="splash-mark" aria-hidden="true"></div><div class="splash-title">CAMPO<span>GESTOR</span></div><div class="splash-sub">Gestão inteligente do campo</div><div class="splash-loading"><span></span></div></div>`;
+  splash.innerHTML=`<div class="splash-inner"><div class="splash-mark" aria-hidden="true"></div><div class="splash-title">CAMPO<span>GESTOR</span></div><div class="splash-sub">Gestão inteligente do campo</div><div class="splash-loading" aria-label="Carregando"><span></span></div></div>`;
   document.body.appendChild(splash);
   window.setTimeout(()=>splash.classList.add("hide"),1100);
   window.setTimeout(()=>splash.remove(),1650);

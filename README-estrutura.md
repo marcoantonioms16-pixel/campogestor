@@ -30,3 +30,8 @@ A aplicação continua sendo um site estático e pode ser hospedada como antes. 
 
 ## Correção de inicialização
 A primeira extração das telas dependia da variável `hoje` que existia no escopo do `render()` original. As telas Hoje, Pessoas e Folgas agora calculam `hoje` localmente, evitando ReferenceError e tela em branco.
+
+
+## Ajuste visual
+
+Os chips padrão e a cor de fundo foram restaurados para o padrão original do CampoGestor. A aba Hoje mantém seus chips especiais independentes.
