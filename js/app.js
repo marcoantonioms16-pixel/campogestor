@@ -1005,7 +1005,13 @@ function render(){
 
   const renderers = window.CampoGestorTelas || {};
   const renderPage = renderers[page];
-  if(renderPage) html += renderPage();
+  try{
+    if(renderPage) html += renderPage();
+    else html += `<section class="card"><p class="card-title">Tela indisponível</p><p>A página "${esc(page)}" não foi carregada.</p></section>`;
+  }catch(err){
+    console.error("Erro ao renderizar tela", page, err);
+    html += `<section class="card"><p class="card-title">Não foi possível abrir esta tela</p><p>Os dados locais foram preservados. Tente outra aba pelo menu.</p></section>`;
+  }
 
   const navItems=[
     {id:"hoje",ic:"🏠",label:"Hoje"},
