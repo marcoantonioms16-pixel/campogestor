@@ -917,6 +917,9 @@ function render(){
     {id:"mais",ic:"⋯",label:"Mais"},
   ];
   html+=`<div class="menu-overlay ${menuOpen?"open":""}" id="side-bg" aria-hidden="${menuOpen?"false":"true"}"></div>`;
+  html+=`<nav class="bottom-nav" aria-label="Navegação principal">
+    ${navItems.slice(0,5).map(it=>`<button class="bottom-item ${page===it.id?"active":""}" data-go="${it.id}"><span class="bi">${it.ic}</span><span>${it.label}</span></button>`).join("")}
+  </nav>`;
   if(menuOpen){
     html+=`<section class="floating-menu" id="floating-menu" aria-label="Menu CampoGestor">
       <div class="floating-menu-head">
