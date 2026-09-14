@@ -836,3 +836,64 @@ body{padding-bottom:0!important;}
   .weather-days{gap:6px;}
   .today-summary-grid{gap:7px;}
 }
+
+
+/* =========================================================
+   CAMPOGESTOR — NORMALIZAÇÃO FINAL DAS TELAS
+   Última camada: corrige somente apresentação/layout.
+   ========================================================= */
+body{padding-bottom:0!important;overflow-x:hidden;}
+#app,.app{width:100%;min-height:100vh;overflow-x:hidden;}
+.header{width:100%;max-width:760px;margin:0 auto;padding:14px 16px 12px;min-width:0;}
+.header-main{min-width:0;overflow:hidden;}
+.header-main h1{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.header .kicker{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.header>.btn,.header>span,.header>div:last-child{flex:0 0 auto;}
+.search{margin:0 1rem 10px;}
+.search input{width:100%;min-height:44px;}
+.card{overflow:hidden;}
+.list.card{width:auto;max-width:none;}
+.list>li{min-width:0;align-items:center;gap:10px;padding:13px 0!important;border-bottom:1px solid #24513d!important;}
+.list>li:last-child{border-bottom:0!important;}
+.list>li>div:first-child{min-width:0;flex:1 1 auto;}
+.list>li>div:first-child>div{max-width:100%;overflow-wrap:anywhere;word-break:break-word;}
+.list>li>.btn,.list>li>.badge{flex:0 0 auto;}
+.list .muted{overflow-wrap:anywhere;word-break:break-word;}
+.chips{display:flex!important;align-items:center;gap:8px!important;flex-wrap:wrap!important;margin:0 0 10px;padding:2px 1rem 4px!important;}
+.chip{flex:0 0 auto!important;min-height:34px;padding:.42rem .72rem!important;border:1px solid #24513d!important;border-radius:999px!important;background:rgba(255,255,255,.92)!important;color:#173f2f!important;font-weight:750!important;white-space:nowrap!important;}
+.chip.on{background:#173f2f!important;color:#fff!important;border-color:#173f2f!important;}
+.btn{min-height:38px;line-height:1.1;white-space:nowrap;}
+.btn.sm{min-height:34px;padding:.42rem .62rem;}
+.field{min-width:0;}
+.field input,.field select,.field textarea{width:100%;max-width:100%;min-height:42px;}
+.row{min-width:0;}
+.row>*{min-width:0;}
+.sub,.sec{overflow-wrap:anywhere;}
+.profile-trigger{flex:0 0 auto;max-width:42vw;}
+.profile-trigger-name{max-width:110px;}
+.farm-context{flex:0 1 auto;}
+
+/* Separadores verdes entre registros em todas as listas. */
+.list>li:not(:last-child){border-bottom:1px solid #24513d!important;}
+
+/* Grades que estavam apertando textos em telas menores. */
+@media(max-width:620px){
+  .header{padding-left:12px;padding-right:12px;}
+  .header-main h1{font-size:1.12rem;}
+  .header .kicker{font-size:.59rem;}
+  .profile-trigger{max-width:42px;padding:.25rem!important;}
+  .profile-trigger-name{display:none;}
+  .more-grid,.quick-grid{grid-template-columns:1fr!important;}
+  .today-feature-grid{grid-template-columns:1fr 1fr!important;}
+  .today-summary-grid{grid-template-columns:repeat(2,1fr)!important;}
+}
+@media(max-width:420px){
+  .card{margin-left:.75rem!important;margin-right:.75rem!important;}
+  .chips{padding-left:.75rem!important;padding-right:.75rem!important;}
+  .list.card{margin-left:.75rem!important;margin-right:.75rem!important;}
+  .today-feature-grid{grid-template-columns:1fr!important;}
+  .header> .btn{max-width:96px;overflow:hidden;text-overflow:ellipsis;}
+}
+
+/* Remove qualquer sobra de navegação inferior — o app usa hamburger. */
+.bottom-nav{display:none!important;}

@@ -249,7 +249,7 @@ function setPerfil(id){
   try { localStorage.setItem(PROFILE_KEY, p.id); } catch(e) {}
 }
 function isVisitante(){ return perfilAtual().id === "visitante"; }
-const WEATHER_CACHE_KEY = "campogestor_previsao_chuva_v1";
+const WEATHER_CACHE_KEY = "campogestor_previsao_chuva_v2";
 const WEATHER_CACHE_TTL = 30 * 60 * 1000;
 let weatherRequest = null;
 function weatherCodeLabel(code){
@@ -268,19 +268,26 @@ function weatherCached(){
 async function buscarPrevisaoChuva(){
   const cached=weatherCached(); if(cached) return cached;
   if(weatherRequest) return weatherRequest;
-  const local=String(state.farm?.municipio||"").trim();
-  if(!local) throw new Error("Local da fazenda não informado");
+  const farm=state.farm||{};
+  const lat=Number(farm.latitude), lon=Number(farm.longitude);
+  const local=String(farm.nome||"Fazenda Santa Rita").trim();
   weatherRequest=(async()=>{
-    const q=encodeURIComponent(local+", Goiás, Brasil");
-    const geo=await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${q}&count=1&language=pt&format=json`);
-    if(!geo.ok) throw new Error("Geolocalização indisponível");
-    const gd=await geo.json();
-    const r=gd.results?.[0];
-    if(!r) throw new Error("Local da fazenda não encontrado");
-    const url=`https://api.open-meteo.com/v1/forecast?latitude=${r.latitude}&longitude=${r.longitude}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum&timezone=America%2FSao_Paulo&forecast_days=5`;
+    let latitude=lat, longitude=lon, place=local;
+    if(!Number.isFinite(latitude) || !Number.isFinite(longitude)){
+      const municipio=String(farm.municipio||"").trim();
+      if(!municipio) throw new Error("Local da fazenda não informado");
+      const q=encodeURIComponent(municipio+", Goiás, Brasil");
+      const geo=await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${q}&count=1&language=pt&format=json`);
+      if(!geo.ok) throw new Error("Geolocalização indisponível");
+      const gd=await geo.json();
+      const r=gd.results?.[0];
+      if(!r) throw new Error("Local da fazenda não encontrado");
+      latitude=Number(r.latitude); longitude=Number(r.longitude); place=r.name||municipio;
+    }
+    const url=`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum&timezone=America%2FSao_Paulo&forecast_days=5`;
     const res=await fetch(url); if(!res.ok) throw new Error("Previsão indisponível");
     const data=await res.json();
-    const out={local:r.name||local,country:r.country||"Brasil",days:(data.daily?.time||[]).map((date,i)=>({date,code:data.daily.weather_code?.[i],max:data.daily.temperature_2m_max?.[i],min:data.daily.temperature_2m_min?.[i],prob:data.daily.precipitation_probability_max?.[i],mm:data.daily.precipitation_sum?.[i]}))};
+    const out={local:place,latitude,longitude,days:(data.daily?.time||[]).map((date,i)=>({date,code:data.daily.weather_code?.[i],max:data.daily.temperature_2m_max?.[i],min:data.daily.temperature_2m_min?.[i],prob:data.daily.precipitation_probability_max?.[i],mm:data.daily.precipitation_sum?.[i]}))};
     try{localStorage.setItem(WEATHER_CACHE_KEY,JSON.stringify({savedAt:Date.now(),data:out}));}catch(e){}
     return out;
   })();
