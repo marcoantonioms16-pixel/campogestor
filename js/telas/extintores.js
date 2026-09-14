@@ -16,11 +16,11 @@ window.CampoGestorTelas.extintores = function() {
     };
     const lista=state.extintores.filter(e=>catExt==="todos"||e.grupo===catExt)
       .slice().sort((a,b)=>String(a.local||a.maquina||"").localeCompare(b.local||b.maquina||"","pt-BR"));
-    html +=headerBar("Prevenção","Extintores",`<span style="display:flex;gap:.35rem"><button class="btn sm" id="btn-xls-ext">Excel</button><button class="btn primary sm" data-new="extintor">+ Novo</button></span>`);
+    html +=headerBar("Prevenção","Extintores",`<span style="display:flex;gap:.35rem"><button type="button" class="btn sm" id="btn-xls-ext">Excel</button><button type="button" class="btn primary sm" data-new="extintor">+ Novo</button></span>`);
     html +=`<div class="chips" style="justify-content:center">
-      <button class="chip ${catExt==="todos"?"on":""}" data-cat-ext="todos">Todos</button>
-      <button class="chip ${catExt==="santa-rita"?"on":""}" data-cat-ext="santa-rita">Santa Rita</button>
-      <button class="chip ${catExt==="maquinario"?"on":""}" data-cat-ext="maquinario">Maquinário</button>
+      <button type="button" class="chip ${catExt==="todos"?"on":""}" data-cat-ext="todos">Todos</button>
+      <button type="button" class="chip ${catExt==="santa-rita"?"on":""}" data-cat-ext="santa-rita">Santa Rita</button>
+      <button type="button" class="chip ${catExt==="maquinario"?"on":""}" data-cat-ext="maquinario">Maquinário</button>
     </div>`;
     html +=`<p class="sub">${lista.length} aparelho(s)</p>`;
     html +=`<ul class="list card" style="padding:.25rem 1rem">`;
@@ -32,7 +32,7 @@ window.CampoGestorTelas.extintores = function() {
         <div class="muted">${esc(e.fazenda||"Santa Rita")} · ${esc(e.tipo||"")} · ${esc(e.carga||"")}${e.codigo?" · nº "+esc(e.codigo):""}</div>
         <div class="muted">Recarga ${e.recarga?e.recarga.split("-").reverse().join("/"):"—"} · Venc. ${e.validade?e.validade.split("-").reverse().join("/"):"—"}</div></div>
         <span class="badge ${st.id}">${st.label}</span>
-        <button class="btn sm" data-edit="extintor" data-id="${e.id}">✎</button></li>`;
+        <button type="button" class="btn sm" data-edit="extintor" data-id="${e.id}">✎</button></li>`;
     });
     html +=`</ul>`;
   return html;

@@ -11,7 +11,7 @@ window.CampoGestorTelas.sementes = function() {
       if(!resumo[s.cultivar]) resumo[s.cultivar]={qtd:0,peso:0};
       resumo[s.cultivar].qtd++; resumo[s.cultivar].peso+=Number(s.peso)||0;
     });
-    html +=headerBar("Conferência de big bags","Sementes soja",`<button class="btn primary sm" data-new="semente">+ Registrar</button>`);
+    html +=headerBar("Conferência de big bags","Sementes soja",`<button type="button" class="btn primary sm" data-new="semente">+ Registrar</button>`);
     html +=`<p class="sub">Safra 2026/27 · tire foto da etiqueta e confira os dados no formulário (ou envie a foto no chat do Grok para extrair).</p>`;
     html +=`<div class="card"><p class="card-title">Resumo por cultivar</p><ul class="list">`;
     cults.forEach(c=>{
@@ -24,7 +24,7 @@ window.CampoGestorTelas.sementes = function() {
     if(!lista.length) html +=`<li class="muted">Nenhum big bag registrado ainda.</li>`;
     lista.forEach(s=>{
       html +=`<li><div style="flex:1"><div style="font-weight:500">${esc(s.cultivar)}</div><div class="muted">Lote ${esc(s.lote||"—")} · ${esc(s.peso||"—")} kg · ${esc(s.fornecedor||"—")}</div><div class="muted">${esc(s.data||"")} · Bag ${esc(s.numero||"—")}${s.validade?" · val. "+esc(s.validade):""}</div></div>
-        <button class="btn sm" data-edit="semente" data-id="${s.id}">✎</button></li>`;
+        <button type="button" class="btn sm" data-edit="semente" data-id="${s.id}">✎</button></li>`;
     });
     html +=`</ul>`;
   return html;

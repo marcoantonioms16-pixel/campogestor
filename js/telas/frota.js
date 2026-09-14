@@ -38,16 +38,16 @@ window.CampoGestorTelas.frota = function() {
       const okQ=!q || blob.includes(q);
       return okT && okF && okQ;
     });
-    html +=headerBar(`Máquinas · ${lista.length}/${state.maquinas.length}`,"Frota",`<button class="btn primary sm" data-new="maquina">+ Nova</button>`);
+    html +=headerBar(`Máquinas · ${lista.length}/${state.maquinas.length}`,"Frota",`<button type="button" class="btn primary sm" data-new="maquina">+ Nova</button>`);
     html +=`<div class="card" style="padding:.65rem .75rem"><input id="q-maq" placeholder="Pesquisar nome, código, marca, fazenda..." value="${esc(qMaq)}" style="width:100%;background:var(--elevated);border:1px solid var(--border);border-radius:10px;padding:.55rem .7rem"/></div>`;
     html +=`<div class="chips" style="justify-content:center">`;
-    html +=`<button class="chip ${catMaq==="todos"&&catFaz==="todos"?"on":""}" data-cat-maq="todos" data-cat-faz="todos">Todos</button>`;
+    html +=`<button type="button" class="chip ${catMaq==="todos"&&catFaz==="todos"?"on":""}" data-cat-maq="todos" data-cat-faz="todos">Todos</button>`;
     fazendas.forEach(f=>{
       const nome=f==="SANTA RITA"?"Santa Rita":f==="SEGREDO"?"Segredo":f;
-      html +=`<button class="chip ${catFaz===f?"on":""}" data-cat-faz="${esc(f)}">${esc(nome)}</button>`;
+      html +=`<button type="button" class="chip ${catFaz===f?"on":""}" data-cat-faz="${esc(f)}">${esc(nome)}</button>`;
     });
     ordem.filter(t=>presentes.has(t)).forEach(t=>{
-      html +=`<button class="chip ${catMaq===t?"on":""}" data-cat-maq="${t}">${TIPO_MAQ[t]||t}</button>`;
+      html +=`<button type="button" class="chip ${catMaq===t?"on":""}" data-cat-maq="${t}">${TIPO_MAQ[t]||t}</button>`;
     });
     html +=`</div>`;
     html +=`<ul class="list card" style="padding:.25rem 1rem">`;
@@ -57,7 +57,7 @@ window.CampoGestorTelas.frota = function() {
       const label=m.status==="operando"?"Operando":m.status==="manutencao"?"Manutenção":"Parada";
       html +=`<li><div style="flex:1"><div style="font-weight:500">${esc(m.nome)}</div><div class="muted">${m.codigo?("Cód. "+esc(m.codigo)+" · "):""}${esc(m.fazenda||"—")} · ${TIPO_MAQ[m.tipo]||m.tipo}${m.placa && m.placa!==m.codigo?" · "+esc(m.placa):""}</div></div>
         <span class="badge ${tone}">${label}</span>
-        <button class="btn sm" data-edit="maquina" data-id="${m.id}">✎</button></li>`;
+        <button type="button" class="btn sm" data-edit="maquina" data-id="${m.id}">✎</button></li>`;
     });
     html +=`</ul>`;
   return html;

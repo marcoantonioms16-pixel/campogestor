@@ -29,7 +29,7 @@ window.CampoGestorTelas.safra = function() {
         <p class="muted" style="margin-top:.35rem">${esc(j.portaria)}</p>
         <p class="muted">Fonte gravada no app (não puxa internet sozinha). Se o MAPA retificar, edite as datas.</p>
         <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.6rem">
-          <button class="btn sm" data-edit="janela">Editar janela</button>
+          <button type="button" class="btn sm" data-edit="janela">Editar janela</button>
           <a class="btn sm" href="${esc(j.fonte)}" target="_blank" rel="noopener">Agrodefesa / consulta</a>
         </div>
       </div>`;
@@ -39,10 +39,10 @@ window.CampoGestorTelas.safra = function() {
       <p class="muted">Corretivo ${countSt("cor",nCor)}/${nCor} · Fertilizante ${countSt("fer",nFer)}/${nFer} · Plantio ${countSt("pla",nPla)}/${nPla} · Sulco ${countSt("sul",nSul)}/${nSul}</p></div>`;
     // Filtro
     html +=`<div class="chips">
-      <button class="chip ${safraFiltro==="todos"?"on":""}" data-safra-filtro="todos">Todos</button>
-      <button class="chip ${safraFiltro==="pendente"?"on":""}" data-safra-filtro="pendente">Pendente</button>
-      <button class="chip ${safraFiltro==="andamento"?"on":""}" data-safra-filtro="andamento">Em andamento</button>
-      <button class="chip ${safraFiltro==="concluido"?"on":""}" data-safra-filtro="concluido">Concluído</button>
+      <button type="button" class="chip ${safraFiltro==="todos"?"on":""}" data-safra-filtro="todos">Todos</button>
+      <button type="button" class="chip ${safraFiltro==="pendente"?"on":""}" data-safra-filtro="pendente">Pendente</button>
+      <button type="button" class="chip ${safraFiltro==="andamento"?"on":""}" data-safra-filtro="andamento">Em andamento</button>
+      <button type="button" class="chip ${safraFiltro==="concluido"?"on":""}" data-safra-filtro="concluido">Concluído</button>
     </div>`;
     // Corretivo
     html +=`<p class="sec">Corretivo (calcário)</p>`;
@@ -54,7 +54,7 @@ window.CampoGestorTelas.safra = function() {
           <p class="muted">${n(r.ha,2)} ha · ${esc(r.cultivar)} · ${esc(r.dose)} · ${esc(r.volume)}</p>
           ${st==="concluido"&&getStDate("cor",i)?`<p class="muted">Concluído em ${getStDate("cor",i).split("-").reverse().join("/")}</p>`:""}
         </div>
-        <button class="badge ${stBadge[st]}" data-safra-st="cor" data-i="${i}" style="border:none;cursor:pointer">${stLabel[st]}</button>
+        <button type="button" class="badge ${stBadge[st]}" data-safra-st="cor" data-i="${i}" style="border:none;cursor:pointer">${stLabel[st]}</button>
       </div></div>`;
     });
     // Fertilizante
@@ -69,7 +69,7 @@ window.CampoGestorTelas.safra = function() {
       html +=`</ul>
           ${st==="concluido"&&getStDate("fer",i)?`<p class="muted">Concluído em ${getStDate("fer",i).split("-").reverse().join("/")}</p>`:""}
         </div>
-        <button class="badge ${stBadge[st]}" data-safra-st="fer" data-i="${i}" style="border:none;cursor:pointer;margin-top:.2rem">${stLabel[st]}</button>
+        <button type="button" class="badge ${stBadge[st]}" data-safra-st="fer" data-i="${i}" style="border:none;cursor:pointer;margin-top:.2rem">${stLabel[st]}</button>
       </div></div>`;
     });
     // Plantio
@@ -87,8 +87,8 @@ window.CampoGestorTelas.safra = function() {
           ${st==="concluido"&&getStDate("pla",i)?`<p class="muted">Concluído em ${getStDate("pla",i).split("-").reverse().join("/")}</p>`:""}
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:.35rem">
-          <button class="badge ${stBadge[st]}" data-safra-st="pla" data-i="${i}" style="border:none;cursor:pointer">${stLabel[st]}</button>
-          <button class="btn sm" data-edit-plantio="${i}">✎</button>
+          <button type="button" class="badge ${stBadge[st]}" data-safra-st="pla" data-i="${i}" style="border:none;cursor:pointer">${stLabel[st]}</button>
+          <button type="button" class="btn sm" data-edit-plantio="${i}">✎</button>
         </div>
       </div></div>`;
     });
@@ -102,7 +102,7 @@ window.CampoGestorTelas.safra = function() {
           <p class="muted">${esc(s.tipo)} · ${esc(s.fabricante)} · ${esc(s.dose)}</p>
           ${st==="concluido"&&getStDate("sul",i)?`<p class="muted">Concluído em ${getStDate("sul",i).split("-").reverse().join("/")}</p>`:""}
         </div>
-        <button class="badge ${stBadge[st]}" data-safra-st="sul" data-i="${i}" style="border:none;cursor:pointer">${stLabel[st]}</button>
+        <button type="button" class="badge ${stBadge[st]}" data-safra-st="sul" data-i="${i}" style="border:none;cursor:pointer">${stLabel[st]}</button>
       </div></div>`;
     });
     // Talhões

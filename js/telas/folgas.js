@@ -15,7 +15,7 @@ window.CampoGestorTelas.folgas = function() {
     if(folgaSemana>weeks.length) folgaSemana=weeks.length;
     const nomes=nomesDoMes(folgaMes);
     const diasView = folgaMesTodo ? daysInMonth(folgaMes) : weeks[folgaSemana-1];
-    html +=headerBar("Controle de equipe","Folgas e faltas",`<button class="btn primary sm" data-new="folga">+ Registrar</button>`);
+    html +=headerBar("Controle de equipe","Folgas e faltas",`<button type="button" class="btn primary sm" data-new="folga">+ Registrar</button>`);
     html +=`<div style="padding:.4rem 1rem;display:flex;gap:.4rem;align-items:center;flex-wrap:wrap">
       <select id="sel-folga-mes" style="background:var(--elevated);border:1px solid var(--border);border-radius:10px;padding:.4rem .6rem">`;
     for(let y=2026;y<=2027;y++){
@@ -25,13 +25,13 @@ window.CampoGestorTelas.folgas = function() {
       });
     }
     html +=`</select>
-      <button class="btn sm ${folgaMesTodo?"primary":""}" id="btn-mes-todo">${folgaMesTodo?"Ver por semana":"Ver mês inteiro"}</button>
-      <button class="btn" id="btn-exp-folgas">CSV</button>
+      <button type="button" class="btn sm ${folgaMesTodo?"primary":""}" id="btn-mes-todo">${folgaMesTodo?"Ver por semana":"Ver mês inteiro"}</button>
+      <button type="button" class="btn" id="btn-exp-folgas">CSV</button>
     </div>`;
     if(!folgaMesTodo){
       html +=`<div class="chips">`;
       weeks.forEach((w,i)=>{
-        html +=`<button class="chip ${folgaSemana===i+1?"on":""}" data-semana="${i+1}">${i+1}ª sem</button>`;
+        html +=`<button type="button" class="chip ${folgaSemana===i+1?"on":""}" data-semana="${i+1}">${i+1}ª sem</button>`;
       });
       html +=`</div>`;
     } else {
@@ -51,10 +51,10 @@ window.CampoGestorTelas.folgas = function() {
       diasView.forEach(iso=>{
         const t=folgaTipoNoDia(nome,iso);
         const bg=t==="X"?"var(--ok)":t==="P"?"var(--warn)":t==="F"?"var(--danger)":"transparent";
-        html +=`<td style="text-align:center;padding:.15rem"><button class="btn sm" data-cel-nome="${esc(nome)}" data-cel-dia="${iso}" style="min-width:1.7rem;padding:.15rem .2rem;background:${t?`color-mix(in srgb,${bg} 28%,var(--elevated))`:"var(--elevated)"}">${t||"·"}</button></td>`;
+        html +=`<td style="text-align:center;padding:.15rem"><button type="button" class="btn sm" data-cel-nome="${esc(nome)}" data-cel-dia="${iso}" style="min-width:1.7rem;padding:.15rem .2rem;background:${t?`color-mix(in srgb,${bg} 28%,var(--elevated))`:"var(--elevated)"}">${t||"·"}</button></td>`;
       });
       const aTirar=s.ainda+s.casa;
-      html +=`<td style="white-space:nowrap"><button class="btn sm" data-saldo-nome="${esc(nome)}" style="font-size:.65rem;padding:.15rem .35rem">A tirar ${aTirar}</button></td></tr>`;
+      html +=`<td style="white-space:nowrap"><button type="button" class="btn sm" data-saldo-nome="${esc(nome)}" style="font-size:.65rem;padding:.15rem .35rem">A tirar ${aTirar}</button></td></tr>`;
     });
     html +=`</table>
       <p class="muted" style="margin-top:.5rem">X folga · P plantão · F falta · toque na célula para mudar · domingo X = obrigatória · P ou vazio no domingo = folga na casa</p>

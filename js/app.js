@@ -249,6 +249,54 @@ function setPerfil(id){
   try { localStorage.setItem(PROFILE_KEY, p.id); } catch(e) {}
 }
 function isVisitante(){ return perfilAtual().id === "visitante"; }
+const WEATHER_CACHE_KEY = "campogestor_previsao_chuva_v1";
+const WEATHER_CACHE_TTL = 30 * 60 * 1000;
+let weatherRequest = null;
+function weatherCodeLabel(code){
+  const m={0:["Ensolarado","☀️"],1:["Poucas nuvens","🌤️"],2:["Parcialmente nublado","⛅"],3:["Nublado","☁️"],45:["Névoa","🌫️"],48:["Névoa","🌫️"],51:["Garoa leve","🌦️"],53:["Garoa","🌦️"],55:["Garoa forte","🌧️"],61:["Chuva leve","🌦️"],63:["Chuva","🌧️"],65:["Chuva forte","🌧️"],71:["Neve","❄️"],73:["Neve","❄️"],75:["Neve forte","❄️"],80:["Pancadas","🌦️"],81:["Pancadas","🌧️"],82:["Pancadas fortes","⛈️"],95:["Trovoadas","⛈️"],96:["Trovoadas","⛈️"],99:["Trovoadas fortes","⛈️"]};
+  return m[code] || ["Condição não informada","🌤️"];
+}
+function weatherDayLabel(iso,i){
+  if(i===0) return "Hoje";
+  const d=new Date(iso+"T12:00:00");
+  return new Intl.DateTimeFormat("pt-BR",{weekday:"short"}).format(d).replace(".","").replace(/^./,c=>c.toUpperCase());
+}
+function weatherCached(){
+  try{ const x=JSON.parse(localStorage.getItem(WEATHER_CACHE_KEY)||"null"); if(x && Date.now()-x.savedAt<WEATHER_CACHE_TTL) return x.data; }catch(e){}
+  return null;
+}
+async function buscarPrevisaoChuva(){
+  const cached=weatherCached(); if(cached) return cached;
+  if(weatherRequest) return weatherRequest;
+  const local=String(state.farm?.municipio||"").trim();
+  if(!local) throw new Error("Local da fazenda não informado");
+  weatherRequest=(async()=>{
+    const q=encodeURIComponent(local+", Goiás, Brasil");
+    const geo=await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${q}&count=1&language=pt&format=json`);
+    if(!geo.ok) throw new Error("Geolocalização indisponível");
+    const gd=await geo.json();
+    const r=gd.results?.[0];
+    if(!r) throw new Error("Local da fazenda não encontrado");
+    const url=`https://api.open-meteo.com/v1/forecast?latitude=${r.latitude}&longitude=${r.longitude}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum&timezone=America%2FSao_Paulo&forecast_days=5`;
+    const res=await fetch(url); if(!res.ok) throw new Error("Previsão indisponível");
+    const data=await res.json();
+    const out={local:r.name||local,country:r.country||"Brasil",days:(data.daily?.time||[]).map((date,i)=>({date,code:data.daily.weather_code?.[i],max:data.daily.temperature_2m_max?.[i],min:data.daily.temperature_2m_min?.[i],prob:data.daily.precipitation_probability_max?.[i],mm:data.daily.precipitation_sum?.[i]}))};
+    try{localStorage.setItem(WEATHER_CACHE_KEY,JSON.stringify({savedAt:Date.now(),data:out}));}catch(e){}
+    return out;
+  })();
+  try{return await weatherRequest;}finally{weatherRequest=null;}
+}
+async function atualizarPrevisaoChuva(){
+  const box=document.getElementById("weather-days"); if(!box) return;
+  try{
+    const w=await buscarPrevisaoChuva();
+    const html=w.days.map((d,i)=>{const [label,ic]=weatherCodeLabel(d.code); const prob=Number.isFinite(d.prob)?Math.round(d.prob):0; const mm=Number.isFinite(d.mm)?Number(d.mm).toFixed(1).replace(".0",""):"—"; return `<div class="weather-day"><span class="weather-day-name">${weatherDayLabel(d.date,i)}</span><span class="weather-icon">${ic}</span><b>${Number.isFinite(d.max)?Math.round(d.max)+"°":"—"}</b><small>${Number.isFinite(d.min)?Math.round(d.min)+"°":"—"}</small><span class="weather-rain"><strong>${prob}%</strong><small> ${mm} mm</small></span><em>${esc(label)}</em></div>`;}).join("");
+    box.innerHTML=html+`<div class="weather-source">${esc(w.local)} · previsão atualizada automaticamente</div>`;
+  }catch(e){
+    box.innerHTML=`<div class="weather-empty"><span>☁️</span><div><b>Previsão temporariamente indisponível</b><small>Confira a aba Chuva para os registros locais.</small></div></div>`;
+  }
+}
+
 function perfilCloudResumo(){
   if(!sbUser) return "Somente neste aparelho";
   if(cloudStatus === "syncing") return "Sincronizando com a nuvem…";
@@ -659,8 +707,8 @@ function renderDrawer(){
       <div class="field"><label>Tipo (herbicida, inseticida…)</label><input id="e-tipodef" value="${esc(i.tipoDef||"")}"/></div>
       <div class="field"><label>Unidade</label><input id="e-un" value="${esc(i.unidade||"L")}"/></div>
       <div class="field"><label>Quantidade</label><input id="e-qtd" inputmode="decimal" value="${i.quantidade??0}"/></div>
-      <button class="btn primary block" id="e-save">Salvar</button>
-      ${edit.kind==="insumo"?`<button class="btn block" id="e-del" style="margin-top:.5rem;color:var(--danger)">Excluir</button>`:""}`;
+      <button type="button" class="btn primary block" id="e-save">Salvar</button>
+      ${edit.kind==="insumo"?`<button type="button" class="btn block" id="e-del" style="margin-top:.5rem;color:var(--danger)">Excluir</button>`:""}`;
   }
   if(edit.kind==="maquina" || edit.kind==="novo-maquina"){
     const m = edit.kind==="maquina" ? state.maquinas.find(x=>x.id===edit.id) : {nome:"",tipo:"trator",modelo:"",status:"operando",placa:""};
@@ -674,8 +722,8 @@ function renderDrawer(){
         <option value="parada" ${m.status==="parada"?"selected":""}>Parada</option>
         <option value="manutencao" ${m.status==="manutencao"?"selected":""}>Manutenção</option>
       </select></div>
-      <button class="btn primary block" id="e-save">Salvar</button>
-      ${edit.kind==="maquina"?`<button class="btn block" id="e-del" style="margin-top:.5rem;color:var(--danger)">Excluir</button>`:""}`;
+      <button type="button" class="btn primary block" id="e-save">Salvar</button>
+      ${edit.kind==="maquina"?`<button type="button" class="btn block" id="e-del" style="margin-top:.5rem;color:var(--danger)">Excluir</button>`:""}`;
   }
   if(edit.kind==="pessoa" || edit.kind==="novo-pessoa"){
     const p = edit.kind==="pessoa" ? state.pessoas.find(x=>x.id===edit.id) : {nome:"",tipo:"efetivo",funcao:"",nascimento:"",admissao:""};
@@ -692,8 +740,8 @@ function renderDrawer(){
       <div class="field"><label>Admissão / início</label><input id="e-adm" type="date" value="${esc(p.admissao||"")}"/></div>
       <div class="field"><label>Encerrou contrato</label><input id="e-fim" type="date" value="${esc(p.contratoFim||"")}"/></div>
       <p class="muted">Encerrado some das telas (Pessoas e Folgas). Continua no CSV da planilha.</p>
-      <button class="btn primary block" id="e-save">Salvar</button>
-      ${edit.kind==="pessoa"?`<button class="btn block" id="e-del" style="margin-top:.5rem;color:var(--danger)">Excluir</button>`:""}`;
+      <button type="button" class="btn primary block" id="e-save">Salvar</button>
+      ${edit.kind==="pessoa"?`<button type="button" class="btn block" id="e-del" style="margin-top:.5rem;color:var(--danger)">Excluir</button>`:""}`;
   }
   if(edit.kind==="semente" || edit.kind==="novo-semente"){
     const cults=["76KA72 CE","RAPTOR I2X","NEO761 I2X","NEO700 I2X","DM 72IX74 I2X","ST 752 I2X"];
@@ -709,8 +757,8 @@ function renderDrawer(){
       <div class="field"><label>Pureza (%)</label><input id="e-pur" inputmode="decimal" value="${esc(s.pureza||"")}"/></div>
       <div class="field"><label>Germinação (%)</label><input id="e-ger" inputmode="decimal" value="${esc(s.germinacao||"")}"/></div>
       <div class="field"><label>Observação</label><input id="e-obs" value="${esc(s.obs||"")}"/></div>
-      <button class="btn primary block" id="e-save">Salvar conferência</button>
-      ${edit.kind==="semente"?`<button class="btn block" id="e-del" style="margin-top:.5rem;color:var(--danger)">Excluir</button>`:""}`;
+      <button type="button" class="btn primary block" id="e-save">Salvar conferência</button>
+      ${edit.kind==="semente"?`<button type="button" class="btn block" id="e-del" style="margin-top:.5rem;color:var(--danger)">Excluir</button>`:""}`;
   }
   if(edit.kind==="folga" || edit.kind==="novo-folga"){
     const f = edit.kind==="folga" ? (state.folgas||[]).find(x=>x.id===edit.id) : {pessoaId:"",pessoaNome:"",data:hojeISO(),tipo:"X",obs:""};
@@ -727,8 +775,8 @@ function renderDrawer(){
         <option value="E" ${f.tipo==="E"?"selected":""}>E — Encerrou contrato</option>
       </select></div>
       <div class="field"><label>Observação</label><input id="e-obs" value="${esc(f.obs||"")}"/></div>
-      <button class="btn primary block" id="e-save">Salvar</button>
-      ${edit.kind==="folga"?`<button class="btn block" id="e-del" style="margin-top:.5rem;color:var(--danger)">Excluir</button>`:""}`;
+      <button type="button" class="btn primary block" id="e-save">Salvar</button>
+      ${edit.kind==="folga"?`<button type="button" class="btn block" id="e-del" style="margin-top:.5rem;color:var(--danger)">Excluir</button>`:""}`;
   }
   if(edit.kind==="protocolo" || edit.kind==="novo-protocolo"){
     const eq = state.equatorial || SEED.equatorial;
@@ -745,8 +793,8 @@ function renderDrawer(){
       <div class="field"><label>Hora</label><input id="e-hora" type="time" value="${esc((p&&p.hora)||agora)}"/></div>
       <div class="field"><label>Ocorrência</label><input id="e-hist" value="${esc((p&&p.hist)||"Falta de energia")}"/></div>
       <div class="field"><label>Local</label><input id="e-local" value="${esc((p&&p.local)||"SANTA RITA")}"/></div>
-      <button class="btn primary block" id="e-save">Salvar protocolo</button>
-      ${p?`<button class="btn danger block" id="e-del" style="margin-top:.4rem">Excluir</button>`:""}`;
+      <button type="button" class="btn primary block" id="e-save">Salvar protocolo</button>
+      ${p?`<button type="button" class="btn danger block" id="e-del" style="margin-top:.4rem">Excluir</button>`:""}`;
   }
   if(edit.kind==="chuva" || edit.kind==="novo-chuva"){
     const c = edit.kind==="chuva" ? (state.chuva||[]).find(x=>x.id===edit.id) : {data:hojeISO(), mm:"", obs:""};
@@ -754,8 +802,8 @@ function renderDrawer(){
       <div class="field"><label>Data</label><input id="e-data" type="date" value="${esc(c.data||hojeISO())}"/></div>
       <div class="field"><label>Milímetros (mm)</label><input id="e-mm" inputmode="decimal" value="${esc(c.mm??"")}"/></div>
       <div class="field"><label>Observação</label><input id="e-obs" value="${esc(c.obs||"")}"/></div>
-      <button class="btn primary block" id="e-save">Salvar</button>
-      ${edit.kind==="chuva"?`<button class="btn block" id="e-del" style="margin-top:.5rem;color:var(--danger)">Excluir</button>`:""}`;
+      <button type="button" class="btn primary block" id="e-save">Salvar</button>
+      ${edit.kind==="chuva"?`<button type="button" class="btn block" id="e-del" style="margin-top:.5rem;color:var(--danger)">Excluir</button>`:""}`;
   }
   if(edit.kind==="saida" || edit.kind==="novo-saida"){
     const prodOpts = state.insumos.map(i=>`<option value="${i.id}">${esc(i.nome)} (${n(i.quantidade,i.quantidade>=100?0:1)} ${esc(i.unidade)})</option>`).join("");
@@ -778,7 +826,7 @@ function renderDrawer(){
       <div class="field"><label>Destino *</label><input id="e-destino" placeholder="Obrigatório"/></div>
       <div class="field"><label>Responsável *</label><input id="e-resp" placeholder="Obrigatório"/></div>
       <div class="field"><label>Observação</label><input id="e-obs" placeholder="Opcional"/></div>
-      <button class="btn primary block" id="e-save">Salvar e dar baixa</button>`;
+      <button type="button" class="btn primary block" id="e-save">Salvar e dar baixa</button>`;
   }
   if(edit.kind==="edit-plantio"){
     const idx=Number(edit.id);
@@ -791,7 +839,7 @@ function renderDrawer(){
       <div class="field"><label>Cultivar / semente</label><select id="e-cult">${cults.map(c=>`<option value="${c}" ${curCult===c?"selected":""}>${c}</option>`).join("")}</select></div>
       <div class="field"><label>Sementes por metro (sem/m)</label><input id="e-semm" value="${esc(ov.sem_m||r.sem_m||"")}"/></div>
       <div class="field"><label>Sementes por hectare (sem/ha)</label><input id="e-semha" value="${esc(ov.sem_ha||r.sem_ha||"")}"/></div>
-      <button class="btn primary block" id="e-save-plantio">Salvar</button>`;
+      <button type="button" class="btn primary block" id="e-save-plantio">Salvar</button>`;
   }
   if(edit.kind==="cel-folga"){
     const nome=edit.nome, dia=edit.dia;
@@ -799,7 +847,7 @@ function renderDrawer(){
     const opts=[["","— vazio / trabalhou"],["X","X — Folga"],["P","P — Plantão de incêndio"],["F","F — Falta"],["V","V — Férias"],["E","E — Encerrou contrato"]];
     body=`<h2>${esc(nome)}</h2>
       <p class="muted" style="margin-bottom:.7rem">${(dia||"").split("-").reverse().join("/")} · ${["domingo","segunda","terça","quarta","quinta","sexta","sábado"][isoDow(dia)]}</p>
-      ${opts.map(([v,l])=>`<button class="btn block" data-set-folga="${v}" style="margin-bottom:.35rem;${cur===v?"background:var(--primary);color:var(--bg)":""}">${l}</button>`).join("")}`;
+      ${opts.map(([v,l])=>`<button type="button" class="btn block" data-set-folga="${v}" style="margin-bottom:.35rem;${cur===v?"background:var(--primary);color:var(--bg)":""}">${l}</button>`).join("")}`;
   }
   if(edit.kind==="saldo-folga"){
     const nome=edit.nome;
@@ -877,7 +925,7 @@ function renderDrawer(){
       <div class="field"><label>Fim da semeadura</label><input id="j-sf" type="date" value="${esc(j.semeaduraFim)}"/></div>
       <div class="field"><label>Portaria / referência</label><input id="j-po" value="${esc(j.portaria)}"/></div>
       <div class="field"><label>Link de consulta</label><input id="j-fo" value="${esc(j.fonte)}"/></div>
-      <button class="btn primary block" id="e-save-janela">Salvar janela</button>`;
+      <button type="button" class="btn primary block" id="e-save-janela">Salvar janela</button>`;
   }
   if(edit.kind==="extintor" || edit.kind==="novo-extintor"){
     const e = edit.kind==="extintor" ? (state.extintores||[]).find(x=>x.id===edit.id)||{} : {fazenda:"Santa Rita",grupo:"santa-rita",local:"",maquina:"",tipo:"Pó ABC",carga:"6 kg",codigo:"",recarga:"",validade:"",obs:"",nrInterno:""};
@@ -908,8 +956,8 @@ function renderDrawer(){
       <div class="field"><label>Última recarga</label><input id="x-rec" type="date" value="${esc(e.recarga||"")}"/></div>
       <div class="field"><label>Vencimento</label><input id="x-val" type="date" value="${esc(e.validade||"")}"/></div>
       <div class="field"><label>Observação</label><input id="x-obs" value="${esc(e.obs||"")}" placeholder="vazio, etc."/></div>
-      <button class="btn primary block" id="e-save-ext">Salvar</button>
-      ${edit.kind==="extintor"?`<button class="btn danger block" id="e-del-ext" style="margin-top:.4rem">Excluir</button>`:""}`;
+      <button type="button" class="btn primary block" id="e-save-ext">Salvar</button>
+      ${edit.kind==="extintor"?`<button type="button" class="btn danger block" id="e-del-ext" style="margin-top:.4rem">Excluir</button>`:""}`;
   }
   if(edit.kind==="farm"){
     body=`<h2>Editar fazenda</h2>
@@ -919,7 +967,7 @@ function renderDrawer(){
       <div class="field"><label>Gerente</label><input id="f-ger" value="${esc(state.farm.gerente)}"/></div>
       <div class="field"><label>Safra</label><input id="f-safra" value="${esc(state.farm.safra)}"/></div>
       <div class="field"><label>WhatsApp Clara (DDD + número)</label><input id="f-wa" placeholder="62999999999" value="${esc(state.farm.whatsappClara||"6232432020")}"/></div>
-      <button class="btn primary block" id="e-save-farm">Salvar</button>`;
+      <button type="button" class="btn primary block" id="e-save-farm">Salvar</button>`;
   }
   const mid = edit && String(edit.kind||"").startsWith("hoje-");
   return `<div class="drawer-bg${mid?" center":""}" id="drawer"><div class="drawer">${body}</div></div>`;
@@ -937,8 +985,8 @@ function renderProfileModal(){
       <div class="profile-current"><span class="profile-avatar large">${esc(p.inicial)}</span><div><strong>${esc(p.nome)}</strong><span>${esc(p.role)}</span></div></div>
       <div class="profile-options">${PERFIS.map(x=>`<button type="button" class="profile-option ${x.id===p.id?"active":""}" data-profile-id="${x.id}"><span class="profile-avatar">${esc(x.inicial)}</span><span class="profile-option-text"><strong>${esc(x.nome)}</strong><small>${esc(x.role)}</small></span>${x.id===p.id?`<span class="profile-check">✓</span>`:""}</button>`).join("")}</div>
       <div class="profile-cloud"><span class="cloud-dot ${cloudStatus}"></span><div><strong>☁ ${sbUser?"Nuvem conectada":"Nuvem não conectada"}</strong><span>${esc(cloud)}</span></div></div>
-      ${sbUser?`<div class="profile-email">${esc(sbUser.email||"")}</div><div style="display:flex;gap:8px;margin-top:10px"><button class="btn block" id="btn-push">Salvar agora</button><button class="btn block" id="btn-logout">Sair</button></div>`:
-      `<div class="profile-auth"><p class="muted">Entre com o e-mail e a senha da fazenda para sincronizar os dados na nuvem.</p><div class="field"><label>E-mail</label><input id="auth-email" type="email" placeholder="seu@email.com" autocomplete="username"/></div><div class="field"><label>Senha</label><input id="auth-pass" type="password" placeholder="••••••" autocomplete="current-password"/></div><div style="display:flex;gap:8px"><button class="btn primary block" id="btn-login">Entrar</button><button class="btn block" id="btn-signup">Criar</button></div></div>`}
+      ${sbUser?`<div class="profile-email">${esc(sbUser.email||"")}</div><div style="display:flex;gap:8px;margin-top:10px"><button type="button" class="btn block" id="btn-push">Salvar agora</button><button type="button" class="btn block" id="btn-logout">Sair</button></div>`:
+      `<div class="profile-auth"><p class="muted">Entre com o e-mail e a senha da fazenda para sincronizar os dados na nuvem.</p><div class="field"><label>E-mail</label><input id="auth-email" type="email" placeholder="seu@email.com" autocomplete="username"/></div><div class="field"><label>Senha</label><input id="auth-pass" type="password" placeholder="••••••" autocomplete="current-password"/></div><div style="display:flex;gap:8px"><button type="button" class="btn primary block" id="btn-login">Entrar</button><button type="button" class="btn block" id="btn-signup">Criar</button></div></div>`}
     </section>
   </div>`;
 }
@@ -976,7 +1024,7 @@ function render(){
         <button type="button" class="floating-close" id="floating-close" aria-label="Fechar menu">×</button>
       </div>
       <div class="menu-bubbles">
-        ${navItems.map((it,i)=>`<button class="menu-bubble ${page===it.id?"active":""}" data-go="${it.id}" style="--bubble-delay:${i*35}ms">
+        ${navItems.map((it,i)=>`<button type="button" class="menu-bubble ${page===it.id?"active":""}" data-go="${it.id}" style="--bubble-delay:${i*35}ms">
           <span class="bubble-icon">${it.ic}</span><span class="bubble-label">${it.label}</span>
         </button>`).join("")}
       </div>
@@ -987,7 +1035,7 @@ function render(){
   html+=renderDrawer();
   root.innerHTML=html;
   bind();
-  if(page==="hoje"){ notifyBirthdays(); notifyRotina(); }
+  if(page==="hoje"){ notifyBirthdays(); notifyRotina(); atualizarPrevisaoChuva(); }
 }
 
 function bind(){

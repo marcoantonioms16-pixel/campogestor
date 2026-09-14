@@ -4,9 +4,9 @@ window.CampoGestorTelas = window.CampoGestorTelas || {};
 window.CampoGestorTelas.pessoas = function() {
   let html = "";
   const hoje = hojeISO();
-    html +=headerBar(`Equipe · ${state.pessoas.filter(p=>p.tipo!=="encerrado").length}`,"Pessoas",`<button class="btn primary sm" data-new="pessoa">+ Nova</button>`);
+    html +=headerBar(`Equipe · ${state.pessoas.filter(p=>p.tipo!=="encerrado").length}`,"Pessoas",`<button type="button" class="btn primary sm" data-new="pessoa">+ Nova</button>`);
 
-    html +=`<div style="padding:0 1rem .5rem"><button class="btn block" id="btn-notif">Ativar avisos de aniversário</button></div>`;
+    html +=`<div style="padding:0 1rem .5rem"><button type="button" class="btn block" id="btn-notif">Ativar avisos de aniversário</button></div>`;
     const ativos=state.pessoas.filter(p=>p.tipo!=="encerrado");
     const exs=state.pessoas.filter(p=>p.tipo==="encerrado");
     const sortFn=(a,b)=>{
@@ -34,10 +34,10 @@ window.CampoGestorTelas.pessoas = function() {
           ${tempo && p.tipo!=="encerrado"?`<div style="margin-top:.15rem">Tempo de casa: <b>${esc(tempo)}</b></div>`:""}
           ${p.carteira?`<div style="margin-top:.45rem;padding:.5rem .6rem;background:var(--elevated);border-radius:10px;display:flex;align-items:center;justify-content:space-between;gap:.5rem">
             <div><div class="muted" style="font-size:.7rem">Carteira Unimed</div><div style="font-weight:500">${esc(p.carteira)}</div></div>
-            <button class="btn sm" data-copy="${esc(p.carteira)}">Copiar</button>
+            <button type="button" class="btn sm" data-copy="${esc(p.carteira)}">Copiar</button>
           </div>`:`<div class="muted" style="margin-top:.35rem">Sem carteira</div>`}
         </div>
-        <button class="btn sm" data-edit="pessoa" data-id="${p.id}">✎</button>
+        <button type="button" class="btn sm" data-edit="pessoa" data-id="${p.id}">✎</button>
       </li>`;
       return h;
     }
