@@ -331,6 +331,7 @@ let menuOpen = false;
 let qInsumo = "";
 let estoqueBuscaAberta = false;
 let qMaq = "";
+let frotaBuscaAberta = false;
 let weatherDetalhe = null;
 let lastWeather = null;
 let catExt = "todos";
@@ -829,27 +830,36 @@ function renderDrawer(){
       ${edit.kind==="chuva"?`<button type="button" class="btn block" id="e-del" style="margin-top:.5rem;color:var(--danger)">Excluir</button>`:""}`;
   }
   if(edit.kind==="saida" || edit.kind==="novo-saida"){
+    const agora=String(new Date().getHours()).padStart(2,"0")+":"+String(new Date().getMinutes()).padStart(2,"0");
     const prodOpts = state.insumos.map(i=>`<option value="${i.id}">${esc(i.nome)} (${n(i.quantidade,i.quantidade>=100?0:1)} ${esc(i.unidade)})</option>`).join("");
-    const linha=()=>`<div class="saida-linha" style="display:grid;grid-template-columns:1fr 5.5rem;gap:.4rem;margin-bottom:.4rem">
-        <select class="e-prod">${prodOpts}</select>
-        <input class="e-qtd" inputmode="decimal" placeholder="Qtd"/>
+    const linha=()=>`<div class="saida-linha">
+        <select class="e-prod"><option value="">Produto…</option>${prodOpts}</select>
+        <input class="e-qtd" inputmode="decimal" placeholder="Qtd *"/>
       </div>`;
-    body=`<h2>Lançamento de saída</h2>
-      <div class="field"><label>Data</label><input id="e-data" type="date" value="${hojeISO()}"/></div>
-      <div class="field"><label>Tipo de saída</label><select id="e-tipo">
-        <option value="Aplicação">Aplicação</option>
-        <option value="Transferência">Transferência</option>
+    const destinos=["Aplicação em talhão","Oficina","Transferência entre fazendas","Perda / quebra","Inventário / ajuste","Uso interno","Outro"];
+    body=`<h2>Lançamento de estoque</h2>
+      <div class="field"><label>Data *</label><input id="e-data" type="date" value="${hojeISO()}"/></div>
+      <div class="field"><label>Hora</label><input id="e-hora" type="time" value="${agora}"/></div>
+      <div class="field"><label>Tipo *</label><select id="e-tipo">
+        <option value="Saída">Saída</option>
+        <option value="Entrada">Entrada</option>
+        <option value="Ajuste">Ajuste</option>
         <option value="Empréstimo">Empréstimo</option>
-        <option value="Baixa">Baixa</option>
       </select></div>
-      <div class="field"><label>Produtos e quantidades</label>
+      <div class="field" id="e-emprestimo-box"><label>Emprestado para *</label><input id="e-para" placeholder="Nome da pessoa / fazenda"/></div>
+      <div class="field"><label>Produtos e quantidades *</label>
         <div id="saida-itens">${linha()}</div>
         <button type="button" class="btn sm" id="add-prod-saida" style="margin-top:.25rem">+ Outro produto</button>
       </div>
-      <div class="field"><label>Destino *</label><input id="e-destino" placeholder="Obrigatório"/></div>
-      <div class="field"><label>Responsável *</label><input id="e-resp" placeholder="Obrigatório"/></div>
+      <div class="field"><label>Destino / Motivo *</label><select id="e-destino">
+        <option value="">Selecione…</option>
+        ${destinos.map(d=>`<option value="${esc(d)}">${esc(d)}</option>`).join("")}
+      </select></div>
+      <div class="field"><label>Responsável *</label><input id="e-resp" placeholder="Quem retirou ou entregou"/></div>
+      <div class="field"><label>Talhão / máquina (opcional)</label><input id="e-ref" placeholder="Ex.: Talhão Sede, Trator 2412"/></div>
+      <div class="field"><label>Nº ordem / NF (opcional)</label><input id="e-nf" placeholder="Protocolo ou nota"/></div>
       <div class="field"><label>Observação</label><input id="e-obs" placeholder="Opcional"/></div>
-      <button type="button" class="btn primary block" id="e-save">Salvar e dar baixa</button>`;
+      <button type="button" class="btn primary block" id="e-save">Salvar lançamento</button>`;
   }
   if(edit.kind==="edit-plantio"){
     const idx=Number(edit.id);
@@ -916,16 +926,21 @@ function renderDrawer(){
   if(edit.kind==="hoje-diesel"){
     const dinv=dieselInventario();
     const litros=dinv ? dinv.total : Number(state.diesel.litros)||0;
-    const p=Math.round((litros/state.diesel.capacidade)*100);
-    const col=p>=50?"var(--ok)":p>=25?"var(--warn)":"var(--danger)";
+    const cap=Number(state.diesel.capacidade)||1;
+    const p=Math.max(0,Math.min(100,Math.round((litros/cap)*100)));
+    const tone=p>=50?"ok":p>=25?"warn":"danger";
     body=`<h2>Diesel</h2>
-      <div class="ring-wrap" style="justify-content:center">
-        <div class="ring" style="--p:${p};width:110px;height:110px;background:conic-gradient(${col} calc(${p}*1%), var(--elevated) 0)">
-          <span class="pct">${p}%</span>
+      <div class="diesel-tank-wrap">
+        <div class="diesel-tank">
+          <div class="diesel-fill ${tone}" style="height:${p}%"></div>
+          <div class="diesel-pct-label">${p}%</div>
+        </div>
+        <div class="diesel-meta">
+          <b>${n(litros,0)} L</b>
+          <small>de ${n(cap,0)} L de capacidade</small>
         </div>
       </div>
-      <p style="text-align:center">${n(litros,0)} L de ${n(state.diesel.capacidade,0)} L</p>
-      <p class="muted" style="text-align:center">Saldo puxado automaticamente do inventário.</p>`;
+      <p class="muted" style="text-align:center">Saldo puxado automaticamente do inventário de combustível.</p>`;
   }
   if(edit.kind==="hoje-chuva"){
     const lista=(state.chuva||[]).slice().sort((a,b)=>(b.data||"").localeCompare(a.data||""));
@@ -935,8 +950,9 @@ function renderDrawer(){
   }
   if(edit.kind==="hoje-area"){
     const ts=(state.talhoes||[]).slice().sort((a,b)=>String(a.codigo||a.nome).localeCompare(String(b.codigo||b.nome),"pt-BR"));
-    body=`<h2>Área</h2><p>${n(state.farm.areaTotal,0)} ha · ${ts.length} talhões</p>
-      <ul class="list" style="margin-top:.6rem">${ts.map(t=>`<li><div style="flex:1">${esc(nomeTalhao(t))}</div><div>${n(t.area,2)} ha</div></li>`).join("")||'<li class="muted">Sem talhões</li>'}</ul>`;
+    body=`<h2>Área cadastrada</h2>
+      <p style="margin-bottom:.5rem"><b>${n(state.farm.areaTotal,0)} ha</b> · ${ts.length} talhões</p>
+      <ul class="list" style="margin-top:.4rem">${ts.map(t=>`<li><div style="flex:1"><div style="font-weight:600">${esc(nomeTalhao(t))}</div><div class="muted">${esc(t.codigo||"")}${t.variedade?" · "+esc(t.variedade):""}</div></div><div style="font-weight:600">${n(t.area,2)} ha</div></li>`).join("")||'<li class="muted">Sem talhões</li>'}</ul>`;
   }
   if(edit.kind==="hoje-clima"){
     const w=lastWeather || weatherCached();
@@ -1015,8 +1031,8 @@ function renderDrawer(){
       <div class="field"><label>WhatsApp Clara (DDD + número)</label><input id="f-wa" placeholder="62999999999" value="${esc(state.farm.whatsappClara||"6232432020")}"/></div>
       <button type="button" class="btn primary block" id="e-save-farm">Salvar</button>`;
   }
-  const mid = edit && String(edit.kind||"").startsWith("hoje-");
-  return `<div class="drawer-bg${mid?" center":""}" id="drawer"><div class="drawer">${body}</div></div>`;
+  const mid = edit && (String(edit.kind||"").startsWith("hoje-") || edit.kind==="saldo-folga" || edit.kind==="hoje-clima");
+  return `<div class="drawer-bg${mid?" center":""}" id="drawer"><div class="drawer"><button type="button" class="drawer-close" id="drawer-close" aria-label="Fechar">×</button>${body}</div></div>`;
 }
 
 function renderProfileModal(){
@@ -1220,13 +1236,18 @@ function bind(){
   const bx=document.getElementById("btn-xls-ext");
   if(bx) bx.onclick=()=>exportExtExcel();
   const qm=document.getElementById("q-maq");
-  if(qm){ qm.oninput=()=>{ qMaq=qm.value; clearTimeout(qm._t); qm._t=setTimeout(()=>render(),200); }; }
+  const qtoggleFrota=document.getElementById("btn-search-frota");
+  if(qtoggleFrota) qtoggleFrota.onclick=()=>{ frotaBuscaAberta=!frotaBuscaAberta; if(!frotaBuscaAberta) qMaq=""; render(); };
+  if(qm){
+    qm.oninput=()=>{ qMaq=qm.value; frotaBuscaAberta=true; clearTimeout(qm._t); qm._t=setTimeout(()=>render(),200); };
+    if(frotaBuscaAberta || qMaq) setTimeout(()=>{ const el=document.getElementById("q-maq"); if(el && el.type!=="hidden"){ el.focus(); el.selectionStart=el.selectionEnd=el.value.length; } },0);
+  }
   const qi=document.getElementById("q-insumo");
   const qtoggle=document.getElementById("btn-search-estoque");
-  if(qtoggle) qtoggle.onclick=()=>{ estoqueBuscaAberta=!estoqueBuscaAberta; render(); };
+  if(qtoggle) qtoggle.onclick=()=>{ estoqueBuscaAberta=!estoqueBuscaAberta; if(!estoqueBuscaAberta) qInsumo=""; render(); };
   if(qi){
     qi.oninput=()=>{ qInsumo=qi.value; clearTimeout(qi._t); qi._t=setTimeout(()=>render(),220); };
-    if(estoqueBuscaAberta) setTimeout(()=>{ const el=document.getElementById("q-insumo"); if(el){ el.focus(); el.selectionStart=el.selectionEnd=el.value.length; } },0);
+    if(estoqueBuscaAberta) setTimeout(()=>{ const el=document.getElementById("q-insumo"); if(el && el.type!=="hidden"){ el.focus(); el.selectionStart=el.selectionEnd=el.value.length; } },0);
   }
   document.querySelectorAll("[data-edit]").forEach(b=>{ b.onclick=()=>{ openEdit(b.getAttribute("data-edit"), b.getAttribute("data-id")||null); }; });
   document.querySelectorAll("[data-set-folga]").forEach(b=>{
@@ -1252,7 +1273,15 @@ function bind(){
     if(first) box.appendChild(first.cloneNode(true));
     const last=box.querySelector(".saida-linha:last-child .e-qtd");
     if(last) last.value="";
+    const lastProd=box.querySelector(".saida-linha:last-child .e-prod");
+    if(lastProd) lastProd.selectedIndex=0;
   };
+  const tipoSaida=document.getElementById("e-tipo");
+  const empBox=document.getElementById("e-emprestimo-box");
+  const syncEmp=()=>{ if(!empBox||!tipoSaida) return; if(tipoSaida.value==="Empréstimo") empBox.classList.add("show"); else empBox.classList.remove("show"); };
+  if(tipoSaida){ tipoSaida.onchange=syncEmp; syncEmp(); }
+  const dclose=document.getElementById("drawer-close");
+  if(dclose) dclose.onclick=()=>closeEdit();
   const es=document.getElementById("e-save");
   if(es) es.onclick=()=>{
     if(edit.kind==="insumo"||edit.kind==="novo-insumo"){
@@ -1309,11 +1338,32 @@ function bind(){
       else state.chuva.push({id:uid(),...row});
       save(); toast("Chuva registrada"); closeEdit(); return;
     }
+    if(edit.kind==="folga"||edit.kind==="novo-folga"){
+      if(!state.folgas) state.folgas=[];
+      const pesId=(document.getElementById("e-pes")||{}).value||"";
+      const pes=state.pessoas.find(x=>x.id===pesId);
+      const row={
+        pessoaId:pesId,
+        pessoaNome:pes?pes.nome:"",
+        data:document.getElementById("e-data").value||hojeISO(),
+        tipo:document.getElementById("e-tipo").value||"X",
+        obs:((document.getElementById("e-obs")||{}).value||"").trim()
+      };
+      if(!row.pessoaNome){ toast("Selecione a pessoa"); return; }
+      if(edit.kind==="folga") state.folgas=state.folgas.map(x=>x.id===edit.id?{...x,...row}:x);
+      else state.folgas.push({id:uid(),...row});
+      save(); toast("Registro de folga salvo"); closeEdit(); return;
+    }
     if(edit.kind==="saida"||edit.kind==="novo-saida"){
       if(!state.saidas) state.saidas=[];
+      if(!state.entradas) state.entradas=[];
+      const tipoMov=(document.getElementById("e-tipo").value||"Saída");
       const dest=(document.getElementById("e-destino").value||"").trim();
       const resp=(document.getElementById("e-resp").value||"").trim();
-      if(!dest || !resp){ toast("Destino e responsável são obrigatórios"); return; }
+      const paraEmp=((document.getElementById("e-para")||{}).value||"").trim();
+      if(!dest){ toast("Selecione o destino / motivo"); return; }
+      if(!resp){ toast("Informe o responsável"); return; }
+      if(tipoMov==="Empréstimo" && !paraEmp){ toast("Informe para quem foi o empréstimo"); return; }
       const linhas=[...document.querySelectorAll("#saida-itens .saida-linha")];
       const itens=[];
       for(const ln of linhas){
@@ -1321,27 +1371,62 @@ function bind(){
         const prod=state.insumos.find(x=>x.id===prodId);
         const qtd=Number(String(ln.querySelector(".e-qtd").value).replace(",",".")||0);
         if(!prod || !qtd) continue;
-        if(qtd>prod.quantidade){ toast(prod.nome+" sem estoque suficiente"); return; }
-        itens.push({id:prod.id, nome:prod.nome, qtd, un:prod.unidade});
+        if((tipoMov==="Saída"||tipoMov==="Empréstimo") && qtd>prod.quantidade){ toast(prod.nome+" sem estoque suficiente"); return; }
+        itens.push({id:prod.id, nome:prod.nome, qtd, un:prod.unidade, saldoAnt:prod.quantidade});
       }
       if(!itens.length){ toast("Informe pelo menos um produto e quantidade"); return; }
+      const hora=((document.getElementById("e-hora")||{}).value||"");
+      const ref=((document.getElementById("e-ref")||{}).value||"").trim();
+      const nf=((document.getElementById("e-nf")||{}).value||"").trim();
+      const obsBase=(document.getElementById("e-obs").value||"").trim();
+      const obsParts=[obsBase, ref?("Ref: "+ref):"", nf?("NF/Ord: "+nf):"", tipoMov==="Empréstimo"?("Para: "+paraEmp):""].filter(Boolean);
       const row={
         id:uid(),
         data:document.getElementById("e-data").value||hojeISO(),
-        tipo:document.getElementById("e-tipo").value,
-        itens,
+        hora,
+        tipo:tipoMov,
+        itens:itens.map(it=>({id:it.id,nome:it.nome,qtd:it.qtd,un:it.un,saldoAnt:it.saldoAnt})),
         destino:dest,
         responsavel:resp,
-        obs:document.getElementById("e-obs").value.trim(),
-        devolvido:false
+        para:paraEmp||"",
+        ref, nf,
+        obs:obsParts.join(" · "),
+        devolvido:false,
+        usuario:(perfilAtual()||{}).nome||""
       };
+      if(tipoMov==="Entrada"){
+        state.entradas.push(row);
+        itens.forEach(it=>{
+          state.insumos=state.insumos.map(x=>{
+            if(x.id!==it.id) return x;
+            const novo=Number((x.quantidade+it.qtd).toFixed(2));
+            return {...x, quantidade:novo};
+          });
+        });
+        sincronizaDieselInventario();
+        save(); toast("Entrada lançada — estoque atualizado"); closeEdit(); return;
+      }
+      if(tipoMov==="Ajuste"){
+        // Ajuste: quantidade informada vira o novo saldo (ou delta positivo/negativo via destino)
+        state.saidas.push({...row, tipo:"Ajuste"});
+        itens.forEach(it=>{
+          state.insumos=state.insumos.map(x=>{
+            if(x.id!==it.id) return x;
+            // Para ajuste simples: subtrai se positivo como correção de baixa; se quiser setar absoluto use observação
+            const novo=Number((x.quantidade-it.qtd).toFixed(2));
+            return {...x, quantidade:Math.max(0,novo)};
+          });
+        });
+        sincronizaDieselInventario();
+        save(); toast("Ajuste lançado"); closeEdit(); return;
+      }
+      // Saída ou Empréstimo — baixa
       state.saidas.push(row);
       itens.forEach(it=>{
         state.insumos=state.insumos.map(x=>x.id===it.id?{...x, quantidade: Number((x.quantidade-it.qtd).toFixed(2))}:x);
       });
-      // Diesel é derivado do inventário; a baixa acima já alterou os itens.
       sincronizaDieselInventario();
-      save(); toast("Saída lançada e baixa no estoque"); closeEdit(); return;
+      save(); toast(tipoMov==="Empréstimo"?"Empréstimo registrado — aguardando devolução":"Saída lançada e baixa no estoque"); closeEdit(); return;
     }
     if(edit.kind==="protocolo"||edit.kind==="novo-protocolo"){
       if(!state.equatorial) state.equatorial=JSON.parse(JSON.stringify(SEED.equatorial||{}));
@@ -1381,6 +1466,8 @@ function bind(){
     if(edit.kind==="maquina") state.maquinas=state.maquinas.filter(x=>x.id!==edit.id);
     if(edit.kind==="pessoa") state.pessoas=state.pessoas.filter(x=>x.id!==edit.id);
     if(edit.kind==="chuva") state.chuva=(state.chuva||[]).filter(x=>x.id!==edit.id);
+    if(edit.kind==="folga") state.folgas=(state.folgas||[]).filter(x=>x.id!==edit.id);
+    if(edit.kind==="semente") state.sementes=(state.sementes||[]).filter(x=>x.id!==edit.id);
     if(edit.kind==="protocolo"){
       if(!state.equatorial) state.equatorial={protocolos:[]};
       state.equatorial.protocolos=(state.equatorial.protocolos||[]).filter(x=>{

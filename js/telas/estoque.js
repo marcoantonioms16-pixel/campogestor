@@ -10,14 +10,22 @@ window.CampoGestorTelas.estoque = function() {
       const okC = catInsumo==="todos" || i.categoria===catInsumo;
       return okQ && okC;
     }).sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR"));
-    html +=headerBar(`Almoxarifado · ${state.insumos.length} itens`,"Estoque",`<button type="button" class="btn primary sm" data-new="insumo">+ Novo</button>`);
-    html +=`<div style="padding:.25rem 1rem"><button type="button" class="btn block" data-new="saida">Lançamento de saída</button></div>`;
-    html +=`<div class="search-bar">
-      <button type="button" class="search-icon-btn ${estoqueBuscaAberta?"on":""}" id="btn-search-estoque" aria-label="Pesquisar">⌕</button>
-      ${estoqueBuscaAberta?`<input id="q-insumo" placeholder="Nome, ativo ou código..." value="${esc(qInsumo)}"/>`:`<input id="q-insumo" type="hidden" value="${esc(qInsumo)}"/>`}
+    html +=headerBar(`Almoxarifado · ${state.insumos.length} itens`,"Estoque");
+    html +=`<div class="page-actions">
+      <button type="button" class="btn primary sm" data-new="insumo">+ Novo</button>
     </div>`;
-    html +=`<div class="chips"><button type="button" class="chip ${catInsumo==="todos"?"on":""}" data-cat="todos">Todos</button>`;
+    html +=`<button type="button" class="btn-lancamento" data-new="saida"><span>📋</span> Lançamento de entrada / saída</button>`;
+    html +=`<div class="chips-row">
+      <div class="chips">
+        <button type="button" class="chip ${catInsumo==="todos"?"on":""}" data-cat="todos">Todos</button>`;
     CATS.forEach(c=>{ html +=`<button type="button" class="chip ${catInsumo===c?"on":""}" data-cat="${c}">${CAT[c]}</button>`; });
+    html +=`</div>
+      <button type="button" class="search-icon-btn ${estoqueBuscaAberta?"on":""}" id="btn-search-estoque" aria-label="Pesquisar">🔍</button>`;
+    if(estoqueBuscaAberta){
+      html +=`<div class="search-expand"><input id="q-insumo" placeholder="Nome, ativo ou código..." value="${esc(qInsumo)}"/></div>`;
+    } else {
+      html +=`<input id="q-insumo" type="hidden" value="${esc(qInsumo)}"/>`;
+    }
     html +=`</div>`;
     html +=`<ul class="list card" style="padding:.25rem 1rem">`;
     if(!lista.length) html +=`<li class="muted">Nenhum insumo encontrado.</li>`;
@@ -31,13 +39,13 @@ window.CampoGestorTelas.estoque = function() {
     // Histórico entra / sai
     if(!state.entradas) state.entradas=[];
     const mov=[];
-    (state.saidas||[]).forEach(s=>mov.push({data:s.data, sentido:"saiu", tipo:s.tipo, itens:s.itens, extra:[s.destino,s.responsavel].filter(Boolean).join(" · "), raw:s}));
-    (state.entradas||[]).forEach(e=>mov.push({data:e.data, sentido:"entrou", tipo:e.tipo||"Entrada", itens:e.itens||[{nome:e.nome,qtd:e.qtd,un:e.un}], extra:e.obs||"", raw:e}));
+    (state.saidas||[]).forEach(s=>mov.push({data:s.data, sentido:s.tipo==="Entrada"?"entrou":"saiu", tipo:s.tipo, itens:s.itens, extra:[s.destino,s.responsavel,s.para?("Para: "+s.para):""].filter(Boolean).join(" · "), raw:s}));
+    (state.entradas||[]).forEach(e=>mov.push({data:e.data, sentido:"entrou", tipo:e.tipo||"Entrada", itens:e.itens||[{nome:e.nome,qtd:e.qtd,un:e.un}], extra:[e.destino,e.responsavel,e.obs].filter(Boolean).join(" · "), raw:e}));
     mov.sort((a,b)=>(b.data||"").localeCompare(a.data||""));
     const mesesMov=[...new Set(mov.map(s=>(s.data||"").slice(0,7)).filter(Boolean))];
     let listaMov=mov;
     if(qSaidaMes!=="todos") listaMov=mov.filter(s=>(s.data||"").startsWith(qSaidaMes));
-    html +=`<p class="sec">Histórico de insumos</p>
+    html +=`<p class="sec">Histórico de movimentações</p>
       <div style="padding:0 1rem .4rem"><select id="sel-saida-mes">
         <option value="todos" ${qSaidaMes==="todos"?"selected":""}>Todas as datas</option>
         ${mesesMov.map(m=>`<option value="${m}" ${qSaidaMes===m?"selected":""}>${m.split("-").reverse().join("/")}</option>`).join("")}
@@ -48,10 +56,10 @@ window.CampoGestorTelas.estoque = function() {
       listaMov.slice(0,40).forEach(s=>{
         const produtos=(s.itens||[]).map(it=>`${it.nome} (${it.qtd} ${it.un||""})`).join(", ");
         const sraw=s.raw||{};
-        html +=`<li><div style="flex:1"><div style="font-weight:500">${s.sentido==="entrou"?"Entrou":"Saiu"} · ${esc(s.tipo||"")} · ${(s.data||"").split("-").reverse().join("/")}</div>
+        html +=`<li><div style="flex:1"><div style="font-weight:500">${s.sentido==="entrou"?"Entrou":"Saiu"} · ${esc(s.tipo||"")} · ${(s.data||"").split("-").reverse().join("/")}${sraw.hora?" "+esc(sraw.hora):""}</div>
           <div class="muted">${esc(produtos)}</div>
           ${s.extra?`<div class="muted">${esc(s.extra)}</div>`:""}
-          ${sraw.tipo==="Empréstimo" && !sraw.devolvido?`<button type="button" class="btn sm" style="margin-top:.3rem" data-devolver="${sraw.id}">Devolvido</button>`:""}
+          ${sraw.tipo==="Empréstimo" && !sraw.devolvido?`<button type="button" class="btn sm primary" style="margin-top:.3rem" data-devolver="${sraw.id}">✓ Devolvido</button>`:""}
           ${sraw.devolvido?'<span class="badge ok">Devolvido</span>':""}
         </div></li>`;
       });

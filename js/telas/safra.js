@@ -4,7 +4,7 @@ window.CampoGestorTelas = window.CampoGestorTelas || {};
 window.CampoGestorTelas.safra = function() {
   let html = "";
     if(!state.safraStatus) state.safraStatus={};
-    if(!state.safraPlantio) state.safraPlantio={}; // overrides: {idx: {cultivar, sem_m, sem_ha}}
+    if(!state.safraPlantio) state.safraPlantio={};
     const stKey = (sec, i) => sec+"-"+i;
     const getSt = (sec, i) => (state.safraStatus[stKey(sec,i)]||{}).status || "pendente";
     const getStDate = (sec, i) => (state.safraStatus[stKey(sec,i)]||{}).data || "";
@@ -15,7 +15,7 @@ window.CampoGestorTelas.safra = function() {
       let c=0; for(let i=0;i<total;i++) if(getSt(sec,i)==="concluido") c++; return c;
     };
     const nCor = SAFRA.corretivo.length, nFer = SAFRA.fertilizante.length, nPla = SAFRA.plantio.length, nSul = SAFRA.sulco.length;
-    html +=headerBar("Caderno de campo","Safra 2026/27",``);
+    html +=headerBar("Caderno de campo","Safra 2026/27");
     {
       const j=janelaMapa();
       const st=statusJanela(hojeISO());
@@ -23,18 +23,19 @@ window.CampoGestorTelas.safra = function() {
       html +=`<div class="card safra-card">
         <p class="card-title">Janela oficial de plantio</p>
         <p><span class="badge ${st.cls}">${esc(st.label)}</span></p>
-        <p class="safra-line">Semeadura <b>${fmt(j.semeaduraIni)}</b> a <b>${fmt(j.semeaduraFim)}</b></p>
-        <p class="muted">Vazio sanitário: ${fmt(j.vazioIni)} a ${fmt(j.vazioFim)}</p>
+        <div class="safra-timeline">
+          <div><b>${fmt(j.vazioIni)} → ${fmt(j.vazioFim)}</b><small>Vazio sanitário</small></div>
+          <div><b>${fmt(j.semeaduraIni)} → ${fmt(j.semeaduraFim)}</b><small>Semeadura permitida</small></div>
+        </div>
+        <p class="muted" style="margin-top:.55rem;font-size:.68rem">${esc(j.portaria||"")}</p>
         <div class="safra-actions">
           <button type="button" class="btn sm" data-edit="janela">Editar janela</button>
           <a class="btn sm" href="${esc(j.fonte)}" target="_blank" rel="noopener">Consulta oficial</a>
         </div>
       </div>`;
     }
-    // Progresso geral
     html +=`<div class="card"><p class="card-title">Progresso da safra</p>
       <p class="muted">Corretivo ${countSt("cor",nCor)}/${nCor} · Fertilizante ${countSt("fer",nFer)}/${nFer} · Plantio ${countSt("pla",nPla)}/${nPla} · Sulco ${countSt("sul",nSul)}/${nSul}</p></div>`;
-    // Filtro
     html +=`<div class="chips">
       <button type="button" class="chip ${safraFiltro==="todos"?"on":""}" data-safra-filtro="todos">Todos</button>
       <button type="button" class="chip ${safraFiltro==="pendente"?"on":""}" data-safra-filtro="pendente">Pendente</button>

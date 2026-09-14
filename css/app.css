@@ -983,3 +983,177 @@ button.weather-day{cursor:pointer;font:inherit;color:inherit;}
 
 .btn{white-space:normal;}
 .btn.sm{white-space:nowrap;}
+
+/* ========== Drawer / Modal flutuante ========== */
+.drawer-bg{
+  position:fixed;inset:0;z-index:3000;
+  background:rgba(8,20,14,.48);
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  display:flex;align-items:flex-end;justify-content:center;
+  padding:0;
+}
+.drawer-bg.center{align-items:center;padding:1rem;}
+.drawer{
+  position:relative;
+  background:var(--surface,#fafcf7);
+  border:1px solid rgba(23,63,47,.12);
+  border-radius:20px 20px 0 0;
+  width:100%;max-width:720px;
+  max-height:88dvh;overflow:auto;
+  padding:1.2rem 1rem 1.5rem;
+  box-shadow:0 -12px 40px rgba(7,28,18,.18);
+  animation:drawerUp .22s ease;
+}
+.drawer-bg.center .drawer{
+  border-radius:20px;max-width:440px;max-height:82dvh;
+  box-shadow:0 22px 60px rgba(7,28,18,.28);
+  animation:drawerPop .2s ease;
+}
+@keyframes drawerUp{from{transform:translateY(24px);opacity:.6}to{transform:none;opacity:1}}
+@keyframes drawerPop{from{transform:scale(.96);opacity:.5}to{transform:none;opacity:1}}
+.drawer h2{margin:0 2.2rem .85rem 0;font-size:1.12rem;color:#12281e;}
+.drawer-close{
+  position:absolute;top:12px;right:12px;
+  width:36px;height:36px;border-radius:50%;
+  border:1px solid rgba(23,63,47,.12);
+  background:#eef3ee;color:#173f2f;
+  font-size:1.35rem;line-height:1;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+.drawer-close:hover{background:#e0ebe3;}
+.drawer .field{margin-bottom:.7rem;}
+.drawer .field label{display:block;font-size:.72rem;font-weight:650;color:#52635a;margin-bottom:.28rem;}
+.drawer .field input,.drawer .field select,.drawer .field textarea{
+  width:100%;min-height:42px;padding:.55rem .7rem;
+  border:1px solid rgba(23,63,47,.14);border-radius:12px;
+  background:#fff;font:inherit;color:#12281e;
+}
+.drawer .btn.block{width:100%;margin-top:.35rem;}
+
+/* Título + ações abaixo (padrão) */
+.page-actions{
+  display:flex;flex-wrap:wrap;gap:.45rem;align-items:center;
+  padding:.15rem 1rem .65rem;
+}
+.page-actions .btn{flex:0 0 auto;}
+
+/* Busca com lupa ao lado dos chips */
+.chips-row{
+  display:flex;align-items:center;gap:8px;
+  padding:2px 1rem 8px;flex-wrap:wrap;
+}
+.chips-row .chips{flex:1;margin:0;padding:0!important;min-width:0;}
+.chips-row .search-icon-btn,
+.search-icon-btn{
+  width:38px;height:38px;border-radius:12px;
+  border:1px solid rgba(23,63,47,.12);
+  background:#f0f5ef;color:#173f2f;
+  font-size:1.05rem;cursor:pointer;flex:0 0 auto;
+  display:inline-flex;align-items:center;justify-content:center;
+}
+.search-icon-btn.on{background:var(--color-primary-green,#1b4d3e);color:#fff;border-color:transparent;}
+.chips-row .search-expand{
+  flex:1 1 100%;order:3;
+}
+.chips-row .search-expand input{
+  width:100%;min-height:40px;padding:.5rem .7rem;
+  border:1px solid rgba(23,63,47,.14);border-radius:12px;
+  background:#fff;font:inherit;
+}
+
+/* Lançamento estoque — botão destacado */
+.btn-lancamento{
+  display:flex;align-items:center;justify-content:center;gap:.5rem;
+  width:calc(100% - 2rem);margin:.15rem 1rem .75rem;
+  padding:.85rem 1rem;border-radius:16px;
+  border:none;cursor:pointer;
+  background:linear-gradient(135deg,#1b4d3e,#2e7d5a);
+  color:#fff;font-weight:750;font-size:.95rem;
+  box-shadow:0 10px 24px rgba(27,77,62,.28);
+}
+.btn-lancamento span{font-size:1.15rem;}
+
+/* Tanque diesel animado */
+.diesel-tank-wrap{display:flex;flex-direction:column;align-items:center;gap:.75rem;padding:.5rem 0 1rem;}
+.diesel-tank{
+  position:relative;width:120px;height:160px;
+  border:3px solid #2a4a3a;border-radius:14px 14px 18px 18px;
+  background:linear-gradient(180deg,#e8efe9,#d5e0d8);
+  overflow:hidden;box-shadow:inset 0 0 0 2px rgba(255,255,255,.4);
+}
+.diesel-tank::before{
+  content:"";position:absolute;top:-8px;left:50%;transform:translateX(-50%);
+  width:36px;height:12px;border-radius:6px 6px 0 0;
+  background:#2a4a3a;
+}
+.diesel-fill{
+  position:absolute;left:0;right:0;bottom:0;
+  background:linear-gradient(180deg,#f0c447 0%,#d4a017 40%,#b8860b 100%);
+  transition:height .8s cubic-bezier(.4,0,.2,1);
+  animation:dieselWave 2.4s ease-in-out infinite;
+}
+.diesel-fill.ok{background:linear-gradient(180deg,#5cb87a,#2e7d5a);}
+.diesel-fill.warn{background:linear-gradient(180deg,#e8c547,#c9a227);}
+.diesel-fill.danger{background:linear-gradient(180deg,#e07a6a,#bd2727);}
+@keyframes dieselWave{
+  0%,100%{filter:brightness(1)}
+  50%{filter:brightness(1.08)}
+}
+.diesel-pct-label{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-weight:850;font-size:1.35rem;color:#12281e;text-shadow:0 1px 0 rgba(255,255,255,.5);
+  z-index:2;
+}
+.diesel-meta{text-align:center;}
+.diesel-meta b{display:block;font-size:1.15rem;color:#173f2f;}
+.diesel-meta small{color:#6e7771;font-size:.78rem;}
+
+/* Folgas — legenda fixa fora da tabela */
+.folga-legenda-fix{
+  display:flex;flex-wrap:wrap;gap:6px 12px;
+  padding:.4rem 1rem .7rem;
+  font-size:.7rem;color:#52635a;
+  background:rgba(240,245,239,.9);
+  border-bottom:1px solid rgba(23,63,47,.08);
+  position:sticky;top:0;z-index:5;
+}
+.folga-legenda-fix span{
+  display:inline-flex;align-items:center;gap:5px;
+  white-space:nowrap;
+}
+.folga-legenda-fix .lg-box{
+  width:14px;height:14px;border-radius:4px;
+  border:1px solid rgba(0,0,0,.12);flex:0 0 auto;
+}
+.folga-table-wrap{padding:.5rem;overflow:auto;}
+.folga-table-wrap .table td button.btn.sm{
+  min-width:1.55rem!important;min-height:1.55rem;
+  padding:.1rem .15rem!important;font-size:.72rem;
+}
+
+/* Safra mais limpa */
+.safra-timeline{
+  display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:.55rem;
+}
+.safra-timeline div{
+  background:#f0f5ef;border-radius:12px;padding:10px;
+}
+.safra-timeline b,.safra-timeline small{display:block;}
+.safra-timeline b{font-size:.82rem;color:#173f2f;}
+.safra-timeline small{font-size:.62rem;color:#6e7771;margin-top:2px;}
+
+/* Estoque linhas de produto no modal */
+.saida-linha{
+  display:grid;grid-template-columns:1fr 5.5rem;gap:.4rem;margin-bottom:.4rem;
+  align-items:center;
+}
+.saida-linha select,.saida-linha input{
+  min-height:40px;padding:.45rem .55rem;
+  border:1px solid rgba(23,63,47,.14);border-radius:10px;background:#fff;font:inherit;
+}
+#e-emprestimo-box{display:none;margin-top:.35rem;}
+#e-emprestimo-box.show{display:block;}
+
+/* Energia / textos */
+.energia-card p{line-height:1.4;}
+.list li{align-items:flex-start;}

@@ -4,10 +4,15 @@ window.CampoGestorTelas = window.CampoGestorTelas || {};
 window.CampoGestorTelas.equatorial = function() {
   let html = "";
     const eq = state.equatorial || SEED.equatorial;
-    html +=headerBar("Energia","Equatorial",`<button type="button" class="btn primary sm" data-new="protocolo">+ Protocolo</button>`);
-    html +=`<div class="card energia-card"><p class="card-title">Atendimento</p>
+    html +=headerBar("Energia","Equatorial");
+    html +=`<div class="page-actions">
+      <button type="button" class="btn primary sm" data-new="protocolo">+ Protocolo</button>
+      <button type="button" class="btn sm" id="btn-exp-prot">Exportar CSV</button>
+    </div>`;
+    html +=`<div class="card energia-card">
+      <p class="card-title">Atendimento Equatorial</p>
       <p class="energia-fone">${esc(eq.telefone||"0800-620-196")}</p>
-      <p class="muted">Anote o protocolo depois de ligar.</p>
+      <p class="muted">Ligue e anote o protocolo. Depois registre abaixo.</p>
       <a class="btn primary block" style="margin-top:.7rem;text-align:center;text-decoration:none" id="btn-wa-clara" href="#">WhatsApp Clara</a>
     </div>`;
     const ucKeep=["10026027184","980046051"];
@@ -19,7 +24,6 @@ window.CampoGestorTelas.equatorial = function() {
     });
     html +=`</ul>`;
     html +=`<p class="sec">Protocolos</p>
-      <div style="padding:0 1rem .5rem;display:flex;gap:.4rem;flex-wrap:wrap"><button type="button" class="btn primary sm" data-new="protocolo">+ Adicionar protocolo</button><button type="button" class="btn" id="btn-exp-prot">Exportar protocolos CSV</button></div>
       <ul class="list card" style="padding:.25rem 1rem">`;
     const prots=[...(eq.protocolos||[])].slice().reverse();
     if(!prots.length) html +=`<li class="muted">Nenhum protocolo.</li>`;

@@ -5,14 +5,22 @@ window.CampoGestorTelas.chuva = function() {
   let html = "";
     if(!state.chuva) state.chuva=[];
     const lista=[...state.chuva].sort((a,b)=>(b.data||"").localeCompare(a.data||""));
-    html +=headerBar("Pluviometria","Chuva",`<button type="button" class="btn primary sm" data-new="chuva">+ Registrar</button>`);
+    html +=headerBar("Pluviometria","Chuva");
+    html +=`<div class="page-actions">
+      <button type="button" class="btn primary sm" data-new="chuva">+ Registrar</button>
+    </div>`;
     if(lista.length){
       const u=lista[0];
-      html +=`<div class="card chuva-destaque"><p class="card-title">Última chuva</p>
+      html +=`<div class="card chuva-destaque">
+        <p class="card-title">Última chuva</p>
         <p class="chuva-mm">${n(u.mm,1)} mm</p>
-        <p class="muted">${(u.data||"").split("-").reverse().join("/")}${u.obs?" · "+esc(u.obs):""}</p></div>`;
+        <p class="muted">${(u.data||"").split("-").reverse().join("/")}${u.obs?" · "+esc(u.obs):""}</p>
+      </div>`;
     } else {
-      html +=`<div class="card chuva-destaque"><p class="card-title">Sem registro</p><p class="muted">Toque em + Registrar para lançar milímetros.</p></div>`;
+      html +=`<div class="card chuva-destaque">
+        <p class="card-title">Sem registro</p>
+        <p class="muted">Toque em + Registrar para lançar milímetros.</p>
+      </div>`;
     }
     html +=`<p class="sec">Histórico</p><ul class="list card" style="padding:.25rem 1rem">`;
     if(!lista.length) html +=`<li class="muted">Nenhum registro ainda.</li>`;
