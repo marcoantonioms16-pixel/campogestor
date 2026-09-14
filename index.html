@@ -93,103 +93,6 @@ const SEED = {"farm": {"nome": "Fazenda Santa Rita", "municipio": "Grupo Segredo
 const SAFRA = {"titulo": "Safra 2026/27 — Caderno de Campo", "corretivo": [{"talhoes": "Sede, Pista Tapera", "ha": 240.15, "cultivar": "DM 72IX74 I2X", "insumo": "Calcário", "dose": "2 ton/ha", "volume": "480 ton"}, {"talhoes": "Amargoso, 110, 190", "ha": 399.74, "cultivar": "76KA72 CE", "insumo": "Calcário", "dose": "2 ton/ha", "volume": "800 ton"}, {"talhoes": "Entrada, Jaime", "ha": 235.58, "cultivar": "Raptor I2X", "insumo": "Calcário", "dose": "2 ton/ha", "volume": "472 ton"}], "fertilizante": [{"talhoes": "Tapera, Luizinho", "ha": 248.99, "cultivar": "NEO700 I2X", "itens": [{"insumo": "KCl", "dose": "150 kg/ha", "volume": "37.348,5 kg"}, {"insumo": "00-21-00", "dose": "440 kg/ha", "volume": "109.555,6 kg"}, {"insumo": "Gran Boro 10", "dose": "18 kg/ha", "volume": "4.480,2 kg"}]}, {"talhoes": "Sede, Pista Tapera", "ha": 240.15, "cultivar": "DM 72IX74 I2X", "itens": [{"insumo": "KCl", "dose": "150 kg/ha", "volume": "36.022,5 kg"}, {"insumo": "00-21-00", "dose": "440 kg/ha", "volume": "105.666 kg"}, {"insumo": "Gran Boro 10", "dose": "18 kg/ha", "volume": "4.322,7 kg"}]}, {"talhoes": "Cascalheira", "ha": 61.18, "cultivar": "ST 752 I2X", "itens": [{"insumo": "KCl", "dose": "150 kg/ha", "volume": "9.177 kg"}, {"insumo": "00-21-00", "dose": "440 kg/ha", "volume": "26.919,2 kg"}, {"insumo": "Gran Boro 10", "dose": "18 kg/ha", "volume": "1.101,24 kg"}]}, {"talhoes": "Amargoso, 110, 190", "ha": 399.74, "cultivar": "76KA72 CE", "itens": [{"insumo": "KCl", "dose": "150 kg/ha", "volume": "59.961 kg"}, {"insumo": "00-21-00", "dose": "440 kg/ha", "volume": "175.885,6 kg"}, {"insumo": "Gran Boro 10", "dose": "18 kg/ha", "volume": "7.195,32 kg"}]}, {"talhoes": "Entrada, Jaime", "ha": 235.58, "cultivar": "Raptor I2X", "itens": [{"insumo": "KCl", "dose": "150 kg/ha", "volume": "35.337 kg"}, {"insumo": "00-21-00", "dose": "440 kg/ha", "volume": "103.655,2 kg"}, {"insumo": "Gran Boro 10", "dose": "18 kg/ha", "volume": "4.240,44 kg"}]}, {"talhoes": "Pivô 1, Pivô 2", "ha": 265.39, "cultivar": "NEO761 I2X", "itens": [{"insumo": "KCl", "dose": "150 kg/ha", "volume": "39.808,5 kg"}, {"insumo": "00-21-00", "dose": "440 kg/ha", "volume": "116.771,6 kg"}, {"insumo": "Gran Boro 10", "dose": "18 kg/ha", "volume": "4.777,02 kg"}]}, {"talhoes": "Duilio", "ha": 136.08, "cultivar": "Raptor I2X", "itens": [{"insumo": "KCl", "dose": "150 kg/ha", "volume": "20.412 kg"}, {"insumo": "00-21-00", "dose": "440 kg/ha", "volume": "59.875,2 kg"}, {"insumo": "Gran Boro 10", "dose": "18 kg/ha", "volume": "2.449,44 kg"}]}], "plantio": [{"talhoes": "Amargoso, 110, 190", "ha": 399.74, "cultivar": "76KA72 CE", "sem_m": "14", "espac": "50 cm", "sem_ha": "280.000"}, {"talhoes": "Entrada, Jaime", "ha": 235.58, "cultivar": "Raptor I2X", "sem_m": "14,5", "espac": "50 cm", "sem_ha": "290.000"}, {"talhoes": "Pivô 1, Pivô 2", "ha": 265.39, "cultivar": "NEO761 I2X", "sem_m": "14,5", "espac": "50 cm", "sem_ha": "290.000"}, {"talhoes": "Duilio", "ha": 136.08, "cultivar": "Raptor I2X", "sem_m": "14,5", "espac": "50 cm", "sem_ha": "290.000"}, {"talhoes": "Tapera, Luizinho", "ha": 248.99, "cultivar": "NEO700 I2X", "sem_m": "14,5", "espac": "50 cm", "sem_ha": "290.000"}, {"talhoes": "Sede, Pista Tapera", "ha": 240.15, "cultivar": "DM 72IX74 I2X", "sem_m": "14,5", "espac": "50 cm", "sem_ha": "290.000"}, {"talhoes": "Cascalheira", "ha": 61.18, "cultivar": "ST 752 I2X", "sem_m": "13", "espac": "50 cm", "sem_ha": "260.000"}], "sulco": [{"atividade": "Manejo de sulco", "insumo": "Biomax Azos", "tipo": "Inoculante", "fabricante": "Vittia", "dose": "1 dose/ha"}, {"atividade": "Manejo de sulco", "insumo": "Nimaxxa", "tipo": "Biológico", "fabricante": "UPL", "dose": "0,1 L/ha"}, {"atividade": "Manejo de sulco", "insumo": "Biomax 10", "tipo": "Inoculante", "fabricante": "Vittia", "dose": "10 doses/ha"}]};
 const KEY = "campogestor-fsrt-dist-v13";
 const THEME_KEY = "campogestor-tema";
-const DATA_VERSION = 14;
-const DATA_VERSION_KEY = "campogestor-data-version";
-const BACKUP_KEY = "campogestor-auto-backup";
-const BACKUP_PREV_KEY = "campogestor-auto-backup-prev";
-
-function cloneSeed(){ return JSON.parse(JSON.stringify(SEED)); }
-
-function normalizeState(d){
-  d = (d && typeof d === "object") ? d : {};
-  return {
-    ...cloneSeed(), ...d,
-    farm:{...SEED.farm, ...(d.farm||{})},
-    diesel:{...SEED.diesel, ...(d.diesel||{})},
-    insumos:Array.isArray(d.insumos)&&d.insumos.length?d.insumos:(SEED.insumos||[]),
-    maquinas:Array.isArray(d.maquinas)&&d.maquinas.length?d.maquinas:(SEED.maquinas||[]),
-    pessoas:Array.isArray(d.pessoas)&&d.pessoas.length?d.pessoas:(SEED.pessoas||[]),
-    talhoes:Array.isArray(d.talhoes)&&d.talhoes.length?d.talhoes:(SEED.talhoes||[]),
-    extintores:Array.isArray(d.extintores)&&d.extintores.length?d.extintores:(SEED.extintores||[]),
-    sementes:Array.isArray(d.sementes)?d.sementes:(SEED.sementes||[]),
-    folgas:Array.isArray(d.folgas)?d.folgas:(SEED.folgas||[]),
-    chuva:Array.isArray(d.chuva)?d.chuva:(SEED.chuva||[]),
-    saidas:Array.isArray(d.saidas)?d.saidas:(SEED.saidas||[]),
-    safraStatus:d.safraStatus||{},
-    safraPlantio:d.safraPlantio||{},
-    equatorial:d.equatorial||cloneSeed().equatorial,
-    rotinaFeita:d.rotinaFeita||{}
-  };
-}
-
-function stateScore(d){
-  if(!d||typeof d!=="object") return 0;
-  let score=0;
-  ["insumos","maquinas","pessoas","talhoes","extintores","sementes","folgas","chuva","saidas"].forEach(k=>{
-    if(Array.isArray(d[k])) score+=d[k].length;
-  });
-  ["safraStatus","safraPlantio","equatorial","farm","diesel"].forEach(k=>{if(d[k])score++;});
-  return score;
-}
-
-function migrateStorage(){
-  try{
-    let chosen=null, chosenKey="";
-    const current=localStorage.getItem(KEY);
-    if(current){try{chosen=JSON.parse(current);}catch(e){}}
-    for(let i=0;i<localStorage.length;i++){
-      const k=localStorage.key(i);
-      if(!k||!/^campogestor-/i.test(k)||[KEY,THEME_KEY,SB_AUTH_KEY,DATA_VERSION_KEY,BACKUP_KEY,BACKUP_PREV_KEY].includes(k)) continue;
-      try{
-        const v=JSON.parse(localStorage.getItem(k));
-        if(v&&typeof v==="object"&&stateScore(v)>stateScore(chosen)){chosen=v;chosenKey=k;}
-      }catch(e){}
-    }
-    if(chosen){
-      const normalized=normalizeState(chosen);
-      localStorage.setItem(KEY,JSON.stringify(normalized));
-      localStorage.setItem(DATA_VERSION_KEY,String(DATA_VERSION));
-      if(chosenKey)localStorage.setItem("campogestor-migrated-from",chosenKey);
-      return normalized;
-    }
-    localStorage.setItem(DATA_VERSION_KEY,String(DATA_VERSION));
-  }catch(e){console.warn("migração",e);}
-  return null;
-}
-
-function exportBackup(){
-  try{
-    const payload={app:"CampoGestor",version:DATA_VERSION,exportedAt:new Date().toISOString(),data:state};
-    const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
-    const a=document.createElement("a");
-    a.href=URL.createObjectURL(blob);
-    a.download="campogestor-backup-"+hojeISO()+".json";
-    document.body.appendChild(a);a.click();a.remove();
-    setTimeout(()=>URL.revokeObjectURL(a.href),1000);
-    toast("Backup exportado");
-  }catch(e){toast("Não foi possível exportar o backup");}
-}
-
-function importBackupFile(file){
-  if(!file)return;
-  const r=new FileReader();
-  r.onload=()=>{
-    try{
-      const obj=JSON.parse(r.result), data=obj&&obj.data?obj.data:obj;
-      if(!data||typeof data!=="object")throw new Error("backup inválido");
-      localStorage.setItem(BACKUP_PREV_KEY,JSON.stringify(state));
-      state=normalizeState(data);save();toast("Backup restaurado com segurança");render();
-    }catch(e){toast("Arquivo de backup inválido");}
-  };
-  r.readAsText(file);
-}
-
-function saveAutoBackup(){
-  try{
-    const old=localStorage.getItem(KEY);
-    if(old){localStorage.setItem(BACKUP_PREV_KEY,old);localStorage.setItem(BACKUP_KEY,old);}
-  }catch(e){console.warn("backup local",e);}
-}
 function temaAtual(){ return localStorage.getItem(THEME_KEY)==="sombra"?"sombra":"sol"; }
 function applyTema(){ document.documentElement.setAttribute("data-theme", temaAtual()); }
 
@@ -252,10 +155,9 @@ async function sbLogin(email, password) {
   }
   saveSession(data);
   sbUser = data.user;
-  const pulled=await pullCloud();
-  if(pulled===true) cloudStatus="synced";
-  else if(pulled===false) await pushCloud();
-  else cloudStatus="error";
+  await pullCloud();
+  cloudStatus = "synced";
+  await pushCloud();
   return data;
 }
 
@@ -315,48 +217,94 @@ async function pushCloud() {
 }
 
 async function pullCloud() {
-  if(!sbUser)return null;
-  const sess=loadSession();
-  if(!sess||!sess.access_token)return null;
-  try{
-    const res=await fetch(SB_URL+"/rest/v1/app_state?user_id=eq."+encodeURIComponent(sbUser.id)+"&select=data,updated_at",{headers:sbHeaders(sess.access_token)});
-    if(!res.ok)throw new Error("HTTP "+res.status);
-    const rows=await res.json();
-    if(rows&&rows[0]&&rows[0].data){
-      state=normalizeState(rows[0].data);
-      localStorage.setItem(KEY,JSON.stringify(state));
-      localStorage.setItem(DATA_VERSION_KEY,String(DATA_VERSION));
-      cloudStatus="synced";
+  if (!sbUser) return false;
+  const sess = loadSession();
+  if (!sess || !sess.access_token) return false;
+  try {
+    const res = await fetch(SB_URL + "/rest/v1/app_state?user_id=eq." + encodeURIComponent(sbUser.id) + "&select=data,updated_at", {
+      headers: sbHeaders(sess.access_token),
+    });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const rows = await res.json();
+    if (rows && rows[0] && rows[0].data) {
+      const data = rows[0].data;
+      state = {
+        ...JSON.parse(JSON.stringify(SEED)),
+        ...data,
+        farm: { ...SEED.farm, ...(data.farm || {}) },
+        diesel: { ...SEED.diesel, ...(data.diesel || {}) },
+      };
+      if (!state.sementes) state.sementes = [];
+      if (!state.folgas) state.folgas = [];
+      if (!state.equatorial) state.equatorial = SEED.equatorial;
+      localStorage.setItem(KEY, JSON.stringify(state));
+      cloudStatus = "synced";
       return true;
     }
-    return false;
-  }catch(e){
-    console.warn("cloud pull",e);
-    cloudStatus="error";
-    cloudError=(e&&e.message)?e.message:String(e);
-    return null;
+  } catch(e) {
+    console.warn("cloud pull", e);
+    cloudStatus = "error";
+    cloudError = (e && e.message) ? e.message : String(e);
   }
+  return false;
 }
+
+const ROTINA = [
+  {id:"d1",grupo:"Diário",titulo:"Recolher atividades mecanizadas e fichas de abastecimento",freq:"diario"},
+  {id:"d2",grupo:"Diário",titulo:"Verificar e lançar óleo diesel",freq:"diario"},
+  {id:"d3",grupo:"Quando chega",titulo:"Receber e conferir material e nota fiscal",freq:"evento"},
+  {id:"d4",grupo:"Quando chega",titulo:"Escanear documentos/NF-e e enviar ao escritório",freq:"evento"},
+  {id:"d5",grupo:"Contínuo",titulo:"Pesagem de mercadorias (entrada/saída) e registro",freq:"evento"},
+  {id:"d6",grupo:"Contínuo",titulo:"Conferência de frota e registro de manutenção",freq:"evento"},
+  {id:"d7",grupo:"Contínuo",titulo:"Controle de ordens de campo",freq:"evento"},
+  {id:"d8",grupo:"Contínuo",titulo:"Controle de devolução de embalagens vazias",freq:"evento"},
+  {id:"d9",grupo:"Contínuo",titulo:"Controlar vendas e transferências de produtos",freq:"evento"},
+  {id:"d10",grupo:"Quando precisar",titulo:"Solicitação de compra de óleo diesel",freq:"evento"},
+  {id:"d11",grupo:"Quando precisar",titulo:"Checklist de contratação e recolhimento de assinaturas",freq:"evento"},
+  {id:"s1",grupo:"Segunda-feira",titulo:"Contagem de insumos e atualização no servidor",freq:"segunda"},
+  {id:"s2",grupo:"Segunda-feira",titulo:"Verificação e solicitação de EPIs",freq:"segunda"},
+  {id:"x1",grupo:"Sexta-feira (antes 8:30)",titulo:"Controle de diaristas — passar lista ao gerente",freq:"sexta"},
+  {id:"m1",grupo:"Início do mês",titulo:"Recolher assinatura dos holerites",freq:"inicio_mes"},
+  {id:"m2",grupo:"Dia 30",titulo:"Solicitação de compra: cantina, alojamento e escritório",freq:"dia30"},
+  {id:"m3",grupo:"Final do mês (até dia 25)",titulo:"Controle de folgas — fechar até dia 25",freq:"folgas"},
+  {id:"m4",grupo:"Final do mês",titulo:"Gerar relatório de abastecimento e conferência",freq:"fim_mes"},
+  {id:"m5",grupo:"Final do mês",titulo:"Controle de refeições",freq:"fim_mes"},
+];
+const TIPO_MAQ = {trator:"Trator",colheitadeira:"Colheitadeira",pulverizador:"Pulverizador",plantadeira:"Plantadeira",caminhao:"Caminhão",veiculo:"Veículo",distribuidor:"Distribuidor",implemento:"Implemento",equipamento:"Equipamento",maquina:"Máquina",outros:"Outros"};
+const CAT = {semente:"Semente",fertilizante:"Fertilizante",defensivo:"Defensivo",combustivel:"Combustível",outros:"Outros"};
+const CATS = Object.keys(CAT);
+const TIPOS_M = Object.keys(TIPO_MAQ);
 
 function load(){
   try{
-    const migrated=migrateStorage();
-    if(migrated)return migrated;
-    const raw=localStorage.getItem(KEY);
-    if(raw)return normalizeState(JSON.parse(raw));
-  }catch(e){console.warn("load",e);}
-  return cloneSeed();
+    const raw = localStorage.getItem(KEY);
+    if(raw){
+      const d = JSON.parse(raw);
+      return {
+        ...JSON.parse(JSON.stringify(SEED)),
+        ...d,
+        farm:{...SEED.farm, ...(d.farm||{})},
+        diesel:{...SEED.diesel, ...(d.diesel||{})},
+        insumos: d.insumos && d.insumos.length ? d.insumos : SEED.insumos,
+        maquinas: d.maquinas && d.maquinas.length ? d.maquinas : SEED.maquinas,
+        pessoas: d.pessoas && d.pessoas.length ? d.pessoas : SEED.pessoas,
+        talhoes: d.talhoes && d.talhoes.length ? d.talhoes : SEED.talhoes,
+        extintores: d.extintores && d.extintores.length ? d.extintores : (SEED.extintores||[]),
+        sementes: Array.isArray(d.sementes) ? d.sementes : (SEED.sementes||[]),
+        folgas: Array.isArray(d.folgas) ? d.folgas : (SEED.folgas||[]),
+        chuva: Array.isArray(d.chuva) ? d.chuva : (SEED.chuva||[]),
+        saidas: Array.isArray(d.saidas) ? d.saidas : (SEED.saidas||[]),
+        safraStatus: d.safraStatus || {},
+        safraPlantio: d.safraPlantio || {},
+        equatorial: d.equatorial || SEED.equatorial,
+        rotinaFeita: d.rotinaFeita || {},
+      };
+    }
+  }catch(e){}
+  return JSON.parse(JSON.stringify(SEED));
 }
 function save(){
-  try{
-    const previous=localStorage.getItem(KEY);
-    if(previous){
-      localStorage.setItem(BACKUP_PREV_KEY,previous);
-      localStorage.setItem(BACKUP_KEY,previous);
-    }
-    localStorage.setItem(KEY,JSON.stringify(state));
-    localStorage.setItem(DATA_VERSION_KEY,String(DATA_VERSION));
-  }catch(e){console.warn("save local",e);}
+  localStorage.setItem(KEY, JSON.stringify(state));
   scheduleCloudSave();
 }
 let cloudTimer=null;
@@ -632,7 +580,7 @@ function saldoFolgas(nome){
     const dow=isoDow(f.data);
     if(f.tipo==="X" && dow>=1 && dow<=5) porMes[ym].xUtil++;
   });
-  // A contagem oficial de folgas começa em JULHO/2026.
+  // percorrer meses de 2026-03 até folgaMes
   const months=[];
   let [y,m]=[2026,7];
   const [y2,m2]=folgaMes.split("-").map(Number);
@@ -662,7 +610,7 @@ function detalheSaldo(nome){
   const mensal=[], domingoX=[], domingoTrab=[];
   const s=saldoFolgas(nome);
   const pes=(state.pessoas||[]).find(x=>x.nome===nome);
-  const start="2026-07"; // início oficial da contagem
+  const start="2026-07";
   let [y,m]=[2026,7];
   const [y2,m2]=folgaMes.split("-").map(Number);
   while(y<y2 || (y===y2 && m<=m2)){
@@ -1563,14 +1511,11 @@ function render(){
       <button class="btn block" data-go="equatorial">Equatorial / energia (UCs)</button>
       <button class="btn block" data-go="extintores">Extintores</button>
       <button class="btn block" data-go="folgas">Folgas, plantão e faltas</button>
-      <button class="btn block" id="btn-export-backup">💾 Exportar backup dos dados</button>
-      <label class="btn block" for="btn-import-backup" style="cursor:pointer">📥 Importar backup</label>
-      <input id="btn-import-backup" type="file" accept=".json,application/json" style="display:none"/>
       <button class="btn block" id="btn-reset">Restaurar cadastro oficial do app</button>
     </div>
     <div class="card">
       <p class="card-title">Restaurar</p>
-      <p class="muted">Volta o cadastro gravado neste arquivo. O app preserva um backup local antes da restauração. Para maior segurança, exporte um backup antes de grandes alterações.</p>
+      <p class="muted">Volta o cadastro gravado neste arquivo. Lançamentos feitos depois são apagados.</p>
     </div>`;
   }
 
@@ -2039,13 +1984,7 @@ function bind(){
   if(bpull) bpull.onclick=async()=>{ const ok=await pullCloud(); toast(ok?"Dados da nuvem carregados":"Nada na nuvem ou erro"); render(); };
 
   const br=document.getElementById("btn-reset");
-  if(br) br.onclick=()=>{
-    if(!confirm("Restaurar o cadastro oficial? O app fará um backup dos dados atuais antes de continuar."))return;
-    saveAutoBackup(); state=cloneSeed(); state.rotinaFeita={}; save();
-    toast("Cadastro oficial restaurado — backup preservado"); render();
-  };
-  const be=document.getElementById("btn-export-backup"); if(be) be.onclick=exportBackup;
-  const bi=document.getElementById("btn-import-backup"); if(bi) bi.onchange=e=>importBackupFile(e.target.files&&e.target.files[0]);
+  if(br) br.onclick=()=>{ state=JSON.parse(JSON.stringify(SEED)); state.rotinaFeita={}; save(); toast("Dados restaurados"); render(); };
 }
 
 (function swipeMenu(){
