@@ -14,7 +14,7 @@ window.CampoGestorTelas.hoje = function() {
     const niver7=state.pessoas.filter(p=>p.nascimento&&aniversarioEmAte(p.nascimento,7,hoje)&&!aniversarioHoje(p.nascimento,hoje));
     const chuvaLista = (state.chuva||[]).slice().sort((a,b)=>(b.data||"").localeCompare(a.data||""));
     const ultimaChuva = chuvaLista[0];
-    html +=headerBar("", esc(state.farm.nome), "");
+    html +=headerBar("CAMPOGESTOR", `Bem-vindo, ${esc(perfilAtual().nome)}`, `<div class="farm-context">${esc(state.farm.nome)}</div>`);
     // Card Propriedade
     html +=`<div class="card">
       <p class="muted" style="text-transform:uppercase;letter-spacing:.06em;font-size:.7rem;margin:0">Propriedade</p>

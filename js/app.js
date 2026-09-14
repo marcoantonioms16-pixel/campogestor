@@ -231,6 +231,32 @@ function cloudLabel(){
 }
 function uid(){ return (crypto.randomUUID && crypto.randomUUID()) || ("id-"+Date.now()+"-"+Math.random().toString(16).slice(2)); }
 
+const PROFILE_KEY = "campogestor_perfil_atual_v1";
+const PERFIS = [
+  { id: "celio", nome: "Célio Carlos", inicial: "CC", role: "Administrador", canEdit: true },
+  { id: "marcos", nome: "Marcos Antônio", inicial: "MA", role: "Administrador", canEdit: true },
+  { id: "visitante", nome: "Visitante", inicial: "V", role: "Somente consulta", canEdit: false },
+];
+function perfilAtual(){
+  try {
+    const id = localStorage.getItem(PROFILE_KEY) || "marcos";
+    return PERFIS.find(p=>p.id===id) || PERFIS[1];
+  } catch(e) { return PERFIS[1]; }
+}
+function setPerfil(id){
+  const p=PERFIS.find(x=>x.id===id);
+  if(!p) return;
+  try { localStorage.setItem(PROFILE_KEY, p.id); } catch(e) {}
+}
+function isVisitante(){ return perfilAtual().id === "visitante"; }
+function perfilCloudResumo(){
+  if(!sbUser) return "Somente neste aparelho";
+  if(cloudStatus === "syncing") return "Sincronizando com a nuvem…";
+  if(cloudStatus === "synced") return "Sincronizado agora";
+  if(cloudStatus === "error") return "Nuvem indisponível · dados locais preservados";
+  return "Conectado à nuvem";
+}
+
 let state = load();
 sincronizaDieselInventario();
 let sbUser = null;
@@ -280,10 +306,15 @@ function rotinaHoje(ref){
 
 
 function headerBar(kicker, title, rightHtml=""){
+  const p=perfilAtual();
   return `<header class="header">
-    <button type="button" class="menu-btn" id="btn-menu" aria-label="Menu">☰</button>
-    <div style="flex:1;min-width:0">${kicker?`<p class="kicker">${kicker}</p>`:""}<h1>${title}</h1></div>
+    <button type="button" class="menu-btn" id="btn-menu" aria-label="Menu" aria-expanded="${menuOpen?"true":"false"}">☰</button>
+    <div class="header-main" style="flex:1;min-width:0">${kicker?`<p class="kicker">${kicker}</p>`:""}<h1>${title}</h1></div>
     ${rightHtml||""}
+    <button type="button" class="profile-trigger" id="btn-profile" aria-label="Perfil de ${esc(p.nome)}">
+      <span class="profile-avatar">${esc(p.inicial)}</span>
+      <span class="profile-trigger-name">${esc(p.nome)}</span>
+    </button>
   </header>`;
 }
 
@@ -613,7 +644,7 @@ function exportExtExcel(){
   a.click();
 }
 
-function openEdit(kind, id){ edit={kind,id}; render(); }
+function openEdit(kind, id){ if(isVisitante()){ toast("O perfil Visitante é somente para consulta"); return; } edit={kind,id}; render(); }
 function closeEdit(){ edit=null; render(); }
 
 function renderDrawer(){
@@ -894,6 +925,38 @@ function renderDrawer(){
   return `<div class="drawer-bg${mid?" center":""}" id="drawer"><div class="drawer">${body}</div></div>`;
 }
 
+function renderProfileModal(){
+  const p=perfilAtual();
+  return `<div class="profile-overlay" id="profile-overlay" role="dialog" aria-modal="true" aria-label="Perfil do usuário">
+    <section class="profile-modal">
+      <div class="profile-modal-head">
+        <div>
+          <div class="profile-modal-kicker">CAMPOGESTOR</div>
+          <h2>Seu perfil</h2>
+          <p class="muted">Escolha quem está usando o aplicativo.</p>
+        </div>
+        <button type="button" class="profile-close" id="profile-close" aria-label="Fechar">×</button>
+      </div>
+      <div class="profile-current">
+        <span class="profile-avatar large">${esc(p.inicial)}</span>
+        <div><strong>${esc(p.nome)}</strong><span>${esc(p.role)}</span></div>
+      </div>
+      <div class="profile-options">
+        ${PERFIS.map(x=>`<button type="button" class="profile-option ${x.id===p.id?"active":""}" data-profile-id="${x.id}">
+          <span class="profile-avatar">${esc(x.inicial)}</span>
+          <span class="profile-option-text"><strong>${esc(x.nome)}</strong><small>${esc(x.role)}</small></span>
+          ${x.id===p.id?`<span class="profile-check">✓</span>`:""}
+        </button>`).join("")}
+      </div>
+      <div class="profile-cloud">
+        <span class="cloud-dot ${cloudStatus}"></span>
+        <div><strong>Sincronização</strong><span>${esc(perfilCloudResumo())}</span></div>
+      </div>
+      ${sbUser?`<div class="profile-email">${esc(sbUser.email||"")}</div>`:""}
+    </section>
+  </div>`;
+}
+
 function render(){
   const root=document.getElementById("app");
   const hoje=hojeISO();
@@ -917,9 +980,6 @@ function render(){
     {id:"mais",ic:"⋯",label:"Mais"},
   ];
   html+=`<div class="menu-overlay ${menuOpen?"open":""}" id="side-bg" aria-hidden="${menuOpen?"false":"true"}"></div>`;
-  html+=`<nav class="bottom-nav" aria-label="Navegação principal">
-    ${navItems.slice(0,5).map(it=>`<button class="bottom-item ${page===it.id?"active":""}" data-go="${it.id}"><span class="bi">${it.ic}</span><span>${it.label}</span></button>`).join("")}
-  </nav>`;
   if(menuOpen){
     html+=`<section class="floating-menu" id="floating-menu" aria-label="Menu CampoGestor">
       <div class="floating-menu-head">
@@ -937,6 +997,7 @@ function render(){
       <div class="floating-menu-foot">Toque fora para fechar</div>
     </section>`;
   }
+  html+=renderProfileModal();
   html+=renderDrawer();
   root.innerHTML=html;
   bind();
@@ -944,6 +1005,14 @@ function render(){
 }
 
 function bind(){
+  const bpfl=document.getElementById("btn-profile");
+  if(bpfl) bpfl.onclick=()=>{ const ov=document.getElementById("profile-overlay"); if(ov) ov.classList.add("open"); };
+  const pclose=document.getElementById("profile-close");
+  if(pclose) pclose.onclick=()=>{ const ov=document.getElementById("profile-overlay"); if(ov) ov.classList.remove("open"); };
+  const pov=document.getElementById("profile-overlay");
+  if(pov) pov.onclick=(e)=>{ if(e.target===pov) pov.classList.remove("open"); };
+  document.querySelectorAll("[data-profile-id]").forEach(b=>{ b.onclick=()=>{ const id=b.getAttribute("data-profile-id"); setPerfil(id); render(); }; });
+
   document.querySelectorAll("[data-go]").forEach(btn=>{ btn.onclick=()=>{ page=btn.getAttribute("data-go"); edit=null; menuOpen=false; render(); }; });
   document.querySelectorAll("[data-hoje]").forEach(b=>{
     b.onclick=()=>{
@@ -1079,6 +1148,9 @@ function bind(){
     };
   });
   document.querySelectorAll("[data-new]").forEach(b=>{ b.onclick=()=>{ openEdit("novo-"+b.getAttribute("data-new"), null); }; });
+  if(isVisitante()){
+    document.querySelectorAll("[data-new],[data-edit]").forEach(b=>{ b.classList.add("visitor-disabled"); b.setAttribute("aria-disabled","true"); });
+  }
   const dr=document.getElementById("drawer");
   if(dr) dr.onclick=(e)=>{ if(e.target===dr) closeEdit(); };
 
@@ -1383,7 +1455,7 @@ function bind(){
 }
 
 document.addEventListener("keydown", e=>{
-  if(e.key === "Escape" && menuOpen){ menuOpen=false; render(); }
+  if(e.key === "Escape"){ const pov=document.getElementById("profile-overlay"); if(pov && pov.classList.contains("open")){ pov.classList.remove("open"); return; } if(menuOpen){ menuOpen=false; render(); } }
 });
 
 (function swipeMenu(){
