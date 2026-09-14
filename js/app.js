@@ -280,12 +280,9 @@ function rotinaHoje(ref){
 
 
 function headerBar(kicker, title, rightHtml=""){
-  const isHome = page === "hoje";
   return `<header class="header">
-    <button type="button" class="menu-btn" id="btn-menu" aria-label="Abrir menu">☰</button>
-    <div style="flex:1;min-width:0">
-      ${isHome ? `<div class="brand-lockup"><span class="brand-symbol" aria-hidden="true"></span><span class="brand-name">CAMPOGESTOR</span></div>` : `${kicker?`<p class="kicker">${kicker}</p>`:""}<h1>${title}</h1>`}
-    </div>
+    <button type="button" class="menu-btn" id="btn-menu" aria-label="Menu">☰</button>
+    <div style="flex:1;min-width:0">${kicker?`<p class="kicker">${kicker}</p>`:""}<h1>${title}</h1></div>
     ${rightHtml||""}
   </header>`;
 }
@@ -904,7 +901,7 @@ function render(){
 
   const renderers = window.CampoGestorTelas || {};
   const renderPage = renderers[page];
-  if(renderPage) html += `<main class="page-shell"><div class="page-content">${renderPage()}</div></main>`;
+  if(renderPage) html += renderPage();
 
   const navItems=[
     {id:"hoje",ic:"🏠",label:"Hoje"},
@@ -919,16 +916,27 @@ function render(){
     {id:"extintores",ic:"🧯",label:"Extintores"},
     {id:"mais",ic:"⋯",label:"Mais"},
   ];
-  html+=`<div class="side-bg ${menuOpen?"open":""}" id="side-bg"></div>`;
+  html+=`<div class="menu-overlay ${menuOpen?"open":""}" id="side-bg" aria-hidden="${menuOpen?"false":"true"}"></div>`;
   html+=`<nav class="bottom-nav" aria-label="Navegação principal">
     ${navItems.slice(0,5).map(it=>`<button class="bottom-item ${page===it.id?"active":""}" data-go="${it.id}"><span class="bi">${it.ic}</span><span>${it.label}</span></button>`).join("")}
   </nav>`;
-  html+=`<aside class="side ${menuOpen?"open":""}" id="side">
-    <div class="brand"><div class="k">CampoGestor</div><div class="n">${esc(state.farm.nome)}</div></div>`;
-  navItems.forEach(it=>{
-    html+=`<button class="nav-item ${page===it.id?"active":""}" data-go="${it.id}"><span class="ic">${it.ic}</span><span>${it.label}</span></button>`;
-  });
-  html+=`</aside>`;
+  if(menuOpen){
+    html+=`<section class="floating-menu" id="floating-menu" aria-label="Menu CampoGestor">
+      <div class="floating-menu-head">
+        <div>
+          <div class="floating-brand">CAMPO<span>GESTOR</span></div>
+          <div class="floating-sub">${esc(state.farm.nome)} · Navegação</div>
+        </div>
+        <button type="button" class="floating-close" id="floating-close" aria-label="Fechar menu">×</button>
+      </div>
+      <div class="menu-bubbles">
+        ${navItems.map((it,i)=>`<button class="menu-bubble ${page===it.id?"active":""}" data-go="${it.id}" style="--bubble-delay:${i*35}ms">
+          <span class="bubble-icon">${it.ic}</span><span class="bubble-label">${it.label}</span>
+        </button>`).join("")}
+      </div>
+      <div class="floating-menu-foot">Toque fora para fechar</div>
+    </section>`;
+  }
   html+=renderDrawer();
   root.innerHTML=html;
   bind();
@@ -1022,9 +1030,14 @@ function bind(){
   });
 
   const bm=document.getElementById("btn-menu");
-  if(bm) bm.onclick=()=>{ menuOpen=true; render(); };
+  if(bm) {
+    bm.setAttribute("aria-expanded", menuOpen ? "true" : "false");
+    bm.onclick=()=>{ menuOpen=!menuOpen; render(); };
+  }
   const sbg=document.getElementById("side-bg");
   if(sbg) sbg.onclick=()=>{ menuOpen=false; render(); };
+  const fc=document.getElementById("floating-close");
+  if(fc) fc.onclick=()=>{ menuOpen=false; render(); };
 
   document.querySelectorAll("[data-rotina]").forEach(cb=>{ cb.onchange=()=>{ const id=cb.getAttribute("data-rotina"); const hoje=hojeISO();
     if(state.rotinaFeita[id]===hoje) delete state.rotinaFeita[id]; else state.rotinaFeita[id]=hoje; save(); render(); }; });
@@ -1368,6 +1381,10 @@ function bind(){
     state=JSON.parse(JSON.stringify(SEED)); state.rotinaFeita={}; save(); toast("Dados restaurados"); render();
   };
 }
+
+document.addEventListener("keydown", e=>{
+  if(e.key === "Escape" && menuOpen){ menuOpen=false; render(); }
+});
 
 (function swipeMenu(){
   let x0=null,y0=null;
