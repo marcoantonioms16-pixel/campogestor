@@ -369,7 +369,7 @@
     let SUPABASE_URL = localStorage.getItem('campogestor_sb_url') || 'https://xyzcompany.supabase.co';
     let SUPABASE_ANON_KEY = localStorage.getItem('campogestor_sb_key') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
 
-    let supabase = null;
+    let sbClient = null;
     let currentUser = null;
     let syncTimer = null;
     const SYNC_INTERVAL_MS = 30 * 60 * 1000; // 30 minutos
@@ -437,7 +437,7 @@
     function initSupabase() {
       try {
         if (SUPABASE_URL && SUPABASE_ANON_KEY && !SUPABASE_URL.includes('xyzcompany')) {
-          supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+          sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
           const badge = document.getElementById('supabase-config-badge');
           if (badge) {
             badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300';
@@ -446,7 +446,7 @@
           const cfgBox = document.getElementById('auth-supabase-config');
           if (cfgBox) cfgBox.classList.add('hidden');
         } else {
-          supabase = null;
+          sbClient = null;
           const badge = document.getElementById('supabase-config-badge');
           if (badge) {
             badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300';
@@ -457,7 +457,7 @@
         }
       } catch (err) {
         console.warn('Erro ao inicializar cliente Supabase:', err);
-        supabase = null;
+        sbClient = null;
       }
     }
 
@@ -482,9 +482,9 @@
 
     async function checkExistingSession() {
       // 1) Tenta sessão real do Supabase
-      if (supabase) {
+      if (sbClient) {
         try {
-          const { data: { session } } = await supabase.auth.getSession();
+          const { data: { session } } = await sbClient.auth.getSession();
           if (session && session.user) {
             currentUser = {
               id: session.user.id,
@@ -583,9 +583,9 @@
       const OFFICIAL_PASS  = '@123456789';
 
       // 1) Tenta login real no Supabase se estiver configurado
-      if (supabase) {
+      if (sbClient) {
         try {
-          const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+          const { data, error } = await sbClient.auth.signInWithPassword({ email, password });
           if (error) throw error;
           currentUser = {
             id: data.user.id,
@@ -624,13 +624,13 @@
       const password = document.getElementById('signup-password').value.trim();
       if (!name || !email || !password) return;
 
-      if (!supabase) {
+      if (!sbClient) {
         showAuthAlert('Supabase não configurado. Insira as chaves válidas nas Configurações para criar contas.');
         return;
       }
 
       try {
-        const { data, error } = await supabase.auth.signUp({
+        const { data, error } = await sbClient.auth.signUp({
           email, password, options: { data: { full_name: name } }
         });
         if (error) throw error;
@@ -642,8 +642,8 @@
     }
 
     async function handleLogout() {
-      if (supabase) {
-        try { await supabase.auth.signOut(); } catch (e) {}
+      if (sbClient) {
+        try { await sbClient.auth.signOut(); } catch (e) {}
       }
       localStorage.removeItem('campogestor_user');
       currentUser = null;
@@ -681,11 +681,11 @@
       if (syncIcon) syncIcon.classList.add('animate-spin');
       if (syncText) syncText.textContent = 'Sincronizando...';
 
-      if (supabase && currentUser) {
+      if (sbClient && currentUser) {
         try {
           const tables = ['extintores', 'maquinas', 'insumos', 'pessoas', 'folgas', 'talhoes', 'equatorial'];
           for (let table of tables) {
-            const { data, error } = await supabase.from(table).select('*');
+            const { data, error } = await sbClient.from(table).select('*');
             if (!error && data && data.length > 0) {
               appState[table] = data;
             }
@@ -728,8 +728,8 @@
       item.id = moduleName.substring(0, 3) + '-' + Date.now();
       appState[moduleName].unshift(item);
       saveLocalData();
-      if (supabase) {
-        supabase.from(moduleName).insert([item]).then(() => {}).catch(() => {});
+      if (sbClient) {
+        sbClient.from(moduleName).insert([item]).then(() => {}).catch(() => {});
       }
     }
 
@@ -738,16 +738,16 @@
       if (idx === -1) return;
       appState[moduleName][idx] = { ...appState[moduleName][idx], ...updatedFields };
       saveLocalData();
-      if (supabase) {
-        supabase.from(moduleName).update(updatedFields).eq('id', id).then(() => {}).catch(() => {});
+      if (sbClient) {
+        sbClient.from(moduleName).update(updatedFields).eq('id', id).then(() => {}).catch(() => {});
       }
     }
 
     function deleteItem(moduleName, id) {
       appState[moduleName] = appState[moduleName].filter(x => x.id !== id);
       saveLocalData();
-      if (supabase) {
-        supabase.from(moduleName).delete().eq('id', id).then(() => {}).catch(() => {});
+      if (sbClient) {
+        sbClient.from(moduleName).delete().eq('id', id).then(() => {}).catch(() => {});
       }
       navigateTo(moduleName);
     }
@@ -1072,7 +1072,7 @@
               </div>
               <div class="flex justify-between">
                 <span class="text-gray-500">Banco Primário:</span>
-                <span class="font-semibold ${supabase ? 'text-green-600 dark:text-green-400' : 'text-amber-600 dark:text-amber-400'}">${supabase ? 'Supabase Cloud' : 'LocalStorage (Offline)'}</span>
+                <span class="font-semibold ${sbClient ? 'text-green-600 dark:text-green-400' : 'text-amber-600 dark:text-amber-400'}">${sbClient ? 'Supabase Cloud' : 'LocalStorage (Offline)'}</span>
               </div>
               <div class="flex justify-between">
                 <span class="text-gray-500">Sessão:</span>
