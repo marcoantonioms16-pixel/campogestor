@@ -26,3 +26,7 @@ A tela da Frota continua com os mesmos nomes, ordem e organização dos chips. A
 ## Execução
 
 A aplicação continua sendo um site estático e pode ser hospedada como antes. Os scripts são carregados com `<script src>` em ordem, evitando dependência de bundler.
+
+
+## Correção de inicialização
+A primeira extração das telas dependia da variável `hoje` que existia no escopo do `render()` original. As telas Hoje, Pessoas e Folgas agora calculam `hoje` localmente, evitando ReferenceError e tela em branco.

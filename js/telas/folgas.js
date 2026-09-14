@@ -3,6 +3,7 @@
 window.CampoGestorTelas = window.CampoGestorTelas || {};
 window.CampoGestorTelas.folgas = function() {
   let html = "";
+  const hoje = hojeISO();
     if(!state.folgas) state.folgas=[];
     const tipos={"":"—",X:"Folga",P:"Plantão",F:"Falta",T:"Trabalhado",V:"Férias",E:"Encerrou"};
     const meses=["01","02","03","04","05","06","07","08","09","10","11","12"];

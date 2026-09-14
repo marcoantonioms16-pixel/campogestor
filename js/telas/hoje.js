@@ -3,6 +3,7 @@
 window.CampoGestorTelas = window.CampoGestorTelas || {};
 window.CampoGestorTelas.hoje = function() {
   let html = "";
+  const hoje = hojeISO();
     const listaRotina=rotinaHoje(hoje);
     const feitas=listaRotina.filter(r=>state.rotinaFeita[r.id]===hoje).length;
     const pct=listaRotina.length?Math.round((feitas/listaRotina.length)*100):0;

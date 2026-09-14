@@ -3,6 +3,7 @@
 window.CampoGestorTelas = window.CampoGestorTelas || {};
 window.CampoGestorTelas.pessoas = function() {
   let html = "";
+  const hoje = hojeISO();
     html +=headerBar(`Equipe · ${state.pessoas.filter(p=>p.tipo!=="encerrado").length}`,"Pessoas",`<button class="btn primary sm" data-new="pessoa">+ Nova</button>`);
 
     html +=`<div style="padding:0 1rem .5rem"><button class="btn block" id="btn-notif">Ativar avisos de aniversário</button></div>`;
