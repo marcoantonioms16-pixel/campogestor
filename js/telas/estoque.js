@@ -12,7 +12,10 @@ window.CampoGestorTelas.estoque = function() {
     }).sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR"));
     html +=headerBar(`Almoxarifado · ${state.insumos.length} itens`,"Estoque",`<button type="button" class="btn primary sm" data-new="insumo">+ Novo</button>`);
     html +=`<div style="padding:.25rem 1rem"><button type="button" class="btn block" data-new="saida">Lançamento de saída</button></div>`;
-    html +=`<div class="search"><input id="q-insumo" placeholder="Pesquisar nome, ativo ou código..." value="${esc(qInsumo)}"/></div>`;
+    html +=`<div class="search-bar">
+      <button type="button" class="search-icon-btn ${estoqueBuscaAberta?"on":""}" id="btn-search-estoque" aria-label="Pesquisar">⌕</button>
+      ${estoqueBuscaAberta?`<input id="q-insumo" placeholder="Nome, ativo ou código..." value="${esc(qInsumo)}"/>`:`<input id="q-insumo" type="hidden" value="${esc(qInsumo)}"/>`}
+    </div>`;
     html +=`<div class="chips"><button type="button" class="chip ${catInsumo==="todos"?"on":""}" data-cat="todos">Todos</button>`;
     CATS.forEach(c=>{ html +=`<button type="button" class="chip ${catInsumo===c?"on":""}" data-cat="${c}">${CAT[c]}</button>`; });
     html +=`</div>`;

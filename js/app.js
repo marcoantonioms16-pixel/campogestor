@@ -249,7 +249,7 @@ function setPerfil(id){
   try { localStorage.setItem(PROFILE_KEY, p.id); } catch(e) {}
 }
 function isVisitante(){ return perfilAtual().id === "visitante"; }
-const WEATHER_CACHE_KEY = "campogestor_previsao_chuva_v2";
+const WEATHER_CACHE_KEY = "campogestor_previsao_chuva_v3";
 const WEATHER_CACHE_TTL = 30 * 60 * 1000;
 let weatherRequest = null;
 function weatherCodeLabel(code){
@@ -284,10 +284,10 @@ async function buscarPrevisaoChuva(){
       if(!r) throw new Error("Local da fazenda não encontrado");
       latitude=Number(r.latitude); longitude=Number(r.longitude); place=r.name||municipio;
     }
-    const url=`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum&timezone=America%2FSao_Paulo&forecast_days=5`;
+    const url=`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum,wind_speed_10m_max,wind_gusts_10m_max&timezone=America%2FSao_Paulo&forecast_days=5`;
     const res=await fetch(url); if(!res.ok) throw new Error("Previsão indisponível");
     const data=await res.json();
-    const out={local:place,latitude,longitude,days:(data.daily?.time||[]).map((date,i)=>({date,code:data.daily.weather_code?.[i],max:data.daily.temperature_2m_max?.[i],min:data.daily.temperature_2m_min?.[i],prob:data.daily.precipitation_probability_max?.[i],mm:data.daily.precipitation_sum?.[i]}))};
+    const out={local:place,latitude,longitude,days:(data.daily?.time||[]).map((date,i)=>({date,code:data.daily.weather_code?.[i],max:data.daily.temperature_2m_max?.[i],min:data.daily.temperature_2m_min?.[i],prob:data.daily.precipitation_probability_max?.[i],mm:data.daily.precipitation_sum?.[i],vento:data.daily.wind_speed_10m_max?.[i],rajada:data.daily.wind_gusts_10m_max?.[i]}))};
     try{localStorage.setItem(WEATHER_CACHE_KEY,JSON.stringify({savedAt:Date.now(),data:out}));}catch(e){}
     return out;
   })();
@@ -297,8 +297,16 @@ async function atualizarPrevisaoChuva(){
   const box=document.getElementById("weather-days"); if(!box) return;
   try{
     const w=await buscarPrevisaoChuva();
-    const html=w.days.map((d,i)=>{const [label,ic]=weatherCodeLabel(d.code); const prob=Number.isFinite(d.prob)?Math.round(d.prob):0; const mm=Number.isFinite(d.mm)?Number(d.mm).toFixed(1).replace(".0",""):"—"; return `<div class="weather-day"><span class="weather-day-name">${weatherDayLabel(d.date,i)}</span><span class="weather-icon">${ic}</span><b>${Number.isFinite(d.max)?Math.round(d.max)+"°":"—"}</b><small>${Number.isFinite(d.min)?Math.round(d.min)+"°":"—"}</small><span class="weather-rain"><strong>${prob}%</strong><small> ${mm} mm</small></span><em>${esc(label)}</em></div>`;}).join("");
-    box.innerHTML=html+`<div class="weather-source">${esc(w.local)} · previsão atualizada automaticamente</div>`;
+    lastWeather=w;
+    const html=w.days.map((d,i)=>{const [label,ic]=weatherCodeLabel(d.code); const prob=Number.isFinite(d.prob)?Math.round(d.prob):0; const mm=Number.isFinite(d.mm)?Number(d.mm).toFixed(1).replace(".0",""):"—"; return `<button type="button" class="weather-day" data-wday="${i}"><span class="weather-day-name">${weatherDayLabel(d.date,i)}</span><span class="weather-icon">${ic}</span><b>${Number.isFinite(d.max)?Math.round(d.max)+"°":"—"}</b><small>${Number.isFinite(d.min)?Math.round(d.min)+"°":"—"}</small><span class="weather-rain"><strong>${prob}%</strong><small> ${mm} mm</small></span><em>${esc(label)}</em></button>`;}).join("");
+    box.innerHTML=html+`<div class="weather-source">${esc(w.local)} · toque no dia para ver detalhes</div>`;
+    box.querySelectorAll("[data-wday]").forEach(b=>{
+      b.onclick=()=>{
+        weatherDetalhe=Number(b.getAttribute("data-wday"));
+        edit={kind:"hoje-clima", i:weatherDetalhe};
+        render();
+      };
+    });
   }catch(e){
     box.innerHTML=`<div class="weather-empty"><span>☁️</span><div><b>Previsão temporariamente indisponível</b><small>Confira a aba Chuva para os registros locais.</small></div></div>`;
   }
@@ -321,7 +329,10 @@ let cloudError = "";
 let page = "hoje";
 let menuOpen = false;
 let qInsumo = "";
+let estoqueBuscaAberta = false;
 let qMaq = "";
+let weatherDetalhe = null;
+let lastWeather = null;
 let catExt = "todos";
 let catInsumo = "todos";
 let catMaq = "todos";
@@ -724,6 +735,11 @@ function renderDrawer(){
       <div class="field"><label>Tipo</label><select id="e-tipo">${TIPOS_M.map(t=>`<option value="${t}" ${m.tipo===t?"selected":""}>${TIPO_MAQ[t]}</option>`).join("")}</select></div>
       <div class="field"><label>Modelo</label><input id="e-mod" value="${esc(m.modelo||"")}"/></div>
       <div class="field"><label>Placa / nº</label><input id="e-placa" value="${esc(m.placa||"")}"/></div>
+      <div class="field"><label>Fazenda</label><select id="e-faz">
+        <option value="SANTA RITA" ${String(m.fazenda||"").toUpperCase().includes("SANTA RITA")||String(m.fazenda||"").toLowerCase().includes("santa-rita")?"selected":""}>Santa Rita</option>
+        <option value="SEGREDO" ${String(m.fazenda||"").toUpperCase().includes("SEGREDO")?"selected":""}>Segredo</option>
+        <option value="" ${!m.fazenda?"selected":""}>Não informada</option>
+      </select></div>
       <div class="field"><label>Status</label><select id="e-st">
         <option value="operando" ${m.status==="operando"?"selected":""}>Operando</option>
         <option value="parada" ${m.status==="parada"?"selected":""}>Parada</option>
@@ -922,6 +938,29 @@ function renderDrawer(){
     body=`<h2>Área</h2><p>${n(state.farm.areaTotal,0)} ha · ${ts.length} talhões</p>
       <ul class="list" style="margin-top:.6rem">${ts.map(t=>`<li><div style="flex:1">${esc(nomeTalhao(t))}</div><div>${n(t.area,2)} ha</div></li>`).join("")||'<li class="muted">Sem talhões</li>'}</ul>`;
   }
+  if(edit.kind==="hoje-clima"){
+    const w=lastWeather || weatherCached();
+    const i=Number(edit.i||weatherDetalhe||0);
+    const d=w && w.days ? w.days[i] : null;
+    if(!d){
+      body=`<h2>Previsão</h2><p class="muted">Toque de novo no dia depois que a previsão carregar.</p>`;
+    } else {
+      const [label,ic]=weatherCodeLabel(d.code);
+      const fmt=iso=>(iso||"").split("-").reverse().join("/");
+      body=`<h2>${ic} ${weatherDayLabel(d.date,i)}</h2>
+        <p class="muted">${fmt(d.date)} · ${esc(w.local||state.farm?.municipio||"")}</p>
+        <div class="clima-detalhe">
+          <div><b>${Number.isFinite(d.max)?Math.round(d.max)+"°":"—"}</b><small>Máxima</small></div>
+          <div><b>${Number.isFinite(d.min)?Math.round(d.min)+"°":"—"}</b><small>Mínima</small></div>
+          <div><b>${Number.isFinite(d.prob)?Math.round(d.prob)+"%":"—"}</b><small>Chance de chuva</small></div>
+          <div><b>${Number.isFinite(d.mm)?Number(d.mm).toFixed(1).replace(".0","")+" mm":"—"}</b><small>Volume previsto</small></div>
+          <div><b>${Number.isFinite(d.vento)?Math.round(d.vento)+" km/h":"—"}</b><small>Vento</small></div>
+          <div><b>${Number.isFinite(d.rajada)?Math.round(d.rajada)+" km/h":"—"}</b><small>Rajada</small></div>
+        </div>
+        <p style="margin-top:.8rem">${esc(label)}</p>
+        <p class="muted">Fonte: Open-Meteo. Toque em outro dia na tela Hoje para comparar.</p>`;
+    }
+  }
   if(edit.kind==="janela"){
     const j=janelaMapa();
     body=`<h2>Janela MAPA · Soja GO</h2>
@@ -1062,14 +1101,15 @@ function bind(){
 
   document.querySelectorAll("[data-go]").forEach(btn=>{ btn.onclick=()=>{ page=btn.getAttribute("data-go"); edit=null; menuOpen=false; render(); }; });
   document.querySelectorAll("[data-hoje]").forEach(b=>{
-    b.onclick=()=>{
+    b.onclick=(ev)=>{
+      ev.preventDefault();
+      ev.stopPropagation();
       const k=b.getAttribute("data-hoje");
       if(k==="equipe"){ page="pessoas"; edit=null; menuOpen=false; render(); return; }
-      if(k==="diesel") edit={kind:"hoje-diesel"};
-      if(k==="chuva") edit={kind:"hoje-chuva"};
-      if(k==="area") edit={kind:"hoje-area"};
-      if(k==="tarefas") edit={kind:"hoje-tarefas"};
-      render();
+      if(k==="diesel"){ edit={kind:"hoje-diesel"}; render(); return; }
+      if(k==="chuva"){ page="chuva"; edit=null; menuOpen=false; render(); return; }
+      if(k==="area"){ edit={kind:"hoje-area"}; render(); return; }
+      if(k==="tarefas"){ edit={kind:"hoje-tarefas"}; render(); return; }
     };
   });
   document.querySelectorAll("[data-ver-pessoa]").forEach(el=>{
@@ -1182,8 +1222,11 @@ function bind(){
   const qm=document.getElementById("q-maq");
   if(qm){ qm.oninput=()=>{ qMaq=qm.value; clearTimeout(qm._t); qm._t=setTimeout(()=>render(),200); }; }
   const qi=document.getElementById("q-insumo");
-  if(qi){ qi.oninput=()=>{ qInsumo=qi.value; /* live filter without full redraw of input focus - debounce simple */ clearTimeout(qi._t); qi._t=setTimeout(()=>render(),200); };
-    setTimeout(()=>{ const el=document.getElementById("q-insumo"); if(el){ el.focus(); el.selectionStart=el.selectionEnd=el.value.length; } },0);
+  const qtoggle=document.getElementById("btn-search-estoque");
+  if(qtoggle) qtoggle.onclick=()=>{ estoqueBuscaAberta=!estoqueBuscaAberta; render(); };
+  if(qi){
+    qi.oninput=()=>{ qInsumo=qi.value; clearTimeout(qi._t); qi._t=setTimeout(()=>render(),220); };
+    if(estoqueBuscaAberta) setTimeout(()=>{ const el=document.getElementById("q-insumo"); if(el){ el.focus(); el.selectionStart=el.selectionEnd=el.value.length; } },0);
   }
   document.querySelectorAll("[data-edit]").forEach(b=>{ b.onclick=()=>{ openEdit(b.getAttribute("data-edit"), b.getAttribute("data-id")||null); }; });
   document.querySelectorAll("[data-set-folga]").forEach(b=>{
@@ -1230,7 +1273,8 @@ function bind(){
     }
     if(edit.kind==="maquina"||edit.kind==="novo-maquina"){
       const row={ nome:document.getElementById("e-nome").value.trim(), tipo:document.getElementById("e-tipo").value,
-        modelo:document.getElementById("e-mod").value.trim(), placa:document.getElementById("e-placa").value.trim(), status:document.getElementById("e-st").value };
+        modelo:document.getElementById("e-mod").value.trim(), placa:document.getElementById("e-placa").value.trim(),
+        fazenda:(document.getElementById("e-faz")||{}).value||"", status:document.getElementById("e-st").value };
       if(!row.nome){ toast("Informe o nome"); return; }
       if(edit.kind==="maquina") state.maquinas=state.maquinas.map(x=>x.id===edit.id?{...x,...row}:x);
       else state.maquinas.push({id:uid(),...row});

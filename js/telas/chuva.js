@@ -6,12 +6,13 @@ window.CampoGestorTelas.chuva = function() {
     if(!state.chuva) state.chuva=[];
     const lista=[...state.chuva].sort((a,b)=>(b.data||"").localeCompare(a.data||""));
     html +=headerBar("Pluviometria","Chuva",`<button type="button" class="btn primary sm" data-new="chuva">+ Registrar</button>`);
-    html +=`<p class="sub">Registre a data e os milímetros. O mais recente aparece na tela principal.</p>`;
     if(lista.length){
       const u=lista[0];
-      html +=`<div class="card"><p class="card-title">Última chuva</p>
-        <p style="font-size:1.4rem;font-weight:500;margin:.2rem 0">${n(u.mm,1)} mm</p>
+      html +=`<div class="card chuva-destaque"><p class="card-title">Última chuva</p>
+        <p class="chuva-mm">${n(u.mm,1)} mm</p>
         <p class="muted">${(u.data||"").split("-").reverse().join("/")}${u.obs?" · "+esc(u.obs):""}</p></div>`;
+    } else {
+      html +=`<div class="card chuva-destaque"><p class="card-title">Sem registro</p><p class="muted">Toque em + Registrar para lançar milímetros.</p></div>`;
     }
     html +=`<p class="sec">Histórico</p><ul class="list card" style="padding:.25rem 1rem">`;
     if(!lista.length) html +=`<li class="muted">Nenhum registro ainda.</li>`;

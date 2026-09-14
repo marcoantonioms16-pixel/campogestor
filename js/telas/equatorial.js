@@ -4,11 +4,11 @@ window.CampoGestorTelas = window.CampoGestorTelas || {};
 window.CampoGestorTelas.equatorial = function() {
   let html = "";
     const eq = state.equatorial || SEED.equatorial;
-    html +=headerBar("Energia · Equatorial / ENEL","Unidades",`<button type="button" class="btn primary sm" data-new="protocolo">+ Protocolo</button>`);
-    html +=`<div class="card"><p class="card-title">Atendimento</p><p style="font-size:1.1rem;font-weight:500">${esc(eq.telefone)}</p>
-      <p class="muted">Anote o protocolo após o atendimento.</p>
-      <a class="btn primary block" style="margin-top:.6rem;text-align:center;text-decoration:none" id="btn-wa-clara" href="#">WhatsApp Clara</a>
-      <p class="muted" style="margin-top:.4rem">0800-620-196 · Abre o WhatsApp do telefone. Com o número da Clara em Mais → Editar fazenda, já entra no chat dela.</p>
+    html +=headerBar("Energia","Equatorial",`<button type="button" class="btn primary sm" data-new="protocolo">+ Protocolo</button>`);
+    html +=`<div class="card energia-card"><p class="card-title">Atendimento</p>
+      <p class="energia-fone">${esc(eq.telefone||"0800-620-196")}</p>
+      <p class="muted">Anote o protocolo depois de ligar.</p>
+      <a class="btn primary block" style="margin-top:.7rem;text-align:center;text-decoration:none" id="btn-wa-clara" href="#">WhatsApp Clara</a>
     </div>`;
     const ucKeep=["10026027184","980046051"];
     html +=`<p class="sec">Unidades consumidoras</p><ul class="list card" style="padding:.25rem 1rem">`;

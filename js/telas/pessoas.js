@@ -23,15 +23,15 @@ window.CampoGestorTelas.pessoas = function() {
       let h=`<li style="align-items:flex-start">
         <div style="flex:1">
           <div style="display:flex;align-items:center;gap:.4rem;flex-wrap:wrap">
-            <span style="font-weight:500">${esc(p.nome)}</span>
+            <span class="pessoa-nome">${esc(p.nome)}</span>
             ${hojeN?'<span class="badge ok">Hoje</span>':''}
             ${p.tipo==="encerrado"?'<span class="badge muted">Encerrado</span>':''}
           </div>
-          <div class="muted">${esc(p.funcao||"—")} · ${esc(p.tipo)}</div>
-          ${p.nascimento?`<div class="muted">Aniversário: ${dataNascimentoFmt(p.nascimento)} de ${String(p.nascimento).slice(0,4)}</div>`:""}
-          ${p.admissao?`<div class="muted">Início / admissão: ${String(p.admissao).split("-").reverse().join("/")}</div>`:""}
-          ${p.contratoFim?`<div class="muted">Encerrou contrato: ${String(p.contratoFim).split("-").reverse().join("/")}</div>`:""}
-          ${tempo && p.tipo!=="encerrado"?`<div style="margin-top:.15rem">Tempo de casa: <b>${esc(tempo)}</b></div>`:""}
+          <div class="pessoa-meta">${esc(p.funcao||"—")} · ${esc(p.tipo)}</div>
+          ${p.nascimento?`<div class="pessoa-meta">Aniversário: ${dataNascimentoFmt(p.nascimento)} de ${String(p.nascimento).slice(0,4)}</div>`:""}
+          ${p.admissao?`<div class="pessoa-meta">Início / admissão: ${String(p.admissao).split("-").reverse().join("/")}</div>`:""}
+          ${p.contratoFim?`<div class="pessoa-meta">Encerrou contrato: ${String(p.contratoFim).split("-").reverse().join("/")}</div>`:""}
+          ${tempo && p.tipo!=="encerrado"?`<div class="pessoa-meta">Tempo de casa: <b>${esc(tempo)}</b></div>`:""}
           ${p.carteira?`<div style="margin-top:.45rem;padding:.5rem .6rem;background:var(--elevated);border-radius:10px;display:flex;align-items:center;justify-content:space-between;gap:.5rem">
             <div><div class="muted" style="font-size:.7rem">Carteira Unimed</div><div style="font-weight:500">${esc(p.carteira)}</div></div>
             <button type="button" class="btn sm" data-copy="${esc(p.carteira)}">Copiar</button>

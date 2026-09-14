@@ -27,7 +27,7 @@ window.CampoGestorTelas.frota = function() {
       if(f.includes("segredo")) return "SEGREDO";
       return f ? String(m.fazenda).trim().toUpperCase() : "SEM FAZENDA";
     };
-    const fazendas=[...new Set((state.maquinas||[]).map(fazendaDe))].filter(Boolean).sort((a,b)=>a.localeCompare(b,"pt-BR"));
+    const fazendas=["SANTA RITA","SEGREDO"];
     const presentes=new Set((state.maquinas||[]).map(m=>canonTipo(m.tipo)));
     const q=norm(qMaq);
     const lista=state.maquinas.filter(m=>{

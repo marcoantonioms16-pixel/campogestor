@@ -57,7 +57,16 @@ window.CampoGestorTelas.folgas = function() {
       html +=`<td style="white-space:nowrap"><button type="button" class="btn sm" data-saldo-nome="${esc(nome)}" style="font-size:.65rem;padding:.15rem .35rem">A tirar ${aTirar}</button></td></tr>`;
     });
     html +=`</table>
-      <p class="muted" style="margin-top:.5rem">X folga · P plantão · F falta · toque na célula para mudar · domingo X = obrigatória · P ou vazio no domingo = folga na casa</p>
+      <div class="folga-legenda">
+        <span>X — folga</span>
+        <span>P — plantão</span>
+        <span>F — falta</span>
+        <span>T — trabalhado</span>
+        <span>V — férias</span>
+        <span>Toque na célula para mudar</span>
+        <span>Domingo X = folga obrigatória</span>
+        <span>P ou vazio no domingo = folga na casa</span>
+      </div>
     </div>`;
   return html;
 };

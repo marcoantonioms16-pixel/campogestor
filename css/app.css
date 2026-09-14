@@ -897,3 +897,89 @@ body{padding-bottom:0!important;overflow-x:hidden;}
 
 /* Remove qualquer sobra de navegação inferior — o app usa hamburger. */
 .bottom-nav{display:none!important;}
+
+/* Chips centralizados e iguais em todas as abas */
+.chips{
+  display:flex!important;
+  justify-content:center!important;
+  align-items:center!important;
+  flex-wrap:wrap!important;
+  gap:8px!important;
+  margin:4px 0 12px!important;
+  padding:4px 12px!important;
+}
+.chip{
+  flex:0 0 auto!important;
+  min-height:36px;
+  padding:.45rem .8rem!important;
+  border:1px solid #24513d!important;
+  border-radius:999px!important;
+  background:#fff!important;
+  color:#173f2f!important;
+  font-weight:750!important;
+  font-size:.78rem!important;
+  line-height:1!important;
+  box-shadow:0 3px 8px rgba(23,63,47,.05);
+}
+.chip.on{background:#173f2f!important;color:#fff!important;border-color:#173f2f!important;}
+
+/* Busca do estoque: lupa primeiro */
+.search-bar{display:flex;align-items:center;justify-content:center;gap:8px;margin:0 1rem 10px;}
+.search-icon-btn{
+  width:44px;height:44px;border-radius:14px;border:1px solid rgba(23,63,47,.16);
+  background:#fff;color:#173f2f;font-size:1.2rem;line-height:1;box-shadow:0 5px 14px rgba(17,48,34,.06);
+}
+.search-icon-btn.on{background:#173f2f;color:#fff;border-color:#173f2f;}
+.search-bar input{
+  flex:1;min-width:0;min-height:44px;border-radius:13px;border:1px solid rgba(23,63,47,.16);
+  background:#fff;padding:.55rem .75rem;
+}
+
+/* Pessoas */
+.pessoa-nome{font-weight:800;font-size:1.02rem;color:#12281e;letter-spacing:-.02em;}
+.pessoa-meta{font-size:.68rem;color:#6e7771;margin-top:2px;line-height:1.35;}
+
+/* Safra */
+.safra-card,.safra-item{padding:14px 14px 13px;}
+.safra-line{margin:.45rem 0 .2rem;}
+.safra-actions{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.65rem;}
+.safra-item-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:6px;}
+.safra-item-top .card-title{margin:0;flex:1;min-width:0;font-size:.95rem;line-height:1.3;}
+.safra-item-actions{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex:0 0 auto;}
+.safra-insumos{list-style:none;margin:.45rem 0 0;padding:0;}
+.safra-insumos li{display:flex;flex-direction:column;gap:1px;padding:.35rem 0;border-top:1px solid #e3eee6;}
+.safra-insumos b{font-size:.78rem;color:#173f2f;}
+.safra-insumos span{font-size:.66rem;color:#6e7771;}
+
+/* Mais */
+.mais-kicker{text-transform:uppercase;letter-spacing:.06em;font-size:.68rem;color:#6e7771;margin:0;}
+.mais-title{font-family:var(--display);font-size:1.22rem;margin:.2rem 0 .35rem;}
+.more-list{margin:0 1rem 12px;display:grid;gap:8px;}
+.more-row{
+  display:flex;align-items:center;gap:12px;width:100%;text-align:left;
+  padding:13px 14px;border-radius:18px;border:1px solid rgba(23,63,47,.10);
+  background:rgba(252,253,249,.95);color:#173f2f;box-shadow:0 8px 20px rgba(17,48,34,.06);
+}
+.more-row span{font-size:1.25rem;width:34px;text-align:center;}
+.more-row b,.more-row small{display:block;}
+.more-row b{font-size:.88rem;}
+.more-row small{font-size:.66rem;color:#6b7770;margin-top:2px;}
+
+/* Energia / chuva */
+.energia-fone{font-size:1.2rem;font-weight:750;margin:.15rem 0 .2rem;letter-spacing:-.02em;}
+.chuva-destaque{text-align:left;}
+.chuva-mm{font-size:1.7rem;font-weight:800;margin:.15rem 0 .1rem;color:#173f2f;letter-spacing:-.03em;}
+
+/* Folgas */
+.folga-legenda{display:flex;flex-direction:column;align-items:flex-start;gap:3px;margin-top:.65rem;font-size:.68rem;color:#6e7771;line-height:1.35;}
+
+/* Clima detalhe */
+button.weather-day{cursor:pointer;font:inherit;color:inherit;}
+.clima-detalhe{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;}
+.clima-detalhe>div{background:#f0f5ef;border-radius:14px;padding:10px;}
+.clima-detalhe b,.clima-detalhe small{display:block;}
+.clima-detalhe b{font-size:1.05rem;color:#173f2f;}
+.clima-detalhe small{font-size:.62rem;color:#6e7771;margin-top:3px;}
+
+.btn{white-space:normal;}
+.btn.sm{white-space:nowrap;}
