@@ -280,9 +280,12 @@ function rotinaHoje(ref){
 
 
 function headerBar(kicker, title, rightHtml=""){
+  const isHome = page === "hoje";
   return `<header class="header">
-    <button type="button" class="menu-btn" id="btn-menu" aria-label="Menu">☰</button>
-    <div style="flex:1;min-width:0">${kicker?`<p class="kicker">${kicker}</p>`:""}<h1>${title}</h1></div>
+    <button type="button" class="menu-btn" id="btn-menu" aria-label="Abrir menu">☰</button>
+    <div style="flex:1;min-width:0">
+      ${isHome ? `<div class="brand-lockup"><span class="brand-symbol" aria-hidden="true"></span><span class="brand-name">CAMPOGESTOR</span></div>` : `${kicker?`<p class="kicker">${kicker}</p>`:""}<h1>${title}</h1>`}
+    </div>
     ${rightHtml||""}
   </header>`;
 }
@@ -901,7 +904,7 @@ function render(){
 
   const renderers = window.CampoGestorTelas || {};
   const renderPage = renderers[page];
-  if(renderPage) html += renderPage();
+  if(renderPage) html += `<main class="page-shell"><div class="page-content">${renderPage()}</div></main>`;
 
   const navItems=[
     {id:"hoje",ic:"🏠",label:"Hoje"},
