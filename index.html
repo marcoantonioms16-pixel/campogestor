@@ -2,7 +2,10 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#15803d" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>CampoGestor - Fazenda Santa Rita</title>
 
   <!-- Tailwind CSS via CDN -->
@@ -11,14 +14,13 @@
   <!-- Tailwind Custom Configuration -->
   <script>
     tailwind.config = {
-      darkMode: 'class',
       theme: {
         extend: {
           colors: {
             brand: {
-              50: '#f0fdf4',
+              50:  '#f0fdf4',
               100: '#dcfce7',
-              50: '#bbf7d0',
+              200: '#bbf7d0',
               500: '#22c55e',
               600: '#16a34a',
               700: '#15803d',
@@ -45,6 +47,7 @@
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     body {
       font-family: 'Inter', sans-serif;
+      -webkit-tap-highlight-color: transparent;
     }
     .custom-scrollbar::-webkit-scrollbar {
       width: 6px;
@@ -63,12 +66,63 @@
     .dark .custom-scrollbar::-webkit-scrollbar-thumb {
       background: rgba(255, 255, 255, 0.2);
     }
+
+    /* Sidebar mobile */
+    #sidebar {
+      transition: transform 0.3s ease;
+    }
+    @media (max-width: 767px) {
+      #sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        z-index: 40;
+        transform: translateX(-100%);
+      }
+      #sidebar.open {
+        transform: translateX(0);
+      }
+      #sidebar-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 30;
+      }
+      #sidebar-overlay.show {
+        display: block;
+      }
+    }
+
+    /* Larger touch targets */
+    .touch-target {
+      min-height: 44px;
+      min-width: 44px;
+    }
+    .chip {
+      min-height: 40px;
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+      border-radius: 9999px;
+      font-weight: 500;
+      transition: all 0.15s;
+    }
+
+    /* Table horizontal scroll comfort */
+    .table-wrapper {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .table-wrapper table {
+      min-width: 640px;
+    }
   </style>
 </head>
 
-<body class="bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-gray-100 min-h-screen flex flex-col transition-colors duration-200">
+<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
 
-  <!-- APP CONTAINER (DYNAMICALLY HANDLED BY JS) -->
+  <!-- APP CONTAINER -->
   <div id="app" class="flex-1 flex flex-col min-h-screen">
     
     <!-- LOADING SPINNER -->
@@ -78,11 +132,10 @@
       <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Fazenda Santa Rita</p>
     </div>
 
-    <!-- AUTH SECTION (LOGIN / SIGNUP) -->
+    <!-- AUTH SECTION -->
     <section id="auth-section" class="hidden min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-950 px-4 py-8">
       <div class="w-full max-w-md bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-800 p-8">
         
-        <!-- Brand Header -->
         <div class="text-center mb-8">
           <div class="inline-flex items-center justify-center w-16 h-16 bg-green-100 dark:bg-green-900/40 text-green-600 dark:text-green-400 rounded-2xl mb-3 shadow-inner">
             <i data-lucide="sprout" class="w-8 h-8"></i>
@@ -91,17 +144,15 @@
           <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Sistema Integrado de Gestão Agrícola</p>
         </div>
 
-        <!-- Auth Tabs -->
         <div class="flex border-b border-gray-200 dark:border-gray-800 mb-6">
-          <button id="tab-login-btn" onclick="switchAuthTab('login')" class="flex-1 pb-3 text-center text-sm font-semibold border-b-2 border-green-600 text-green-600 dark:text-green-400 dark:border-green-400">
+          <button id="tab-login-btn" onclick="switchAuthTab('login')" class="flex-1 pb-3 text-center text-sm font-semibold border-b-2 border-green-600 text-green-600 dark:text-green-400 dark:border-green-400 touch-target">
             Entrar
           </button>
-          <button id="tab-signup-btn" onclick="switchAuthTab('signup')" class="flex-1 pb-3 text-center text-sm font-semibold text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 border-b-2 border-transparent">
+          <button id="tab-signup-btn" onclick="switchAuthTab('signup')" class="flex-1 pb-3 text-center text-sm font-semibold text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 border-b-2 border-transparent touch-target">
             Criar Conta
           </button>
         </div>
 
-        <!-- Auth Alert Message -->
         <div id="auth-alert" class="hidden mb-4 p-3 rounded-lg text-sm flex items-start gap-2"></div>
 
         <!-- LOGIN FORM -->
@@ -109,18 +160,18 @@
           <div>
             <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase mb-1">E-mail</label>
             <div class="relative">
-              <i data-lucide="mail" class="w-5 h-5 absolute left-3 top-2.5 text-gray-400"></i>
-              <input type="email" id="login-email" required placeholder="seu@email.com" class="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:outline-none dark:text-white" />
+              <i data-lucide="mail" class="w-5 h-5 absolute left-3 top-3 text-gray-400"></i>
+              <input type="email" id="login-email" required value="campogestor@gmail.com" placeholder="campogestor@gmail.com" class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:outline-none" />
             </div>
           </div>
           <div>
             <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase mb-1">Senha</label>
             <div class="relative">
-              <i data-lucide="lock" class="w-5 h-5 absolute left-3 top-2.5 text-gray-400"></i>
-              <input type="password" id="login-password" required placeholder="••••••••" class="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:outline-none dark:text-white" />
+              <i data-lucide="lock" class="w-5 h-5 absolute left-3 top-3 text-gray-400"></i>
+              <input type="password" id="login-password" required placeholder="••••••••" class="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:outline-none dark:text-white" />
             </div>
           </div>
-          <button type="submit" id="login-submit-btn" class="w-full py-2.5 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg text-sm transition-colors shadow-md flex items-center justify-center gap-2">
+          <button type="submit" id="login-submit-btn" class="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg text-sm transition-colors shadow-md flex items-center justify-center gap-2 touch-target">
             <span>Acessar Painel</span>
             <i data-lucide="arrow-right" class="w-4 h-4"></i>
           </button>
@@ -131,46 +182,58 @@
           <div>
             <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase mb-1">Nome Completo</label>
             <div class="relative">
-              <i data-lucide="user" class="w-5 h-5 absolute left-3 top-2.5 text-gray-400"></i>
-              <input type="text" id="signup-name" required placeholder="João Silva" class="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:outline-none dark:text-white" />
+              <i data-lucide="user" class="w-5 h-5 absolute left-3 top-3 text-gray-400"></i>
+              <input type="text" id="signup-name" required placeholder="João Silva" class="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:outline-none dark:text-white" />
             </div>
           </div>
           <div>
             <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase mb-1">E-mail</label>
             <div class="relative">
-              <i data-lucide="mail" class="w-5 h-5 absolute left-3 top-2.5 text-gray-400"></i>
-              <input type="email" id="signup-email" required placeholder="seu@email.com" class="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:outline-none dark:text-white" />
+              <i data-lucide="mail" class="w-5 h-5 absolute left-3 top-3 text-gray-400"></i>
+              <input type="email" id="signup-email" required placeholder="seu@email.com" class="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:outline-none dark:text-white" />
             </div>
           </div>
           <div>
             <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase mb-1">Senha</label>
             <div class="relative">
-              <i data-lucide="lock" class="w-5 h-5 absolute left-3 top-2.5 text-gray-400"></i>
-              <input type="password" id="signup-password" required minlength="6" placeholder="Mínimo 6 caracteres" class="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:outline-none dark:text-white" />
+              <i data-lucide="lock" class="w-5 h-5 absolute left-3 top-3 text-gray-400"></i>
+              <input type="password" id="signup-password" required minlength="6" placeholder="Mínimo 6 caracteres" class="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:outline-none dark:text-white" />
             </div>
           </div>
-          <button type="submit" id="signup-submit-btn" class="w-full py-2.5 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg text-sm transition-colors shadow-md flex items-center justify-center gap-2">
+          <button type="submit" id="signup-submit-btn" class="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg text-sm transition-colors shadow-md flex items-center justify-center gap-2 touch-target">
             <span>Registrar Conta</span>
             <i data-lucide="user-plus" class="w-4 h-4"></i>
           </button>
         </form>
 
-        <!-- Supabase Status Banner -->
-        <div class="mt-8 pt-4 border-t border-gray-100 dark:border-gray-800 text-center">
-          <span id="supabase-config-badge" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">
+        <div class="mt-8 pt-4 border-t border-gray-100 dark:border-gray-800 text-center space-y-3">
+          <span id="supabase-config-badge" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
             <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-            Modo Local / Demo (Insira chaves Supabase)
+            Aguardando configuração Supabase
           </span>
-        </div>
+          <p class="text-[11px] text-gray-500">Login do gestor: <strong>campogestor@gmail.com</strong></p>
 
+          <!-- Config rápida de chaves (visível quando ainda não configurado) -->
+          <div id="auth-supabase-config" class="text-left space-y-2 pt-2 border-t border-gray-100 dark:border-gray-800">
+            <p class="text-xs font-semibold text-gray-600 dark:text-gray-300">Configurar Supabase (primeira vez)</p>
+            <input type="url" id="auth-sb-url" placeholder="https://seu-projeto.supabase.co" class="w-full p-2 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-xs dark:text-white font-mono" />
+            <textarea id="auth-sb-key" rows="2" placeholder="Anon Key (eyJ...)" class="w-full p-2 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-xs dark:text-white font-mono"></textarea>
+            <button type="button" onclick="saveAuthSupabaseConfig()" class="w-full py-2 bg-slate-700 hover:bg-slate-800 text-white text-xs font-medium rounded-lg touch-target">
+              Salvar chaves e continuar
+            </button>
+          </div>
+        </div>
       </div>
     </section>
 
     <!-- DASHBOARD & MAIN APPLICATION LAYOUT -->
     <div id="dashboard-section" class="hidden flex-1 flex flex-col md:flex-row min-h-screen overflow-hidden">
       
+      <!-- SIDEBAR OVERLAY (mobile) -->
+      <div id="sidebar-overlay" onclick="closeSidebar()"></div>
+
       <!-- SIDEBAR -->
-      <aside class="w-full md:w-64 bg-slate-900 text-slate-100 flex-shrink-0 flex flex-col justify-between shadow-xl">
+      <aside id="sidebar" class="w-72 md:w-64 bg-slate-900 text-slate-100 flex-shrink-0 flex flex-col justify-between shadow-xl">
         <div>
           <!-- Header Branding -->
           <div class="p-4 border-b border-slate-800 flex items-center justify-between">
@@ -183,46 +246,46 @@
                 <p class="text-xs text-slate-400">Fazenda Santa Rita</p>
               </div>
             </div>
-            <button onclick="toggleDarkMode()" class="md:hidden text-slate-400 hover:text-white p-1">
-              <i data-lucide="moon" class="w-5 h-5"></i>
+            <button onclick="closeSidebar()" class="md:hidden text-slate-400 hover:text-white p-2 touch-target">
+              <i data-lucide="x" class="w-5 h-5"></i>
             </button>
           </div>
 
           <!-- Navigation Menu -->
-          <nav class="p-3 space-y-1 custom-scrollbar overflow-y-auto max-h-[calc(100vh-160px)]">
-            <button onclick="navigateTo('dashboard')" id="nav-dashboard" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-slate-300 hover:bg-slate-800 hover:text-white">
+          <nav class="p-3 space-y-1 custom-scrollbar overflow-y-auto max-h-[calc(100vh-180px)]">
+            <button onclick="navigateTo('dashboard')" id="nav-dashboard" class="nav-item w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium transition-colors text-slate-300 hover:bg-slate-800 hover:text-white touch-target">
               <i data-lucide="layout-dashboard" class="w-5 h-5 text-green-400"></i>
               <span>Visão Geral</span>
             </button>
-            <button onclick="navigateTo('extintores')" id="nav-extintores" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-slate-300 hover:bg-slate-800 hover:text-white">
+            <button onclick="navigateTo('extintores')" id="nav-extintores" class="nav-item w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium transition-colors text-slate-300 hover:bg-slate-800 hover:text-white touch-target">
               <i data-lucide="flame" class="w-5 h-5 text-red-400"></i>
               <span>Extintores</span>
             </button>
-            <button onclick="navigateTo('maquinas')" id="nav-maquinas" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-slate-300 hover:bg-slate-800 hover:text-white">
+            <button onclick="navigateTo('maquinas')" id="nav-maquinas" class="nav-item w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium transition-colors text-slate-300 hover:bg-slate-800 hover:text-white touch-target">
               <i data-lucide="truck" class="w-5 h-5 text-amber-400"></i>
               <span>Máquinas & Veículos</span>
             </button>
-            <button onclick="navigateTo('insumos')" id="nav-insumos" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-slate-300 hover:bg-slate-800 hover:text-white">
+            <button onclick="navigateTo('insumos')" id="nav-insumos" class="nav-item w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium transition-colors text-slate-300 hover:bg-slate-800 hover:text-white touch-target">
               <i data-lucide="boxes" class="w-5 h-5 text-blue-400"></i>
               <span>Estoque de Insumos</span>
             </button>
-            <button onclick="navigateTo('pessoas')" id="nav-pessoas" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-slate-300 hover:bg-slate-800 hover:text-white">
+            <button onclick="navigateTo('pessoas')" id="nav-pessoas" class="nav-item w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium transition-colors text-slate-300 hover:bg-slate-800 hover:text-white touch-target">
               <i data-lucide="users" class="w-5 h-5 text-purple-400"></i>
               <span>Pessoas & Equipe</span>
             </button>
-            <button onclick="navigateTo('folgas')" id="nav-folgas" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-slate-300 hover:bg-slate-800 hover:text-white">
+            <button onclick="navigateTo('folgas')" id="nav-folgas" class="nav-item w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium transition-colors text-slate-300 hover:bg-slate-800 hover:text-white touch-target">
               <i data-lucide="calendar" class="w-5 h-5 text-pink-400"></i>
               <span>Escala de Folgas</span>
             </button>
-            <button onclick="navigateTo('talhoes')" id="nav-talhoes" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-slate-300 hover:bg-slate-800 hover:text-white">
+            <button onclick="navigateTo('talhoes')" id="nav-talhoes" class="nav-item w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium transition-colors text-slate-300 hover:bg-slate-800 hover:text-white touch-target">
               <i data-lucide="map" class="w-5 h-5 text-emerald-400"></i>
               <span>Talhões & Culturas</span>
             </button>
-            <button onclick="navigateTo('equatorial')" id="nav-equatorial" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-slate-300 hover:bg-slate-800 hover:text-white">
+            <button onclick="navigateTo('equatorial')" id="nav-equatorial" class="nav-item w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium transition-colors text-slate-300 hover:bg-slate-800 hover:text-white touch-target">
               <i data-lucide="zap" class="w-5 h-5 text-yellow-400"></i>
               <span>Energia Equatorial</span>
             </button>
-            <button onclick="navigateTo('configuracoes')" id="nav-configuracoes" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-slate-300 hover:bg-slate-800 hover:text-white">
+            <button onclick="navigateTo('configuracoes')" id="nav-configuracoes" class="nav-item w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium transition-colors text-slate-300 hover:bg-slate-800 hover:text-white touch-target">
               <i data-lucide="settings" class="w-5 h-5 text-slate-400"></i>
               <span>Configurações API</span>
             </button>
@@ -231,20 +294,19 @@
 
         <!-- User Profile & Sync Footer -->
         <div class="p-4 border-t border-slate-800 bg-slate-950/50">
-          <!-- Sync status bar -->
           <div class="mb-3 flex items-center justify-between text-xs text-slate-400">
             <span class="flex items-center gap-1.5" id="sync-status-indicator">
               <span class="w-2 h-2 rounded-full bg-green-500"></span>
               <span id="sync-status-text">Sincronizado</span>
             </span>
-            <button onclick="triggerManualSync()" title="Forçar Sincronização Agora" class="hover:text-white p-1 transition-colors">
-              <i data-lucide="refresh-cw" class="w-3.5 h-3.5" id="sync-spin-icon"></i>
+            <button onclick="triggerManualSync()" title="Forçar Sincronização Agora" class="hover:text-white p-2 transition-colors touch-target">
+              <i data-lucide="refresh-cw" class="w-4 h-4" id="sync-spin-icon"></i>
             </button>
           </div>
 
           <div class="flex items-center justify-between pt-2 border-t border-slate-800/60">
             <div class="flex items-center gap-2 overflow-hidden">
-              <div class="w-8 h-8 rounded-full bg-green-700 text-white flex items-center justify-center font-bold text-xs" id="user-avatar-initials">
+              <div class="w-9 h-9 rounded-full bg-green-700 text-white flex items-center justify-center font-bold text-sm" id="user-avatar-initials">
                 U
               </div>
               <div class="truncate">
@@ -252,55 +314,48 @@
                 <p class="text-[10px] text-slate-400 truncate" id="user-display-email">email@fazenda.com</p>
               </div>
             </div>
-
-            <button onclick="handleLogout()" title="Sair do Sistema" class="text-slate-400 hover:text-red-400 p-2 rounded-lg hover:bg-slate-800 transition-colors">
-              <i data-lucide="log-out" class="w-4 h-4"></i>
+            <button onclick="handleLogout()" title="Sair do Sistema" class="text-slate-400 hover:text-red-400 p-2 rounded-lg hover:bg-slate-800 transition-colors touch-target">
+              <i data-lucide="log-out" class="w-5 h-5"></i>
             </button>
           </div>
         </div>
-
       </aside>
 
       <!-- MAIN CONTENT WRAPPER -->
       <div class="flex-1 flex flex-col min-h-0 bg-gray-50 dark:bg-gray-900 overflow-y-auto custom-scrollbar">
         
-        <!-- TOP NAV BAR (DESKTOP / MOBILE HEADER) -->
-        <header class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between sticky top-0 z-10 shadow-sm">
+        <!-- TOP NAV BAR -->
+        <header class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 sm:px-6 py-3 flex items-center justify-between sticky top-0 z-10 shadow-sm">
           <div class="flex items-center gap-3">
-            <h2 id="page-title" class="text-xl font-bold text-gray-800 dark:text-white">Visão Geral</h2>
+            <button onclick="openSidebar()" class="md:hidden p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg touch-target">
+              <i data-lucide="menu" class="w-6 h-6"></i>
+            </button>
+            <h2 id="page-title" class="text-lg sm:text-xl font-bold text-gray-800 dark:text-white">Visão Geral</h2>
           </div>
 
-          <!-- Actions & System Controls -->
-          <div class="flex items-center gap-3">
-            <button onclick="toggleDarkMode()" class="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-              <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
-              <i data-lucide="moon" class="w-5 h-5 block dark:hidden"></i>
-            </button>
-            <div class="h-6 w-px bg-gray-200 dark:bg-gray-700"></div>
+          <div class="flex items-center gap-2 sm:gap-3">
             <span class="text-xs font-medium text-gray-500 dark:text-gray-400 hidden sm:inline">
-              Última Sincronização: <span id="last-sync-time" class="text-gray-700 dark:text-gray-200 font-semibold">--:--</span>
+              Última Sync: <span id="last-sync-time" class="text-gray-700 dark:text-gray-200 font-semibold">--:--</span>
             </span>
           </div>
         </header>
 
         <!-- MODULE VIEW CONTAINER -->
-        <main id="main-view" class="p-6 space-y-6 flex-1">
-          <!-- CONTENT IS INJECTED DYNAMICALLY BY JAVASCRIPT -->
+        <main id="main-view" class="p-4 sm:p-6 space-y-5 flex-1">
+          <!-- CONTENT INJECTED BY JS -->
         </main>
 
         <!-- FOOTER -->
-        <footer class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-6 py-4 text-center text-xs text-gray-500 dark:text-gray-400">
-          <p>© 2026 CampoGestor - Fazenda Santa Rita. Todos os direitos reservados. Sincronização em segundo plano ativa (Intervalo: 30 min).</p>
+        <footer class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-4 sm:px-6 py-3 text-center text-xs text-gray-500 dark:text-gray-400">
+          <p>© 2026 CampoGestor - Fazenda Santa Rita. Sincronização automática a cada 30 minutos.</p>
         </footer>
-
       </div>
     </div>
-
   </div>
 
-  <!-- MODAL CONTAINER FOR DYNAMIC FORMS -->
+  <!-- MODAL CONTAINER -->
   <div id="modal-container" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div id="modal-content" class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 w-full max-w-lg max-h-[90vh] overflow-y-auto custom-scrollbar p-6">
+    <div id="modal-content" class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 w-full max-w-lg max-h-[90vh] overflow-y-auto custom-scrollbar p-5 sm:p-6">
       <!-- Injected via JavaScript -->
     </div>
   </div>
@@ -311,16 +366,14 @@
     // 1. GLOBAL STATE & CONFIGURATION
     // ==========================================
     
-    // Supabase Credentials - Configurable via UI Settings module
     let SUPABASE_URL = localStorage.getItem('campogestor_sb_url') || 'https://xyzcompany.supabase.co';
     let SUPABASE_ANON_KEY = localStorage.getItem('campogestor_sb_key') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
 
     let supabase = null;
     let currentUser = null;
     let syncTimer = null;
-    const SYNC_INTERVAL_MS = 30 * 60 * 1000; // 30 minutes automated sync
+    const SYNC_INTERVAL_MS = 30 * 60 * 1000; // 30 minutos
 
-    // In-Memory Database Store (Mirroring Supabase tables)
     let appState = {
       extintores: [],
       maquinas: [],
@@ -331,7 +384,18 @@
       equatorial: []
     };
 
-    // Default Seed Data for Initial Local Load (Fallback)
+    // Filter / Search state per module
+    let filterState = {
+      extintores: { status: 'Todos', search: '' },
+      maquinas:   { status: 'Todos', search: '' },
+      insumos:    { status: 'Todos', search: '' },
+      pessoas:    { status: 'Todos', search: '' },
+      folgas:     { status: 'Todos', search: '' },
+      talhoes:    { status: 'Todos', search: '' },
+      equatorial: { status: 'Todos', search: '' }
+    };
+
+    // Seed data
     const seedData = {
       extintores: [
         { id: 'ext-1', codigo: 'EXT-01', tipo: 'Pó Químico (ABC)', localizacao: 'Galpão Principal', validade: '2026-11-15', status: 'OK' },
@@ -367,17 +431,29 @@
       ]
     };
 
-    // Initialize Supabase Client dynamically
+    // ==========================================
+    // 2. INITIALIZATION
+    // ==========================================
     function initSupabase() {
       try {
         if (SUPABASE_URL && SUPABASE_ANON_KEY && !SUPABASE_URL.includes('xyzcompany')) {
           supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-          document.getElementById('supabase-config-badge').className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300';
-          document.getElementById('supabase-config-badge').innerHTML = '<span class="w-2 h-2 rounded-full bg-green-500"></span> Supabase Conectado';
+          const badge = document.getElementById('supabase-config-badge');
+          if (badge) {
+            badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300';
+            badge.innerHTML = '<span class="w-2 h-2 rounded-full bg-green-500"></span> Supabase Conectado – faça login';
+          }
+          const cfgBox = document.getElementById('auth-supabase-config');
+          if (cfgBox) cfgBox.classList.add('hidden');
         } else {
           supabase = null;
-          document.getElementById('supabase-config-badge').className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300';
-          document.getElementById('supabase-config-badge').innerHTML = '<span class="w-2 h-2 rounded-full bg-amber-500"></span> Modo Local (Configure Supabase nas opções)';
+          const badge = document.getElementById('supabase-config-badge');
+          if (badge) {
+            badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300';
+            badge.innerHTML = '<span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span> Configure as chaves do Supabase';
+          }
+          const cfgBox = document.getElementById('auth-supabase-config');
+          if (cfgBox) cfgBox.classList.remove('hidden');
         }
       } catch (err) {
         console.warn('Erro ao inicializar cliente Supabase:', err);
@@ -385,31 +461,37 @@
       }
     }
 
-    // ==========================================
-    // 2. INITIALIZATION & SESSION CHECK
-    // ==========================================
+    // Sidebar mobile
+    function openSidebar() {
+      document.getElementById('sidebar').classList.add('open');
+      document.getElementById('sidebar-overlay').classList.add('show');
+    }
+    function closeSidebar() {
+      document.getElementById('sidebar').classList.remove('open');
+      document.getElementById('sidebar-overlay').classList.remove('show');
+    }
+
     window.addEventListener('DOMContentLoaded', async () => {
+      // Força tema claro (remove tema dark)
+      document.documentElement.classList.remove('dark');
       initSupabase();
       lucide.createIcons();
-
-      // Check Session
       await checkExistingSession();
-
-      // Hide loading overlay
       document.getElementById('initial-loading').classList.add('hidden');
     });
 
     async function checkExistingSession() {
-      // 1. Try Supabase Auth session if active
+      // 1) Tenta sessão real do Supabase
       if (supabase) {
         try {
-          const { data: { session }, error } = await supabase.auth.getSession();
+          const { data: { session } } = await supabase.auth.getSession();
           if (session && session.user) {
             currentUser = {
               id: session.user.id,
               email: session.user.email,
               name: session.user.user_metadata?.full_name || session.user.email.split('@')[0]
             };
+            localStorage.setItem('campogestor_user', JSON.stringify(currentUser));
             startAppSession();
             return;
           }
@@ -418,14 +500,21 @@
         }
       }
 
-      // 2. Local Fallback Session Check
+      // 2) Aceita sessão local do gestor oficial (campogestor@gmail.com)
       const savedUser = localStorage.getItem('campogestor_user');
       if (savedUser) {
-        currentUser = JSON.parse(savedUser);
-        startAppSession();
-      } else {
-        showAuthScreen();
+        try {
+          const user = JSON.parse(savedUser);
+          if (user && user.email && user.email.toLowerCase() === 'campogestor@gmail.com') {
+            currentUser = user;
+            startAppSession();
+            return;
+          }
+        } catch (e) {}
       }
+
+      // Sem sessão válida → mostra tela de login (primeira entrada)
+      showAuthScreen();
     }
 
     function showAuthScreen() {
@@ -437,23 +526,17 @@
       document.getElementById('auth-section').classList.add('hidden');
       document.getElementById('dashboard-section').classList.remove('hidden');
 
-      // Update User Header Info
       document.getElementById('user-display-name').textContent = currentUser.name || 'Usuário Santa Rita';
       document.getElementById('user-display-email').textContent = currentUser.email;
       document.getElementById('user-avatar-initials').textContent = (currentUser.name || currentUser.email).charAt(0).toUpperCase();
 
-      // Load Data (Local or Remote)
       loadAllData();
-
-      // Start Background Sync Timer (30-Minute Interval)
       startBackgroundSyncTimer();
-
-      // Navigate to initial view
       navigateTo('dashboard');
     }
 
     // ==========================================
-    // 3. AUTHENTICATION HANDLERS
+    // 3. AUTHENTICATION
     // ==========================================
     function switchAuthTab(tab) {
       const loginForm = document.getElementById('form-login');
@@ -461,26 +544,24 @@
       const tabLoginBtn = document.getElementById('tab-login-btn');
       const tabSignupBtn = document.getElementById('tab-signup-btn');
       const alertBox = document.getElementById('auth-alert');
-
       alertBox.classList.add('hidden');
 
       if (tab === 'login') {
         loginForm.classList.remove('hidden');
         signupForm.classList.add('hidden');
-        tabLoginBtn.className = "flex-1 pb-3 text-center text-sm font-semibold border-b-2 border-green-600 text-green-600 dark:text-green-400 dark:border-green-400";
-        tabSignupBtn.className = "flex-1 pb-3 text-center text-sm font-semibold text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 border-b-2 border-transparent";
+        tabLoginBtn.className = "flex-1 pb-3 text-center text-sm font-semibold border-b-2 border-green-600 text-green-600 dark:text-green-400 dark:border-green-400 touch-target";
+        tabSignupBtn.className = "flex-1 pb-3 text-center text-sm font-semibold text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 border-b-2 border-transparent touch-target";
       } else {
         loginForm.classList.add('hidden');
         signupForm.classList.remove('hidden');
-        tabSignupBtn.className = "flex-1 pb-3 text-center text-sm font-semibold border-b-2 border-green-600 text-green-600 dark:text-green-400 dark:border-green-400";
-        tabLoginBtn.className = "flex-1 pb-3 text-center text-sm font-semibold text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 border-b-2 border-transparent";
+        tabSignupBtn.className = "flex-1 pb-3 text-center text-sm font-semibold border-b-2 border-green-600 text-green-600 dark:text-green-400 dark:border-green-400 touch-target";
+        tabLoginBtn.className = "flex-1 pb-3 text-center text-sm font-semibold text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 border-b-2 border-transparent touch-target";
       }
     }
 
     function showAuthAlert(msg, isError = true) {
       const alertBox = document.getElementById('auth-alert');
       alertBox.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700');
-      
       if (isError) {
         alertBox.classList.add('bg-red-100', 'text-red-700', 'dark:bg-red-900/40', 'dark:text-red-300');
         alertBox.innerHTML = `<i data-lucide="alert-circle" class="w-4 h-4 mt-0.5 shrink-0"></i> <span>${msg}</span>`;
@@ -495,15 +576,17 @@
       e.preventDefault();
       const email = document.getElementById('login-email').value.trim();
       const password = document.getElementById('login-password').value.trim();
-
       if (!email || !password) return;
 
-      // Try Supabase Auth
+      // Credenciais oficiais do gestor (primeira entrada / modo local)
+      const OFFICIAL_EMAIL = 'campogestor@gmail.com';
+      const OFFICIAL_PASS  = '@123456789';
+
+      // 1) Tenta login real no Supabase se estiver configurado
       if (supabase) {
         try {
           const { data, error } = await supabase.auth.signInWithPassword({ email, password });
           if (error) throw error;
-          
           currentUser = {
             id: data.user.id,
             email: data.user.email,
@@ -513,19 +596,25 @@
           startAppSession();
           return;
         } catch (err) {
-          showAuthAlert(err.message || 'Erro ao realizar login no Supabase.');
-          return;
+          // Se falhar no Supabase, ainda permite o login oficial local abaixo
+          console.warn('Supabase login falhou, tentando credencial local oficial:', err.message);
         }
       }
 
-      // Local Demo Fallback Authentication
-      currentUser = {
-        id: 'user-demo-123',
-        email: email,
-        name: email.split('@')[0]
-      };
-      localStorage.setItem('campogestor_user', JSON.stringify(currentUser));
-      startAppSession();
+      // 2) Login local permitido SOMENTE com as credenciais oficiais do gestor
+      if (email.toLowerCase() === OFFICIAL_EMAIL && password === OFFICIAL_PASS) {
+        currentUser = {
+          id: 'user-gestor-oficial',
+          email: OFFICIAL_EMAIL,
+          name: 'Gestor CampoGestor'
+        };
+        localStorage.setItem('campogestor_user', JSON.stringify(currentUser));
+        startAppSession();
+        return;
+      }
+
+      // Qualquer outra combinação é rejeitada
+      showAuthAlert('E-mail ou senha incorretos. Use as credenciais oficiais do gestor (campogestor@gmail.com).');
     }
 
     async function handleSignup(e) {
@@ -533,32 +622,23 @@
       const name = document.getElementById('signup-name').value.trim();
       const email = document.getElementById('signup-email').value.trim();
       const password = document.getElementById('signup-password').value.trim();
-
       if (!name || !email || !password) return;
 
-      if (supabase) {
-        try {
-          const { data, error } = await supabase.auth.signUp({
-            email,
-            password,
-            options: { data: { full_name: name } }
-          });
-          if (error) throw error;
-          
-          showAuthAlert('Conta criada com sucesso! Você já pode entrar.', false);
-          switchAuthTab('login');
-          return;
-        } catch (err) {
-          showAuthAlert(err.message || 'Erro ao registrar usuário.');
-          return;
-        }
+      if (!supabase) {
+        showAuthAlert('Supabase não configurado. Insira as chaves válidas nas Configurações para criar contas.');
+        return;
       }
 
-      // Local Fallback Signup
-      currentUser = { id: 'user-' + Date.now(), email, name };
-      localStorage.setItem('campogestor_user', JSON.stringify(currentUser));
-      showAuthAlert('Conta criada em modo Local!', false);
-      setTimeout(() => startAppSession(), 1000);
+      try {
+        const { data, error } = await supabase.auth.signUp({
+          email, password, options: { data: { full_name: name } }
+        });
+        if (error) throw error;
+        showAuthAlert('Conta criada com sucesso! Verifique seu e-mail se necessário e faça login.', false);
+        switchAuthTab('login');
+      } catch (err) {
+        showAuthAlert(err.message || 'Erro ao registrar usuário no Supabase.');
+      }
     }
 
     async function handleLogout() {
@@ -572,23 +652,20 @@
     }
 
     // ==========================================
-    // 4. DATA PERSISTENCE & AUTOMATED SYNC
+    // 4. DATA PERSISTENCE & SYNC (30 min)
     // ==========================================
     function loadAllData() {
-      // 1. Try local storage first for speed
       const localData = localStorage.getItem('campogestor_data');
       if (localData) {
         try {
           appState = JSON.parse(localData);
         } catch (e) {
-          appState = { ...seedData };
+          appState = JSON.parse(JSON.stringify(seedData));
         }
       } else {
-        appState = { ...seedData };
+        appState = JSON.parse(JSON.stringify(seedData));
         saveLocalData();
       }
-
-      // 2. Synchronize with Supabase if online
       syncWithSupabase();
     }
 
@@ -606,7 +683,6 @@
 
       if (supabase && currentUser) {
         try {
-          // Fetch modules from Supabase tables
           const tables = ['extintores', 'maquinas', 'insumos', 'pessoas', 'folgas', 'talhoes', 'equatorial'];
           for (let table of tables) {
             const { data, error } = await supabase.from(table).select('*');
@@ -629,7 +705,6 @@
 
     function startBackgroundSyncTimer() {
       if (syncTimer) clearInterval(syncTimer);
-      // Run auto sync every 30 minutes
       syncTimer = setInterval(() => {
         syncWithSupabase();
       }, SYNC_INTERVAL_MS);
@@ -637,7 +712,6 @@
 
     function triggerManualSync() {
       syncWithSupabase();
-      // Re-render active view
       navigateTo(currentView);
     }
 
@@ -649,13 +723,23 @@
       }
     }
 
-    // Generic Data CRUD Handlers
+    // CRUD
     function addItem(moduleName, item) {
       item.id = moduleName.substring(0, 3) + '-' + Date.now();
       appState[moduleName].unshift(item);
       saveLocalData();
       if (supabase) {
-        supabase.from(moduleName).insert([item]).then(() => {});
+        supabase.from(moduleName).insert([item]).then(() => {}).catch(() => {});
+      }
+    }
+
+    function updateItem(moduleName, id, updatedFields) {
+      const idx = appState[moduleName].findIndex(x => x.id === id);
+      if (idx === -1) return;
+      appState[moduleName][idx] = { ...appState[moduleName][idx], ...updatedFields };
+      saveLocalData();
+      if (supabase) {
+        supabase.from(moduleName).update(updatedFields).eq('id', id).then(() => {}).catch(() => {});
       }
     }
 
@@ -663,20 +747,20 @@
       appState[moduleName] = appState[moduleName].filter(x => x.id !== id);
       saveLocalData();
       if (supabase) {
-        supabase.from(moduleName).delete().eq('id', id).then(() => {});
+        supabase.from(moduleName).delete().eq('id', id).then(() => {}).catch(() => {});
       }
       navigateTo(moduleName);
     }
 
     // ==========================================
-    // 5. ROUTING & MODULE RENDERERS
+    // 5. ROUTING
     // ==========================================
     let currentView = 'dashboard';
 
     function navigateTo(view) {
       currentView = view;
-      
-      // Highlight Nav UI
+      closeSidebar(); // fecha sidebar no mobile ao navegar
+
       document.querySelectorAll('.nav-item').forEach(btn => {
         btn.classList.remove('bg-slate-800', 'text-white', 'font-semibold');
       });
@@ -692,7 +776,7 @@
           renderDashboard(mainView);
           break;
         case 'extintores':
-          pageTitle.textContent = 'Gestão de Extintores de Incêndio';
+          pageTitle.textContent = 'Gestão de Extintores';
           renderExtintores(mainView);
           break;
         case 'maquinas':
@@ -700,145 +784,299 @@
           renderMaquinas(mainView);
           break;
         case 'insumos':
-          pageTitle.textContent = 'Estoque de Insumos & Almoxarifado';
+          pageTitle.textContent = 'Estoque de Insumos';
           renderInsumos(mainView);
           break;
         case 'pessoas':
-          pageTitle.textContent = 'Quadro de Pessoas & Colaboradores';
+          pageTitle.textContent = 'Quadro de Pessoas';
           renderPessoas(mainView);
           break;
         case 'folgas':
-          pageTitle.textContent = 'Escala & Controle de Folgas';
+          pageTitle.textContent = 'Escala de Folgas';
           renderFolgas(mainView);
           break;
         case 'talhoes':
-          pageTitle.textContent = 'Gestão de Talhões & Safra';
+          pageTitle.textContent = 'Gestão de Talhões';
           renderTalhoes(mainView);
           break;
         case 'equatorial':
-          pageTitle.textContent = 'Controle de Energia (Equatorial)';
+          pageTitle.textContent = 'Energia Equatorial';
           renderEquatorial(mainView);
           break;
         case 'configuracoes':
-          pageTitle.textContent = 'Configurações de Conexão Supabase';
+          pageTitle.textContent = 'Configurações Supabase';
           renderConfiguracoes(mainView);
           break;
         default:
           renderDashboard(mainView);
       }
-
       lucide.createIcons();
     }
 
-    // ------------------------------------------
-    // VIEW 1: DASHBOARD
-    // ------------------------------------------
+    // ==========================================
+    // HELPERS: Filter + Search + Chips
+    // ==========================================
+    function setFilter(module, status) {
+      filterState[module].status = status;
+      navigateTo(module);
+    }
+
+    function setSearch(module, value) {
+      filterState[module].search = value.toLowerCase().trim();
+      // Re-render without full navigate to keep focus
+      const mainView = document.getElementById('main-view');
+      const renderMap = {
+        extintores: renderExtintores,
+        maquinas: renderMaquinas,
+        insumos: renderInsumos,
+        pessoas: renderPessoas,
+        folgas: renderFolgas,
+        talhoes: renderTalhoes,
+        equatorial: renderEquatorial
+      };
+      if (renderMap[module]) renderMap[module](mainView);
+      lucide.createIcons();
+    }
+
+    function getFilteredItems(module, statusKey = 'status') {
+      let items = [...(appState[module] || [])];
+      const { status, search } = filterState[module];
+
+      if (status && status !== 'Todos') {
+        if (module === 'equatorial') {
+          items = items.filter(i => (status === 'Pago' ? i.pago : !i.pago));
+        } else if (module === 'insumos') {
+          if (status === 'Baixo Estoque') {
+            items = items.filter(i => Number(i.quantidade) <= Number(i.min_estoque));
+          } else {
+            items = items.filter(i => i.categoria === status);
+          }
+        } else {
+          items = items.filter(i => i[statusKey] === status);
+        }
+      }
+
+      if (search) {
+        items = items.filter(item => {
+          return Object.values(item).some(v => 
+            String(v).toLowerCase().includes(search)
+          );
+        });
+      }
+      return items;
+    }
+
+    function renderChips(module, options) {
+      const current = filterState[module].status;
+      return options.map(opt => {
+        const active = current === opt;
+        return `<button onclick="setFilter('${module}', '${opt}')" 
+          class="chip ${active 
+            ? 'bg-green-600 text-white shadow' 
+            : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600'}">
+          ${opt}
+        </button>`;
+      }).join('');
+    }
+
+    function renderSearchBox(module, placeholder = 'Buscar...') {
+      const val = filterState[module].search || '';
+      return `
+        <div class="relative flex-1 min-w-[180px]">
+          <i data-lucide="search" class="w-4 h-4 absolute left-3 top-3 text-gray-400"></i>
+          <input type="text" value="${val}" 
+            oninput="setSearch('${module}', this.value)"
+            placeholder="${placeholder}"
+            class="w-full pl-9 pr-3 py-2.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:outline-none dark:text-white" />
+        </div>`;
+    }
+
+    // ==========================================
+    // VIEW 1: DASHBOARD (dinâmico)
+    // ==========================================
     function renderDashboard(container) {
       const totalExtintores = appState.extintores.length;
       const totalMaquinas = appState.maquinas.length;
       const totalPessoas = appState.pessoas.length;
       const totalTalhoes = appState.talhoes.length;
+      const areaTotal = appState.talhoes.reduce((acc, t) => acc + Number(t.area_ha || 0), 0);
+
+      // Alertas dinâmicos
+      const hoje = new Date();
+      const em30dias = new Date();
+      em30dias.setDate(hoje.getDate() + 30);
+
+      const extVencidos = appState.extintores.filter(e => {
+        const d = new Date(e.validade);
+        return d < hoje || e.status === 'Vencido';
+      });
+      const extProximos = appState.extintores.filter(e => {
+        const d = new Date(e.validade);
+        return d >= hoje && d <= em30dias && e.status !== 'Vencido';
+      });
+      const maqManut = appState.maquinas.filter(m => m.status === 'Em Manutenção');
+      const insumosBaixos = appState.insumos.filter(i => Number(i.quantidade) <= Number(i.min_estoque));
+      const folgasProximas = appState.folgas.filter(f => {
+        const ini = new Date(f.data_inicio);
+        return ini >= hoje && ini <= em30dias;
+      });
+      const faturasPendentes = appState.equatorial.filter(e => !e.pago);
+
+      let alertasHtml = '';
+      if (extVencidos.length) {
+        alertasHtml += `
+          <div class="p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <i data-lucide="alert-triangle" class="w-5 h-5 text-red-600 dark:text-red-400 shrink-0"></i>
+              <div>
+                <p class="text-xs font-semibold text-gray-800 dark:text-gray-200">${extVencidos.length} Extintor(es) Vencido(s)</p>
+                <p class="text-[11px] text-gray-500">${extVencidos.map(e => e.codigo).join(', ')}</p>
+              </div>
+            </div>
+            <button onclick="navigateTo('extintores')" class="px-3 py-1.5 text-xs bg-red-600 text-white rounded-lg hover:bg-red-700 touch-target">Ver</button>
+          </div>`;
+      }
+      if (extProximos.length) {
+        alertasHtml += `
+          <div class="p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <i data-lucide="clock" class="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0"></i>
+              <div>
+                <p class="text-xs font-semibold text-gray-800 dark:text-gray-200">${extProximos.length} Extintor(es) vencendo em 30 dias</p>
+                <p class="text-[11px] text-gray-500">${extProximos.map(e => e.codigo).join(', ')}</p>
+              </div>
+            </div>
+            <button onclick="navigateTo('extintores')" class="px-3 py-1.5 text-xs bg-amber-600 text-white rounded-lg hover:bg-amber-700 touch-target">Ver</button>
+          </div>`;
+      }
+      if (maqManut.length) {
+        alertasHtml += `
+          <div class="p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <i data-lucide="wrench" class="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0"></i>
+              <div>
+                <p class="text-xs font-semibold text-gray-800 dark:text-gray-200">${maqManut.length} Máquina(s) em Manutenção</p>
+                <p class="text-[11px] text-gray-500">${maqManut.map(m => m.nome.split(' ').slice(0,2).join(' ')).join(', ')}</p>
+              </div>
+            </div>
+            <button onclick="navigateTo('maquinas')" class="px-3 py-1.5 text-xs bg-amber-600 text-white rounded-lg hover:bg-amber-700 touch-target">Ver</button>
+          </div>`;
+      }
+      if (insumosBaixos.length) {
+        alertasHtml += `
+          <div class="p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <i data-lucide="package-x" class="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0"></i>
+              <div>
+                <p class="text-xs font-semibold text-gray-800 dark:text-gray-200">${insumosBaixos.length} Insumo(s) com estoque baixo</p>
+                <p class="text-[11px] text-gray-500">${insumosBaixos.map(i => i.nome).join(', ')}</p>
+              </div>
+            </div>
+            <button onclick="navigateTo('insumos')" class="px-3 py-1.5 text-xs bg-blue-600 text-white rounded-lg hover:bg-blue-700 touch-target">Ver</button>
+          </div>`;
+      }
+      if (folgasProximas.length) {
+        alertasHtml += `
+          <div class="p-3 rounded-lg bg-pink-50 dark:bg-pink-900/20 border border-pink-200 dark:border-pink-800 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <i data-lucide="calendar" class="w-5 h-5 text-pink-600 dark:text-pink-400 shrink-0"></i>
+              <div>
+                <p class="text-xs font-semibold text-gray-800 dark:text-gray-200">${folgasProximas.length} Folga(s) nos próximos 30 dias</p>
+                <p class="text-[11px] text-gray-500">${folgasProximas.map(f => f.pessoa.split(' ')[0]).join(', ')}</p>
+              </div>
+            </div>
+            <button onclick="navigateTo('folgas')" class="px-3 py-1.5 text-xs bg-pink-600 text-white rounded-lg hover:bg-pink-700 touch-target">Ver</button>
+          </div>`;
+      }
+      if (faturasPendentes.length) {
+        alertasHtml += `
+          <div class="p-3 rounded-lg bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <i data-lucide="zap" class="w-5 h-5 text-yellow-600 dark:text-yellow-400 shrink-0"></i>
+              <div>
+                <p class="text-xs font-semibold text-gray-800 dark:text-gray-200">${faturasPendentes.length} Fatura(s) de energia pendente(s)</p>
+              </div>
+            </div>
+            <button onclick="navigateTo('equatorial')" class="px-3 py-1.5 text-xs bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 touch-target">Ver</button>
+          </div>`;
+      }
+      if (!alertasHtml) {
+        alertasHtml = `
+          <div class="p-4 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-center">
+            <i data-lucide="check-circle" class="w-8 h-8 text-green-600 mx-auto mb-2"></i>
+            <p class="text-sm font-medium text-green-800 dark:text-green-300">Nenhum alerta no momento. Tudo em ordem!</p>
+          </div>`;
+      }
 
       container.innerHTML = `
-        <!-- KPI Cards Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          <div class="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm flex items-center justify-between">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
+          <div class="bg-white dark:bg-gray-800 p-4 sm:p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm flex items-center justify-between">
             <div>
-              <p class="text-xs font-semibold text-gray-500 uppercase">Extintores</p>
-              <h3 class="text-2xl font-bold text-gray-900 dark:text-white mt-1">${totalExtintores}</h3>
-              <span class="text-xs text-green-600 font-medium mt-1 inline-block">Cadastrados</span>
+              <p class="text-[10px] sm:text-xs font-semibold text-gray-500 uppercase">Extintores</p>
+              <h3 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mt-1">${totalExtintores}</h3>
             </div>
-            <div class="p-3 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-xl">
-              <i data-lucide="flame" class="w-6 h-6"></i>
+            <div class="p-2.5 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-xl">
+              <i data-lucide="flame" class="w-5 h-5 sm:w-6 sm:h-6"></i>
             </div>
           </div>
-
-          <div class="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm flex items-center justify-between">
+          <div class="bg-white dark:bg-gray-800 p-4 sm:p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm flex items-center justify-between">
             <div>
-              <p class="text-xs font-semibold text-gray-500 uppercase">Máquinas & Veículos</p>
-              <h3 class="text-2xl font-bold text-gray-900 dark:text-white mt-1">${totalMaquinas}</h3>
-              <span class="text-xs text-amber-600 font-medium mt-1 inline-block">Frota Ativa</span>
+              <p class="text-[10px] sm:text-xs font-semibold text-gray-500 uppercase">Máquinas</p>
+              <h3 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mt-1">${totalMaquinas}</h3>
             </div>
-            <div class="p-3 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-xl">
-              <i data-lucide="truck" class="w-6 h-6"></i>
+            <div class="p-2.5 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-xl">
+              <i data-lucide="truck" class="w-5 h-5 sm:w-6 sm:h-6"></i>
             </div>
           </div>
-
-          <div class="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm flex items-center justify-between">
+          <div class="bg-white dark:bg-gray-800 p-4 sm:p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm flex items-center justify-between">
             <div>
-              <p class="text-xs font-semibold text-gray-500 uppercase">Equipe de Campo</p>
-              <h3 class="text-2xl font-bold text-gray-900 dark:text-white mt-1">${totalPessoas}</h3>
-              <span class="text-xs text-purple-600 font-medium mt-1 inline-block">Colaboradores</span>
+              <p class="text-[10px] sm:text-xs font-semibold text-gray-500 uppercase">Equipe</p>
+              <h3 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mt-1">${totalPessoas}</h3>
             </div>
-            <div class="p-3 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-xl">
-              <i data-lucide="users" class="w-6 h-6"></i>
+            <div class="p-2.5 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-xl">
+              <i data-lucide="users" class="w-5 h-5 sm:w-6 sm:h-6"></i>
             </div>
           </div>
-
-          <div class="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm flex items-center justify-between">
+          <div class="bg-white dark:bg-gray-800 p-4 sm:p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm flex items-center justify-between">
             <div>
-              <p class="text-xs font-semibold text-gray-500 uppercase">Área Manejada</p>
-              <h3 class="text-2xl font-bold text-gray-900 dark:text-white mt-1">${appState.talhoes.reduce((acc, t) => acc + Number(t.area_ha || 0), 0)} ha</h3>
-              <span class="text-xs text-emerald-600 font-medium mt-1 inline-block">${totalTalhoes} Talhões</span>
+              <p class="text-[10px] sm:text-xs font-semibold text-gray-500 uppercase">Área</p>
+              <h3 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mt-1">${areaTotal} ha</h3>
             </div>
-            <div class="p-3 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-xl">
-              <i data-lucide="map" class="w-6 h-6"></i>
+            <div class="p-2.5 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-xl">
+              <i data-lucide="map" class="w-5 h-5 sm:w-6 sm:h-6"></i>
             </div>
           </div>
         </div>
 
-        <!-- Quick Summary & System Status -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div class="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <div class="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
             <h3 class="text-base font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
               <i data-lucide="bell" class="w-5 h-5 text-amber-500"></i>
-              Alertas & Pendências Recomendadas
+              Alertas & Pendências
             </h3>
-            <div class="space-y-3">
-              <div class="p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                  <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600 dark:text-amber-400"></i>
-                  <div>
-                    <p class="text-xs font-semibold text-gray-800 dark:text-gray-200">Revisão Extintores Oficina</p>
-                    <p class="text-[11px] text-gray-500">Extintor EXT-03 marcado como vencido.</p>
-                  </div>
-                </div>
-                <button onclick="navigateTo('extintores')" class="px-2.5 py-1 text-xs bg-amber-600 text-white rounded hover:bg-amber-700">Ver</button>
-              </div>
-
-              <div class="p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                  <i data-lucide="info" class="w-5 h-5 text-blue-600 dark:text-blue-400"></i>
-                  <div>
-                    <p class="text-xs font-semibold text-gray-800 dark:text-gray-200">Próximas Folgas da Semana</p>
-                    <p class="text-[11px] text-gray-500">2 colaboradores agendados para descanso.</p>
-                  </div>
-                </div>
-                <button onclick="navigateTo('folgas')" class="px-2.5 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700">Ver Escala</button>
-              </div>
-            </div>
+            <div class="space-y-3">${alertasHtml}</div>
           </div>
 
-          <div class="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+          <div class="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
             <h3 class="text-base font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
               <i data-lucide="activity" class="w-5 h-5 text-green-500"></i>
-              Status de Sincronização Automática
+              Status de Sincronização
             </h3>
             <p class="text-xs text-gray-600 dark:text-gray-400 mb-4">
-              O sistema sincroniza dados de formulários e registros com o Supabase a cada 30 minutos em segundo plano.
+              O sistema sincroniza automaticamente a cada <strong>30 minutos</strong> com o Supabase (quando configurado).
             </p>
             <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700 space-y-2 text-xs">
               <div class="flex justify-between">
-                <span class="text-gray-500">Frequência de Sync:</span>
+                <span class="text-gray-500">Frequência:</span>
                 <span class="font-semibold text-gray-700 dark:text-gray-300">30 Minutos</span>
               </div>
               <div class="flex justify-between">
                 <span class="text-gray-500">Banco Primário:</span>
-                <span class="font-semibold text-green-600 dark:text-green-400">${supabase ? 'Supabase Cloud (Ativo)' : 'LocalStorage (Offline/Fallback)'}</span>
+                <span class="font-semibold ${supabase ? 'text-green-600 dark:text-green-400' : 'text-amber-600 dark:text-amber-400'}">${supabase ? 'Supabase Cloud' : 'LocalStorage (Offline)'}</span>
               </div>
               <div class="flex justify-between">
-                <span class="text-gray-500">Sessão Atual:</span>
-                <span class="font-semibold text-gray-700 dark:text-gray-300">${currentUser ? currentUser.email : 'Visitante'}</span>
+                <span class="text-gray-500">Sessão:</span>
+                <span class="font-semibold text-gray-700 dark:text-gray-300">${currentUser ? currentUser.email : '—'}</span>
               </div>
             </div>
           </div>
@@ -846,11 +1084,14 @@
       `;
     }
 
-    // ------------------------------------------
+    // ==========================================
     // VIEW 2: EXTINTORES
-    // ------------------------------------------
+    // ==========================================
     function renderExtintores(container) {
-      const items = appState.extintores;
+      const items = getFilteredItems('extintores');
+      const chips = renderChips('extintores', ['Todos', 'OK', 'Vencido']);
+      const search = renderSearchBox('extintores', 'Buscar por código, tipo ou local...');
+
       let rows = items.map(item => `
         <tr class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50">
           <td class="py-3 px-4 font-semibold text-gray-900 dark:text-white">${item.codigo}</td>
@@ -862,8 +1103,11 @@
               ${item.status}
             </span>
           </td>
-          <td class="py-3 px-4 text-right">
-            <button onclick="deleteItem('extintores', '${item.id}')" class="text-red-600 hover:text-red-800 p-1">
+          <td class="py-3 px-4 text-right whitespace-nowrap">
+            <button onclick="openModalExtintor('${item.id}')" class="text-blue-600 hover:text-blue-800 p-2 touch-target inline-flex">
+              <i data-lucide="pencil" class="w-4 h-4"></i>
+            </button>
+            <button onclick="deleteItem('extintores', '${item.id}')" class="text-red-600 hover:text-red-800 p-2 touch-target inline-flex">
               <i data-lucide="trash-2" class="w-4 h-4"></i>
             </button>
           </td>
@@ -871,76 +1115,102 @@
       `).join('');
 
       container.innerHTML = `
-        <div class="flex items-center justify-between mb-4">
-          <p class="text-xs text-gray-500 dark:text-gray-400">Controle de inspecção e validade de extintores.</p>
-          <button onclick="openModalExtintor()" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium flex items-center gap-2">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+          <p class="text-xs text-gray-500 dark:text-gray-400">Controle de inspeção e validade de extintores.</p>
+          <button onclick="openModalExtintor()" class="px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium flex items-center justify-center gap-2 touch-target">
             <i data-lucide="plus" class="w-4 h-4"></i> Novo Extintor
           </button>
         </div>
+        <div class="flex flex-col sm:flex-row gap-3 mb-4">
+          <div class="flex flex-wrap gap-2">${chips}</div>
+          ${search}
+        </div>
         <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm">
-          <table class="w-full text-left text-sm text-gray-600 dark:text-gray-300">
-            <thead class="bg-gray-100 dark:bg-gray-900 text-xs uppercase text-gray-500 dark:text-gray-400">
-              <tr>
-                <th class="py-3 px-4">Código</th>
-                <th class="py-3 px-4">Tipo</th>
-                <th class="py-3 px-4">Localização</th>
-                <th class="py-3 px-4">Validade</th>
-                <th class="py-3 px-4">Status</th>
-                <th class="py-3 px-4 text-right">Ações</th>
-              </tr>
-            </thead>
-            <tbody>${rows || '<tr><td colspan="6" class="p-4 text-center">Nenhum extintor cadastrado.</td></tr>'}</tbody>
-          </table>
+          <div class="table-wrapper">
+            <table class="w-full text-left text-sm text-gray-600 dark:text-gray-300">
+              <thead class="bg-gray-100 dark:bg-gray-900 text-xs uppercase text-gray-500 dark:text-gray-400">
+                <tr>
+                  <th class="py-3 px-4">Código</th>
+                  <th class="py-3 px-4">Tipo</th>
+                  <th class="py-3 px-4">Localização</th>
+                  <th class="py-3 px-4">Validade</th>
+                  <th class="py-3 px-4">Status</th>
+                  <th class="py-3 px-4 text-right">Ações</th>
+                </tr>
+              </thead>
+              <tbody>${rows || '<tr><td colspan="6" class="p-6 text-center text-gray-400">Nenhum extintor encontrado.</td></tr>'}</tbody>
+            </table>
+          </div>
         </div>
       `;
     }
 
-    function openModalExtintor() {
+    function openModalExtintor(id = null) {
+      const item = id ? appState.extintores.find(x => x.id === id) : null;
       openModal(`
-        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Cadastrar Extintor</h3>
-        <form onsubmit="submitExtintor(event)" class="space-y-4">
+        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">${item ? 'Editar Extintor' : 'Cadastrar Extintor'}</h3>
+        <form onsubmit="submitExtintor(event, '${id || ''}')" class="space-y-4">
           <div>
             <label class="block text-xs font-semibold uppercase mb-1">Código ID</label>
-            <input type="text" id="m-codigo" required placeholder="EXT-04" class="w-full p-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-sm dark:text-white"/>
+            <input type="text" id="m-codigo" required value="${item?.codigo || ''}" placeholder="EXT-04" class="w-full p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm dark:text-white"/>
           </div>
           <div>
             <label class="block text-xs font-semibold uppercase mb-1">Tipo</label>
-            <input type="text" id="m-tipo" required placeholder="Pó Químico (ABC)" class="w-full p-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-sm dark:text-white"/>
+            <input type="text" id="m-tipo" required value="${item?.tipo || ''}" placeholder="Pó Químico (ABC)" class="w-full p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm dark:text-white"/>
           </div>
           <div>
             <label class="block text-xs font-semibold uppercase mb-1">Localização</label>
-            <input type="text" id="m-localizacao" required placeholder="Galpão 2" class="w-full p-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-sm dark:text-white"/>
+            <input type="text" id="m-localizacao" required value="${item?.localizacao || ''}" placeholder="Galpão 2" class="w-full p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm dark:text-white"/>
           </div>
           <div>
             <label class="block text-xs font-semibold uppercase mb-1">Validade</label>
-            <input type="date" id="m-validade" required class="w-full p-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-sm dark:text-white"/>
+            <input type="date" id="m-validade" required value="${item?.validade || ''}" class="w-full p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm dark:text-white"/>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold uppercase mb-1">Status</label>
+            <select id="m-status" class="w-full p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm dark:text-white">
+              <option value="OK" ${item?.status === 'OK' ? 'selected' : ''}>OK</option>
+              <option value="Vencido" ${item?.status === 'Vencido' ? 'selected' : ''}>Vencido</option>
+            </select>
           </div>
           <div class="flex justify-end gap-2 pt-2">
-            <button type="button" onclick="closeModal()" class="px-4 py-2 text-sm bg-gray-200 dark:bg-gray-700 rounded">Cancelar</button>
-            <button type="submit" class="px-4 py-2 text-sm bg-green-600 text-white rounded">Salvar</button>
+            <button type="button" onclick="closeModal()" class="px-4 py-2.5 text-sm bg-gray-200 dark:bg-gray-700 rounded-lg touch-target">Cancelar</button>
+            <button type="submit" class="px-4 py-2.5 text-sm bg-green-600 text-white rounded-lg touch-target">Salvar</button>
           </div>
         </form>
       `);
     }
 
-    function submitExtintor(e) {
+    function submitExtintor(e, id) {
       e.preventDefault();
-      addItem('extintores', {
-        codigo: document.getElementById('m-codigo').value,
-        tipo: document.getElementById('m-tipo').value,
-        localizacao: document.getElementById('m-localizacao').value,
+      const data = {
+        codigo: document.getElementById('m-codigo').value.trim(),
+        tipo: document.getElementById('m-tipo').value.trim(),
+        localizacao: document.getElementById('m-localizacao').value.trim(),
         validade: document.getElementById('m-validade').value,
-        status: 'OK'
-      });
+        status: document.getElementById('m-status').value
+      };
+      if (!data.codigo || !data.tipo || !data.localizacao || !data.validade) {
+        alert('Preencha todos os campos obrigatórios.');
+        return;
+      }
+      if (id) {
+        updateItem('extintores', id, data);
+      } else {
+        addItem('extintores', data);
+      }
       closeModal();
       navigateTo('extintores');
     }
 
-    // ------------------------------------------
-    // VIEW 3: MÁQUINAS
-    // ------------------------------------------
+    // ==========================================
+    // VIEW 3: MÁQUINAS (com chips de status)
+    // ==========================================
     function renderMaquinas(container) {
-      const items = appState.maquinas;
+      const items = getFilteredItems('maquinas');
+      const chips = renderChips('maquinas', ['Todos', 'Operacional', 'Em Manutenção']);
+      const search = renderSearchBox('maquinas', 'Buscar por nome ou categoria...');
+
       let rows = items.map(item => `
         <tr class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50">
           <td class="py-3 px-4 font-semibold text-gray-900 dark:text-white">${item.nome}</td>
@@ -952,8 +1222,11 @@
               ${item.status}
             </span>
           </td>
-          <td class="py-3 px-4 text-right">
-            <button onclick="deleteItem('maquinas', '${item.id}')" class="text-red-600 hover:text-red-800 p-1">
+          <td class="py-3 px-4 text-right whitespace-nowrap">
+            <button onclick="openModalMaquina('${item.id}')" class="text-blue-600 hover:text-blue-800 p-2 touch-target inline-flex">
+              <i data-lucide="pencil" class="w-4 h-4"></i>
+            </button>
+            <button onclick="deleteItem('maquinas', '${item.id}')" class="text-red-600 hover:text-red-800 p-2 touch-target inline-flex">
               <i data-lucide="trash-2" class="w-4 h-4"></i>
             </button>
           </td>
@@ -961,170 +1234,243 @@
       `).join('');
 
       container.innerHTML = `
-        <div class="flex items-center justify-between mb-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
           <p class="text-xs text-gray-500 dark:text-gray-400">Frota pesada, horímetros e manutenções.</p>
-          <button onclick="openModalMaquina()" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium flex items-center gap-2">
+          <button onclick="openModalMaquina()" class="px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium flex items-center justify-center gap-2 touch-target">
             <i data-lucide="plus" class="w-4 h-4"></i> Nova Máquina
           </button>
         </div>
+        <div class="flex flex-col sm:flex-row gap-3 mb-4">
+          <div class="flex flex-wrap gap-2">${chips}</div>
+          ${search}
+        </div>
         <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm">
-          <table class="w-full text-left text-sm text-gray-600 dark:text-gray-300">
-            <thead class="bg-gray-100 dark:bg-gray-900 text-xs uppercase text-gray-500 dark:text-gray-400">
-              <tr>
-                <th class="py-3 px-4">Nome / Modelo</th>
-                <th class="py-3 px-4">Categoria</th>
-                <th class="py-3 px-4">Horímetro</th>
-                <th class="py-3 px-4">Última Revisão</th>
-                <th class="py-3 px-4">Status</th>
-                <th class="py-3 px-4 text-right">Ações</th>
-              </tr>
-            </thead>
-            <tbody>${rows || '<tr><td colspan="6" class="p-4 text-center">Nenhuma máquina cadastrada.</td></tr>'}</tbody>
-          </table>
+          <div class="table-wrapper">
+            <table class="w-full text-left text-sm text-gray-600 dark:text-gray-300">
+              <thead class="bg-gray-100 dark:bg-gray-900 text-xs uppercase text-gray-500 dark:text-gray-400">
+                <tr>
+                  <th class="py-3 px-4">Nome / Modelo</th>
+                  <th class="py-3 px-4">Categoria</th>
+                  <th class="py-3 px-4">Horímetro</th>
+                  <th class="py-3 px-4">Última Revisão</th>
+                  <th class="py-3 px-4">Status</th>
+                  <th class="py-3 px-4 text-right">Ações</th>
+                </tr>
+              </thead>
+              <tbody>${rows || '<tr><td colspan="6" class="p-6 text-center text-gray-400">Nenhuma máquina encontrada.</td></tr>'}</tbody>
+            </table>
+          </div>
         </div>
       `;
     }
 
-    function openModalMaquina() {
+    function openModalMaquina(id = null) {
+      const item = id ? appState.maquinas.find(x => x.id === id) : null;
       openModal(`
-        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Cadastrar Máquina</h3>
-        <form onsubmit="submitMaquina(event)" class="space-y-4">
+        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">${item ? 'Editar Máquina' : 'Cadastrar Máquina'}</h3>
+        <form onsubmit="submitMaquina(event, '${id || ''}')" class="space-y-4">
           <div>
             <label class="block text-xs font-semibold uppercase mb-1">Nome / Modelo</label>
-            <input type="text" id="m-nome" required placeholder="Trator Valtra A950" class="w-full p-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-sm dark:text-white"/>
+            <input type="text" id="m-nome" required value="${item?.nome || ''}" placeholder="Trator Valtra A950" class="w-full p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm dark:text-white"/>
           </div>
           <div>
             <label class="block text-xs font-semibold uppercase mb-1">Categoria</label>
-            <input type="text" id="m-categoria" required placeholder="Trator / Colheitadeira" class="w-full p-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-sm dark:text-white"/>
+            <input type="text" id="m-categoria" required value="${item?.categoria || ''}" placeholder="Trator / Colheitadeira" class="w-full p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm dark:text-white"/>
           </div>
           <div>
             <label class="block text-xs font-semibold uppercase mb-1">Horímetro Atual</label>
-            <input type="number" id="m-horametro" required placeholder="1500" class="w-full p-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-sm dark:text-white"/>
+            <input type="number" id="m-horametro" required min="0" value="${item?.horametro ?? ''}" placeholder="1500" class="w-full p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm dark:text-white"/>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold uppercase mb-1">Status</label>
+            <select id="m-status" class="w-full p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm dark:text-white">
+              <option value="Operacional" ${item?.status === 'Operacional' ? 'selected' : ''}>Operacional</option>
+              <option value="Em Manutenção" ${item?.status === 'Em Manutenção' ? 'selected' : ''}>Em Manutenção</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold uppercase mb-1">Última Revisão</label>
+            <input type="date" id="m-revisao" value="${item?.ultima_revisao || ''}" class="w-full p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm dark:text-white"/>
           </div>
           <div class="flex justify-end gap-2 pt-2">
-            <button type="button" onclick="closeModal()" class="px-4 py-2 text-sm bg-gray-200 dark:bg-gray-700 rounded">Cancelar</button>
-            <button type="submit" class="px-4 py-2 text-sm bg-green-600 text-white rounded">Salvar</button>
+            <button type="button" onclick="closeModal()" class="px-4 py-2.5 text-sm bg-gray-200 dark:bg-gray-700 rounded-lg touch-target">Cancelar</button>
+            <button type="submit" class="px-4 py-2.5 text-sm bg-green-600 text-white rounded-lg touch-target">Salvar</button>
           </div>
         </form>
       `);
     }
 
-    function submitMaquina(e) {
+    function submitMaquina(e, id) {
       e.preventDefault();
-      addItem('maquinas', {
-        nome: document.getElementById('m-nome').value,
-        categoria: document.getElementById('m-categoria').value,
-        horametro: Number(document.getElementById('m-horametro').value),
-        status: 'Operacional',
-        ultima_revisao: new Date().toISOString().split('T')[0]
-      });
+      const horametro = Number(document.getElementById('m-horametro').value);
+      if (isNaN(horametro) || horametro < 0) {
+        alert('Horímetro deve ser um número positivo.');
+        return;
+      }
+      const data = {
+        nome: document.getElementById('m-nome').value.trim(),
+        categoria: document.getElementById('m-categoria').value.trim(),
+        horametro,
+        status: document.getElementById('m-status').value,
+        ultima_revisao: document.getElementById('m-revisao').value || new Date().toISOString().split('T')[0]
+      };
+      if (!data.nome || !data.categoria) {
+        alert('Preencha nome e categoria.');
+        return;
+      }
+      if (id) {
+        updateItem('maquinas', id, data);
+      } else {
+        addItem('maquinas', data);
+      }
       closeModal();
       navigateTo('maquinas');
     }
 
-    // ------------------------------------------
+    // ==========================================
     // VIEW 4: INSUMOS
-    // ------------------------------------------
+    // ==========================================
     function renderInsumos(container) {
-      const items = appState.insumos;
-      let rows = items.map(item => `
+      const items = getFilteredItems('insumos');
+      const categorias = [...new Set(appState.insumos.map(i => i.categoria))];
+      const chips = renderChips('insumos', ['Todos', 'Baixo Estoque', ...categorias]);
+      const search = renderSearchBox('insumos', 'Buscar insumo...');
+
+      let rows = items.map(item => {
+        const baixo = Number(item.quantidade) <= Number(item.min_estoque);
+        return `
         <tr class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50">
           <td class="py-3 px-4 font-semibold text-gray-900 dark:text-white">${item.nome}</td>
           <td class="py-3 px-4">${item.categoria}</td>
-          <td class="py-3 px-4 font-bold text-gray-800 dark:text-gray-200">${item.quantidade} ${item.unidade}</td>
+          <td class="py-3 px-4 font-bold ${baixo ? 'text-red-600 dark:text-red-400' : 'text-gray-800 dark:text-gray-200'}">${item.quantidade} ${item.unidade}</td>
           <td class="py-3 px-4 text-xs text-gray-500">Mín: ${item.min_estoque}</td>
-          <td class="py-3 px-4 text-right">
-            <button onclick="deleteItem('insumos', '${item.id}')" class="text-red-600 hover:text-red-800 p-1">
+          <td class="py-3 px-4 text-right whitespace-nowrap">
+            <button onclick="openModalInsumo('${item.id}')" class="text-blue-600 hover:text-blue-800 p-2 touch-target inline-flex">
+              <i data-lucide="pencil" class="w-4 h-4"></i>
+            </button>
+            <button onclick="deleteItem('insumos', '${item.id}')" class="text-red-600 hover:text-red-800 p-2 touch-target inline-flex">
               <i data-lucide="trash-2" class="w-4 h-4"></i>
             </button>
           </td>
-        </tr>
-      `).join('');
+        </tr>`;
+      }).join('');
 
       container.innerHTML = `
-        <div class="flex items-center justify-between mb-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
           <p class="text-xs text-gray-500 dark:text-gray-400">Estoque de fertilizantes, defensivos e sementes.</p>
-          <button onclick="openModalInsumo()" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium flex items-center gap-2">
+          <button onclick="openModalInsumo()" class="px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium flex items-center justify-center gap-2 touch-target">
             <i data-lucide="plus" class="w-4 h-4"></i> Registrar Insumo
           </button>
         </div>
+        <div class="flex flex-col sm:flex-row gap-3 mb-4">
+          <div class="flex flex-wrap gap-2">${chips}</div>
+          ${search}
+        </div>
         <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm">
-          <table class="w-full text-left text-sm text-gray-600 dark:text-gray-300">
-            <thead class="bg-gray-100 dark:bg-gray-900 text-xs uppercase text-gray-500 dark:text-gray-400">
-              <tr>
-                <th class="py-3 px-4">Insumo</th>
-                <th class="py-3 px-4">Categoria</th>
-                <th class="py-3 px-4">Quantidade Atual</th>
-                <th class="py-3 px-4">Estoque Mínimo</th>
-                <th class="py-3 px-4 text-right">Ações</th>
-              </tr>
-            </thead>
-            <tbody>${rows || '<tr><td colspan="5" class="p-4 text-center">Nenhum insumo no estoque.</td></tr>'}</tbody>
-          </table>
+          <div class="table-wrapper">
+            <table class="w-full text-left text-sm text-gray-600 dark:text-gray-300">
+              <thead class="bg-gray-100 dark:bg-gray-900 text-xs uppercase text-gray-500 dark:text-gray-400">
+                <tr>
+                  <th class="py-3 px-4">Insumo</th>
+                  <th class="py-3 px-4">Categoria</th>
+                  <th class="py-3 px-4">Quantidade</th>
+                  <th class="py-3 px-4">Estoque Mín.</th>
+                  <th class="py-3 px-4 text-right">Ações</th>
+                </tr>
+              </thead>
+              <tbody>${rows || '<tr><td colspan="5" class="p-6 text-center text-gray-400">Nenhum insumo encontrado.</td></tr>'}</tbody>
+            </table>
+          </div>
         </div>
       `;
     }
 
-    function openModalInsumo() {
+    function openModalInsumo(id = null) {
+      const item = id ? appState.insumos.find(x => x.id === id) : null;
       openModal(`
-        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Adicionar Insumo</h3>
-        <form onsubmit="submitInsumo(event)" class="space-y-4">
+        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">${item ? 'Editar Insumo' : 'Adicionar Insumo'}</h3>
+        <form onsubmit="submitInsumo(event, '${id || ''}')" class="space-y-4">
           <div>
             <label class="block text-xs font-semibold uppercase mb-1">Nome do Insumo</label>
-            <input type="text" id="m-insumo-nome" required placeholder="Ureia Agrícola" class="w-full p-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-sm dark:text-white"/>
+            <input type="text" id="m-insumo-nome" required value="${item?.nome || ''}" placeholder="Ureia Agrícola" class="w-full p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm dark:text-white"/>
           </div>
           <div>
             <label class="block text-xs font-semibold uppercase mb-1">Categoria</label>
-            <input type="text" id="m-insumo-cat" required placeholder="Fertilizante" class="w-full p-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-sm dark:text-white"/>
+            <input type="text" id="m-insumo-cat" required value="${item?.categoria || ''}" placeholder="Fertilizante" class="w-full p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm dark:text-white"/>
           </div>
           <div class="grid grid-cols-2 gap-3">
             <div>
               <label class="block text-xs font-semibold uppercase mb-1">Quantidade</label>
-              <input type="number" id="m-insumo-qtd" required placeholder="1000" class="w-full p-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-sm dark:text-white"/>
+              <input type="number" id="m-insumo-qtd" required min="0" step="0.01" value="${item?.quantidade ?? ''}" placeholder="1000" class="w-full p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm dark:text-white"/>
             </div>
             <div>
               <label class="block text-xs font-semibold uppercase mb-1">Unidade</label>
-              <input type="text" id="m-insumo-uni" required placeholder="Kg / Litros" class="w-full p-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-sm dark:text-white"/>
+              <input type="text" id="m-insumo-uni" required value="${item?.unidade || ''}" placeholder="Kg / Litros" class="w-full p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm dark:text-white"/>
             </div>
           </div>
+          <div>
+            <label class="block text-xs font-semibold uppercase mb-1">Estoque Mínimo</label>
+            <input type="number" id="m-insumo-min" min="0" value="${item?.min_estoque ?? 50}" class="w-full p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm dark:text-white"/>
+          </div>
           <div class="flex justify-end gap-2 pt-2">
-            <button type="button" onclick="closeModal()" class="px-4 py-2 text-sm bg-gray-200 dark:bg-gray-700 rounded">Cancelar</button>
-            <button type="submit" class="px-4 py-2 text-sm bg-green-600 text-white rounded">Salvar</button>
+            <button type="button" onclick="closeModal()" class="px-4 py-2.5 text-sm bg-gray-200 dark:bg-gray-700 rounded-lg touch-target">Cancelar</button>
+            <button type="submit" class="px-4 py-2.5 text-sm bg-green-600 text-white rounded-lg touch-target">Salvar</button>
           </div>
         </form>
       `);
     }
 
-    function submitInsumo(e) {
+    function submitInsumo(e, id) {
       e.preventDefault();
-      addItem('insumos', {
-        nome: document.getElementById('m-insumo-nome').value,
-        categoria: document.getElementById('m-insumo-cat').value,
-        quantidade: Number(document.getElementById('m-insumo-qtd').value),
-        unidade: document.getElementById('m-insumo-uni').value,
-        min_estoque: 50
-      });
+      const qtd = Number(document.getElementById('m-insumo-qtd').value);
+      const min = Number(document.getElementById('m-insumo-min').value);
+      if (isNaN(qtd) || qtd < 0 || isNaN(min) || min < 0) {
+        alert('Quantidade e estoque mínimo devem ser números positivos.');
+        return;
+      }
+      const data = {
+        nome: document.getElementById('m-insumo-nome').value.trim(),
+        categoria: document.getElementById('m-insumo-cat').value.trim(),
+        quantidade: qtd,
+        unidade: document.getElementById('m-insumo-uni').value.trim(),
+        min_estoque: min
+      };
+      if (!data.nome || !data.categoria || !data.unidade) {
+        alert('Preencha todos os campos.');
+        return;
+      }
+      if (id) {
+        updateItem('insumos', id, data);
+      } else {
+        addItem('insumos', data);
+      }
       closeModal();
       navigateTo('insumos');
     }
 
-    // ------------------------------------------
+    // ==========================================
     // VIEW 5: PESSOAS
-    // ------------------------------------------
+    // ==========================================
     function renderPessoas(container) {
-      const items = appState.pessoas;
+      const items = getFilteredItems('pessoas');
+      const chips = renderChips('pessoas', ['Todos', 'Ativo', 'Inativo']);
+      const search = renderSearchBox('pessoas', 'Buscar por nome ou cargo...');
+
       let rows = items.map(item => `
         <tr class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50">
           <td class="py-3 px-4 font-semibold text-gray-900 dark:text-white">${item.nome}</td>
           <td class="py-3 px-4">${item.cargo}</td>
           <td class="py-3 px-4">${item.telefone}</td>
           <td class="py-3 px-4">
-            <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300">
+            <span class="px-2.5 py-1 rounded-full text-xs font-semibold ${item.status === 'Ativo' ? 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300' : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'}">
               ${item.status}
             </span>
           </td>
-          <td class="py-3 px-4 text-right">
-            <button onclick="deleteItem('pessoas', '${item.id}')" class="text-red-600 hover:text-red-800 p-1">
+          <td class="py-3 px-4 text-right whitespace-nowrap">
+            <button onclick="openModalPessoa('${item.id}')" class="text-blue-600 hover:text-blue-800 p-2 touch-target inline-flex">
+              <i data-lucide="pencil" class="w-4 h-4"></i>
+            </button>
+            <button onclick="deleteItem('pessoas', '${item.id}')" class="text-red-600 hover:text-red-800 p-2 touch-target inline-flex">
               <i data-lucide="trash-2" class="w-4 h-4"></i>
             </button>
           </td>
@@ -1132,77 +1478,105 @@
       `).join('');
 
       container.innerHTML = `
-        <div class="flex items-center justify-between mb-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
           <p class="text-xs text-gray-500 dark:text-gray-400">Quadro de funcionários e contratados.</p>
-          <button onclick="openModalPessoa()" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium flex items-center gap-2">
+          <button onclick="openModalPessoa()" class="px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium flex items-center justify-center gap-2 touch-target">
             <i data-lucide="user-plus" class="w-4 h-4"></i> Cadastrar Colaborador
           </button>
         </div>
+        <div class="flex flex-col sm:flex-row gap-3 mb-4">
+          <div class="flex flex-wrap gap-2">${chips}</div>
+          ${search}
+        </div>
         <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm">
-          <table class="w-full text-left text-sm text-gray-600 dark:text-gray-300">
-            <thead class="bg-gray-100 dark:bg-gray-900 text-xs uppercase text-gray-500 dark:text-gray-400">
-              <tr>
-                <th class="py-3 px-4">Nome</th>
-                <th class="py-3 px-4">Cargo / Função</th>
-                <th class="py-3 px-4">Contato</th>
-                <th class="py-3 px-4">Status</th>
-                <th class="py-3 px-4 text-right">Ações</th>
-              </tr>
-            </thead>
-            <tbody>${rows || '<tr><td colspan="5" class="p-4 text-center">Nenhum colaborador registrado.</td></tr>'}</tbody>
-          </table>
+          <div class="table-wrapper">
+            <table class="w-full text-left text-sm text-gray-600 dark:text-gray-300">
+              <thead class="bg-gray-100 dark:bg-gray-900 text-xs uppercase text-gray-500 dark:text-gray-400">
+                <tr>
+                  <th class="py-3 px-4">Nome</th>
+                  <th class="py-3 px-4">Cargo</th>
+                  <th class="py-3 px-4">Contato</th>
+                  <th class="py-3 px-4">Status</th>
+                  <th class="py-3 px-4 text-right">Ações</th>
+                </tr>
+              </thead>
+              <tbody>${rows || '<tr><td colspan="5" class="p-6 text-center text-gray-400">Nenhum colaborador encontrado.</td></tr>'}</tbody>
+            </table>
+          </div>
         </div>
       `;
     }
 
-    function openModalPessoa() {
+    function openModalPessoa(id = null) {
+      const item = id ? appState.pessoas.find(x => x.id === id) : null;
       openModal(`
-        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Cadastrar Colaborador</h3>
-        <form onsubmit="submitPessoa(event)" class="space-y-4">
+        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">${item ? 'Editar Colaborador' : 'Cadastrar Colaborador'}</h3>
+        <form onsubmit="submitPessoa(event, '${id || ''}')" class="space-y-4">
           <div>
             <label class="block text-xs font-semibold uppercase mb-1">Nome Completo</label>
-            <input type="text" id="m-pes-nome" required placeholder="Antônio Ferreira" class="w-full p-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-sm dark:text-white"/>
+            <input type="text" id="m-pes-nome" required value="${item?.nome || ''}" placeholder="Antônio Ferreira" class="w-full p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm dark:text-white"/>
           </div>
           <div>
             <label class="block text-xs font-semibold uppercase mb-1">Cargo</label>
-            <input type="text" id="m-pes-cargo" required placeholder="Campeiro / Operador" class="w-full p-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-sm dark:text-white"/>
+            <input type="text" id="m-pes-cargo" required value="${item?.cargo || ''}" placeholder="Campeiro / Operador" class="w-full p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm dark:text-white"/>
           </div>
           <div>
             <label class="block text-xs font-semibold uppercase mb-1">Telefone</label>
-            <input type="text" id="m-pes-tel" required placeholder="(99) 99999-8888" class="w-full p-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-sm dark:text-white"/>
+            <input type="text" id="m-pes-tel" required value="${item?.telefone || ''}" placeholder="(99) 99999-8888" class="w-full p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm dark:text-white"/>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold uppercase mb-1">Status</label>
+            <select id="m-pes-status" class="w-full p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm dark:text-white">
+              <option value="Ativo" ${item?.status === 'Ativo' ? 'selected' : ''}>Ativo</option>
+              <option value="Inativo" ${item?.status === 'Inativo' ? 'selected' : ''}>Inativo</option>
+            </select>
           </div>
           <div class="flex justify-end gap-2 pt-2">
-            <button type="button" onclick="closeModal()" class="px-4 py-2 text-sm bg-gray-200 dark:bg-gray-700 rounded">Cancelar</button>
-            <button type="submit" class="px-4 py-2 text-sm bg-green-600 text-white rounded">Salvar</button>
+            <button type="button" onclick="closeModal()" class="px-4 py-2.5 text-sm bg-gray-200 dark:bg-gray-700 rounded-lg touch-target">Cancelar</button>
+            <button type="submit" class="px-4 py-2.5 text-sm bg-green-600 text-white rounded-lg touch-target">Salvar</button>
           </div>
         </form>
       `);
     }
 
-    function submitPessoa(e) {
+    function submitPessoa(e, id) {
       e.preventDefault();
-      addItem('pessoas', {
-        nome: document.getElementById('m-pes-nome').value,
-        cargo: document.getElementById('m-pes-cargo').value,
-        telefone: document.getElementById('m-pes-tel').value,
-        status: 'Ativo'
-      });
+      const data = {
+        nome: document.getElementById('m-pes-nome').value.trim(),
+        cargo: document.getElementById('m-pes-cargo').value.trim(),
+        telefone: document.getElementById('m-pes-tel').value.trim(),
+        status: document.getElementById('m-pes-status').value
+      };
+      if (!data.nome || !data.cargo || !data.telefone) {
+        alert('Preencha todos os campos.');
+        return;
+      }
+      if (id) {
+        updateItem('pessoas', id, data);
+      } else {
+        addItem('pessoas', data);
+      }
       closeModal();
       navigateTo('pessoas');
     }
 
-    // ------------------------------------------
+    // ==========================================
     // VIEW 6: FOLGAS
-    // ------------------------------------------
+    // ==========================================
     function renderFolgas(container) {
-      const items = appState.folgas;
+      const items = getFilteredItems('folgas');
+      const search = renderSearchBox('folgas', 'Buscar por colaborador ou motivo...');
+
       let rows = items.map(item => `
         <tr class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50">
           <td class="py-3 px-4 font-semibold text-gray-900 dark:text-white">${item.pessoa}</td>
           <td class="py-3 px-4">${item.data_inicio} até ${item.data_fim}</td>
           <td class="py-3 px-4">${item.motivo}</td>
-          <td class="py-3 px-4 text-right">
-            <button onclick="deleteItem('folgas', '${item.id}')" class="text-red-600 hover:text-red-800 p-1">
+          <td class="py-3 px-4 text-right whitespace-nowrap">
+            <button onclick="openModalFolga('${item.id}')" class="text-blue-600 hover:text-blue-800 p-2 touch-target inline-flex">
+              <i data-lucide="pencil" class="w-4 h-4"></i>
+            </button>
+            <button onclick="deleteItem('folgas', '${item.id}')" class="text-red-600 hover:text-red-800 p-2 touch-target inline-flex">
               <i data-lucide="trash-2" class="w-4 h-4"></i>
             </button>
           </td>
@@ -1210,79 +1584,102 @@
       `).join('');
 
       container.innerHTML = `
-        <div class="flex items-center justify-between mb-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
           <p class="text-xs text-gray-500 dark:text-gray-400">Escala programada de folgas e plantões.</p>
-          <button onclick="openModalFolga()" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium flex items-center gap-2">
+          <button onclick="openModalFolga()" class="px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium flex items-center justify-center gap-2 touch-target">
             <i data-lucide="plus" class="w-4 h-4"></i> Agendar Folga
           </button>
         </div>
+        <div class="mb-4">${search}</div>
         <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm">
-          <table class="w-full text-left text-sm text-gray-600 dark:text-gray-300">
-            <thead class="bg-gray-100 dark:bg-gray-900 text-xs uppercase text-gray-500 dark:text-gray-400">
-              <tr>
-                <th class="py-3 px-4">Colaborador</th>
-                <th class="py-3 px-4">Período</th>
-                <th class="py-3 px-4">Motivo / Descrição</th>
-                <th class="py-3 px-4 text-right">Ações</th>
-              </tr>
-            </thead>
-            <tbody>${rows || '<tr><td colspan="4" class="p-4 text-center">Nenhuma folga agendada.</td></tr>'}</tbody>
-          </table>
+          <div class="table-wrapper">
+            <table class="w-full text-left text-sm text-gray-600 dark:text-gray-300">
+              <thead class="bg-gray-100 dark:bg-gray-900 text-xs uppercase text-gray-500 dark:text-gray-400">
+                <tr>
+                  <th class="py-3 px-4">Colaborador</th>
+                  <th class="py-3 px-4">Período</th>
+                  <th class="py-3 px-4">Motivo</th>
+                  <th class="py-3 px-4 text-right">Ações</th>
+                </tr>
+              </thead>
+              <tbody>${rows || '<tr><td colspan="4" class="p-6 text-center text-gray-400">Nenhuma folga encontrada.</td></tr>'}</tbody>
+            </table>
+          </div>
         </div>
       `;
     }
 
-    function openModalFolga() {
-      const pOptions = appState.pessoas.map(p => `<option value="${p.nome}">${p.nome}</option>`).join('');
+    function openModalFolga(id = null) {
+      const item = id ? appState.folgas.find(x => x.id === id) : null;
+      const pOptions = appState.pessoas.map(p => `<option value="${p.nome}" ${item?.pessoa === p.nome ? 'selected' : ''}>${p.nome}</option>`).join('');
 
       openModal(`
-        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Agendar Folga</h3>
-        <form onsubmit="submitFolga(event)" class="space-y-4">
+        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">${item ? 'Editar Folga' : 'Agendar Folga'}</h3>
+        <form onsubmit="submitFolga(event, '${id || ''}')" class="space-y-4">
           <div>
             <label class="block text-xs font-semibold uppercase mb-1">Colaborador</label>
-            <select id="m-fol-pessoa" required class="w-full p-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-sm dark:text-white">
+            <select id="m-fol-pessoa" required class="w-full p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm dark:text-white">
               ${pOptions || '<option value="Outro">Outro Colaborador</option>'}
             </select>
           </div>
           <div class="grid grid-cols-2 gap-3">
             <div>
               <label class="block text-xs font-semibold uppercase mb-1">Data Início</label>
-              <input type="date" id="m-fol-ini" required class="w-full p-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-sm dark:text-white"/>
+              <input type="date" id="m-fol-ini" required value="${item?.data_inicio || ''}" class="w-full p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm dark:text-white"/>
             </div>
             <div>
               <label class="block text-xs font-semibold uppercase mb-1">Data Fim</label>
-              <input type="date" id="m-fol-fim" required class="w-full p-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-sm dark:text-white"/>
+              <input type="date" id="m-fol-fim" required value="${item?.data_fim || ''}" class="w-full p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm dark:text-white"/>
             </div>
           </div>
           <div>
             <label class="block text-xs font-semibold uppercase mb-1">Motivo</label>
-            <input type="text" id="m-fol-motivo" required placeholder="Folga Semanal / Licença" class="w-full p-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-sm dark:text-white"/>
+            <input type="text" id="m-fol-motivo" required value="${item?.motivo || ''}" placeholder="Folga Semanal / Licença" class="w-full p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm dark:text-white"/>
           </div>
           <div class="flex justify-end gap-2 pt-2">
-            <button type="button" onclick="closeModal()" class="px-4 py-2 text-sm bg-gray-200 dark:bg-gray-700 rounded">Cancelar</button>
-            <button type="submit" class="px-4 py-2 text-sm bg-green-600 text-white rounded">Salvar</button>
+            <button type="button" onclick="closeModal()" class="px-4 py-2.5 text-sm bg-gray-200 dark:bg-gray-700 rounded-lg touch-target">Cancelar</button>
+            <button type="submit" class="px-4 py-2.5 text-sm bg-green-600 text-white rounded-lg touch-target">Salvar</button>
           </div>
         </form>
       `);
     }
 
-    function submitFolga(e) {
+    function submitFolga(e, id) {
       e.preventDefault();
-      addItem('folgas', {
+      const ini = document.getElementById('m-fol-ini').value;
+      const fim = document.getElementById('m-fol-fim').value;
+      if (new Date(fim) < new Date(ini)) {
+        alert('Data fim não pode ser anterior à data início.');
+        return;
+      }
+      const data = {
         pessoa: document.getElementById('m-fol-pessoa').value,
-        data_inicio: document.getElementById('m-fol-ini').value,
-        data_fim: document.getElementById('m-fol-fim').value,
-        motivo: document.getElementById('m-fol-motivo').value
-      });
+        data_inicio: ini,
+        data_fim: fim,
+        motivo: document.getElementById('m-fol-motivo').value.trim()
+      };
+      if (!data.motivo) {
+        alert('Informe o motivo.');
+        return;
+      }
+      if (id) {
+        updateItem('folgas', id, data);
+      } else {
+        addItem('folgas', data);
+      }
       closeModal();
       navigateTo('folgas');
     }
 
-    // ------------------------------------------
+    // ==========================================
     // VIEW 7: TALHÕES
-    // ------------------------------------------
+    // ==========================================
     function renderTalhoes(container) {
-      const items = appState.talhoes;
+      const items = getFilteredItems('talhoes');
+      const statuses = [...new Set(appState.talhoes.map(t => t.status))];
+      const chips = renderChips('talhoes', ['Todos', ...statuses]);
+      const search = renderSearchBox('talhoes', 'Buscar talhão ou cultura...');
+
       let rows = items.map(item => `
         <tr class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50">
           <td class="py-3 px-4 font-semibold text-gray-900 dark:text-white">${item.nome}</td>
@@ -1294,8 +1691,11 @@
               ${item.status}
             </span>
           </td>
-          <td class="py-3 px-4 text-right">
-            <button onclick="deleteItem('talhoes', '${item.id}')" class="text-red-600 hover:text-red-800 p-1">
+          <td class="py-3 px-4 text-right whitespace-nowrap">
+            <button onclick="openModalTalhao('${item.id}')" class="text-blue-600 hover:text-blue-800 p-2 touch-target inline-flex">
+              <i data-lucide="pencil" class="w-4 h-4"></i>
+            </button>
+            <button onclick="deleteItem('talhoes', '${item.id}')" class="text-red-600 hover:text-red-800 p-2 touch-target inline-flex">
               <i data-lucide="trash-2" class="w-4 h-4"></i>
             </button>
           </td>
@@ -1303,76 +1703,104 @@
       `).join('');
 
       container.innerHTML = `
-        <div class="flex items-center justify-between mb-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
           <p class="text-xs text-gray-500 dark:text-gray-400">Mapeamento de área e safras ativas.</p>
-          <button onclick="openModalTalhao()" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium flex items-center gap-2">
+          <button onclick="openModalTalhao()" class="px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium flex items-center justify-center gap-2 touch-target">
             <i data-lucide="plus" class="w-4 h-4"></i> Criar Talhão
           </button>
         </div>
+        <div class="flex flex-col sm:flex-row gap-3 mb-4">
+          <div class="flex flex-wrap gap-2">${chips}</div>
+          ${search}
+        </div>
         <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm">
-          <table class="w-full text-left text-sm text-gray-600 dark:text-gray-300">
-            <thead class="bg-gray-100 dark:bg-gray-900 text-xs uppercase text-gray-500 dark:text-gray-400">
-              <tr>
-                <th class="py-3 px-4">Talhão</th>
-                <th class="py-3 px-4">Área (ha)</th>
-                <th class="py-3 px-4">Cultura</th>
-                <th class="py-3 px-4">Safra</th>
-                <th class="py-3 px-4">Fase / Status</th>
-                <th class="py-3 px-4 text-right">Ações</th>
-              </tr>
-            </thead>
-            <tbody>${rows || '<tr><td colspan="6" class="p-4 text-center">Nenhum talhão registrado.</td></tr>'}</tbody>
-          </table>
+          <div class="table-wrapper">
+            <table class="w-full text-left text-sm text-gray-600 dark:text-gray-300">
+              <thead class="bg-gray-100 dark:bg-gray-900 text-xs uppercase text-gray-500 dark:text-gray-400">
+                <tr>
+                  <th class="py-3 px-4">Talhão</th>
+                  <th class="py-3 px-4">Área (ha)</th>
+                  <th class="py-3 px-4">Cultura</th>
+                  <th class="py-3 px-4">Safra</th>
+                  <th class="py-3 px-4">Status</th>
+                  <th class="py-3 px-4 text-right">Ações</th>
+                </tr>
+              </thead>
+              <tbody>${rows || '<tr><td colspan="6" class="p-6 text-center text-gray-400">Nenhum talhão encontrado.</td></tr>'}</tbody>
+            </table>
+          </div>
         </div>
       `;
     }
 
-    function openModalTalhao() {
+    function openModalTalhao(id = null) {
+      const item = id ? appState.talhoes.find(x => x.id === id) : null;
       openModal(`
-        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Novo Talhão</h3>
-        <form onsubmit="submitTalhao(event)" class="space-y-4">
+        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">${item ? 'Editar Talhão' : 'Novo Talhão'}</h3>
+        <form onsubmit="submitTalhao(event, '${id || ''}')" class="space-y-4">
           <div>
             <label class="block text-xs font-semibold uppercase mb-1">Nome / Identificação</label>
-            <input type="text" id="m-tal-nome" required placeholder="Talhão 03 - Sede" class="w-full p-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-sm dark:text-white"/>
+            <input type="text" id="m-tal-nome" required value="${item?.nome || ''}" placeholder="Talhão 03 - Sede" class="w-full p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm dark:text-white"/>
           </div>
           <div>
             <label class="block text-xs font-semibold uppercase mb-1">Área (Hectares)</label>
-            <input type="number" step="0.1" id="m-tal-area" required placeholder="180" class="w-full p-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-sm dark:text-white"/>
+            <input type="number" step="0.1" min="0.1" id="m-tal-area" required value="${item?.area_ha ?? ''}" placeholder="180" class="w-full p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm dark:text-white"/>
           </div>
           <div>
             <label class="block text-xs font-semibold uppercase mb-1">Cultura</label>
-            <input type="text" id="m-tal-cultura" required placeholder="Soja / Milho / Algodão" class="w-full p-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-sm dark:text-white"/>
+            <input type="text" id="m-tal-cultura" required value="${item?.cultura || ''}" placeholder="Soja / Milho / Algodão" class="w-full p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm dark:text-white"/>
           </div>
           <div>
             <label class="block text-xs font-semibold uppercase mb-1">Safra</label>
-            <input type="text" id="m-tal-safra" required value="2026/2027" class="w-full p-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-sm dark:text-white"/>
+            <input type="text" id="m-tal-safra" required value="${item?.safra || '2026/2027'}" class="w-full p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm dark:text-white"/>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold uppercase mb-1">Status / Fase</label>
+            <input type="text" id="m-tal-status" required value="${item?.status || 'Plantio'}" placeholder="Plantio / Preparo / Colheita" class="w-full p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm dark:text-white"/>
           </div>
           <div class="flex justify-end gap-2 pt-2">
-            <button type="button" onclick="closeModal()" class="px-4 py-2 text-sm bg-gray-200 dark:bg-gray-700 rounded">Cancelar</button>
-            <button type="submit" class="px-4 py-2 text-sm bg-green-600 text-white rounded">Salvar</button>
+            <button type="button" onclick="closeModal()" class="px-4 py-2.5 text-sm bg-gray-200 dark:bg-gray-700 rounded-lg touch-target">Cancelar</button>
+            <button type="submit" class="px-4 py-2.5 text-sm bg-green-600 text-white rounded-lg touch-target">Salvar</button>
           </div>
         </form>
       `);
     }
 
-    function submitTalhao(e) {
+    function submitTalhao(e, id) {
       e.preventDefault();
-      addItem('talhoes', {
-        nome: document.getElementById('m-tal-nome').value,
-        area_ha: Number(document.getElementById('m-tal-area').value),
-        cultura: document.getElementById('m-tal-cultura').value,
-        safra: document.getElementById('m-tal-safra').value,
-        status: 'Plantio'
-      });
+      const area = Number(document.getElementById('m-tal-area').value);
+      if (isNaN(area) || area <= 0) {
+        alert('Área deve ser um número positivo.');
+        return;
+      }
+      const data = {
+        nome: document.getElementById('m-tal-nome').value.trim(),
+        area_ha: area,
+        cultura: document.getElementById('m-tal-cultura').value.trim(),
+        safra: document.getElementById('m-tal-safra').value.trim(),
+        status: document.getElementById('m-tal-status').value.trim()
+      };
+      if (!data.nome || !data.cultura || !data.safra || !data.status) {
+        alert('Preencha todos os campos.');
+        return;
+      }
+      if (id) {
+        updateItem('talhoes', id, data);
+      } else {
+        addItem('talhoes', data);
+      }
       closeModal();
       navigateTo('talhoes');
     }
 
-    // ------------------------------------------
-    // VIEW 8: EQUATORIAL (ENERGIA)
-    // ------------------------------------------
+    // ==========================================
+    // VIEW 8: EQUATORIAL
+    // ==========================================
     function renderEquatorial(container) {
-      const items = appState.equatorial;
+      const items = getFilteredItems('equatorial');
+      const chips = renderChips('equatorial', ['Todos', 'Pago', 'Pendente']);
+      const search = renderSearchBox('equatorial', 'Buscar por mês ou UC...');
+
       let rows = items.map(item => `
         <tr class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50">
           <td class="py-3 px-4 font-semibold text-gray-900 dark:text-white">${item.mes_referencia}</td>
@@ -1384,8 +1812,14 @@
               ${item.pago ? 'Pago' : 'Pendente'}
             </span>
           </td>
-          <td class="py-3 px-4 text-right">
-            <button onclick="deleteItem('equatorial', '${item.id}')" class="text-red-600 hover:text-red-800 p-1">
+          <td class="py-3 px-4 text-right whitespace-nowrap">
+            <button onclick="togglePagoEquatorial('${item.id}')" class="text-green-600 hover:text-green-800 p-2 touch-target inline-flex" title="Alternar pago/pendente">
+              <i data-lucide="${item.pago ? 'rotate-ccw' : 'check-circle'}" class="w-4 h-4"></i>
+            </button>
+            <button onclick="openModalEquatorial('${item.id}')" class="text-blue-600 hover:text-blue-800 p-2 touch-target inline-flex">
+              <i data-lucide="pencil" class="w-4 h-4"></i>
+            </button>
+            <button onclick="deleteItem('equatorial', '${item.id}')" class="text-red-600 hover:text-red-800 p-2 touch-target inline-flex">
               <i data-lucide="trash-2" class="w-4 h-4"></i>
             </button>
           </td>
@@ -1393,79 +1827,115 @@
       `).join('');
 
       container.innerHTML = `
-        <div class="flex items-center justify-between mb-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
           <p class="text-xs text-gray-500 dark:text-gray-400">Controle mensal de faturas de energia elétrica.</p>
-          <button onclick="openModalEquatorial()" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium flex items-center gap-2">
+          <button onclick="openModalEquatorial()" class="px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium flex items-center justify-center gap-2 touch-target">
             <i data-lucide="plus" class="w-4 h-4"></i> Lançar Fatura
           </button>
         </div>
+        <div class="flex flex-col sm:flex-row gap-3 mb-4">
+          <div class="flex flex-wrap gap-2">${chips}</div>
+          ${search}
+        </div>
         <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm">
-          <table class="w-full text-left text-sm text-gray-600 dark:text-gray-300">
-            <thead class="bg-gray-100 dark:bg-gray-900 text-xs uppercase text-gray-500 dark:text-gray-400">
-              <tr>
-                <th class="py-3 px-4">Mês Ref.</th>
-                <th class="py-3 px-4">Unid. Consumidora (UC)</th>
-                <th class="py-3 px-4">Consumo (kWh)</th>
-                <th class="py-3 px-4">Valor Total</th>
-                <th class="py-3 px-4">Situação</th>
-                <th class="py-3 px-4 text-right">Ações</th>
-              </tr>
-            </thead>
-            <tbody>${rows || '<tr><td colspan="6" class="p-4 text-center">Nenhuma fatura cadastrada.</td></tr>'}</tbody>
-          </table>
+          <div class="table-wrapper">
+            <table class="w-full text-left text-sm text-gray-600 dark:text-gray-300">
+              <thead class="bg-gray-100 dark:bg-gray-900 text-xs uppercase text-gray-500 dark:text-gray-400">
+                <tr>
+                  <th class="py-3 px-4">Mês Ref.</th>
+                  <th class="py-3 px-4">UC</th>
+                  <th class="py-3 px-4">Consumo</th>
+                  <th class="py-3 px-4">Valor</th>
+                  <th class="py-3 px-4">Situação</th>
+                  <th class="py-3 px-4 text-right">Ações</th>
+                </tr>
+              </thead>
+              <tbody>${rows || '<tr><td colspan="6" class="p-6 text-center text-gray-400">Nenhuma fatura encontrada.</td></tr>'}</tbody>
+            </table>
+          </div>
         </div>
       `;
     }
 
-    function openModalEquatorial() {
+    function togglePagoEquatorial(id) {
+      const item = appState.equatorial.find(x => x.id === id);
+      if (!item) return;
+      updateItem('equatorial', id, { pago: !item.pago });
+      navigateTo('equatorial');
+    }
+
+    function openModalEquatorial(id = null) {
+      const item = id ? appState.equatorial.find(x => x.id === id) : null;
       openModal(`
-        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Lançar Fatura Equatorial</h3>
-        <form onsubmit="submitEquatorial(event)" class="space-y-4">
+        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">${item ? 'Editar Fatura' : 'Lançar Fatura Equatorial'}</h3>
+        <form onsubmit="submitEquatorial(event, '${id || ''}')" class="space-y-4">
           <div>
             <label class="block text-xs font-semibold uppercase mb-1">Mês / Ano Ref.</label>
-            <input type="text" id="m-eq-mes" required placeholder="09/2026" class="w-full p-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-sm dark:text-white"/>
+            <input type="text" id="m-eq-mes" required value="${item?.mes_referencia || ''}" placeholder="09/2026" class="w-full p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm dark:text-white"/>
           </div>
           <div>
             <label class="block text-xs font-semibold uppercase mb-1">Código UC</label>
-            <input type="text" id="m-eq-uc" required value="UC-908123" class="w-full p-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-sm dark:text-white"/>
+            <input type="text" id="m-eq-uc" required value="${item?.uc || 'UC-908123'}" class="w-full p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm dark:text-white"/>
           </div>
           <div class="grid grid-cols-2 gap-3">
             <div>
               <label class="block text-xs font-semibold uppercase mb-1">Consumo (kWh)</label>
-              <input type="number" id="m-eq-kwh" required placeholder="12500" class="w-full p-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-sm dark:text-white"/>
+              <input type="number" id="m-eq-kwh" required min="0" value="${item?.consumo_kwh ?? ''}" placeholder="12500" class="w-full p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm dark:text-white"/>
             </div>
             <div>
               <label class="block text-xs font-semibold uppercase mb-1">Valor Total (R$)</label>
-              <input type="number" step="0.01" id="m-eq-val" required placeholder="10500.00" class="w-full p-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-sm dark:text-white"/>
+              <input type="number" step="0.01" min="0" id="m-eq-val" required value="${item?.valor_total ?? ''}" placeholder="10500.00" class="w-full p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm dark:text-white"/>
             </div>
           </div>
+          <div>
+            <label class="block text-xs font-semibold uppercase mb-1">Situação</label>
+            <select id="m-eq-pago" class="w-full p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm dark:text-white">
+              <option value="false" ${item && !item.pago ? 'selected' : ''}>Pendente</option>
+              <option value="true" ${item?.pago ? 'selected' : ''}>Pago</option>
+            </select>
+          </div>
           <div class="flex justify-end gap-2 pt-2">
-            <button type="button" onclick="closeModal()" class="px-4 py-2 text-sm bg-gray-200 dark:bg-gray-700 rounded">Cancelar</button>
-            <button type="submit" class="px-4 py-2 text-sm bg-green-600 text-white rounded">Salvar</button>
+            <button type="button" onclick="closeModal()" class="px-4 py-2.5 text-sm bg-gray-200 dark:bg-gray-700 rounded-lg touch-target">Cancelar</button>
+            <button type="submit" class="px-4 py-2.5 text-sm bg-green-600 text-white rounded-lg touch-target">Salvar</button>
           </div>
         </form>
       `);
     }
 
-    function submitEquatorial(e) {
+    function submitEquatorial(e, id) {
       e.preventDefault();
-      addItem('equatorial', {
-        mes_referencia: document.getElementById('m-eq-mes').value,
-        uc: document.getElementById('m-eq-uc').value,
-        consumo_kwh: Number(document.getElementById('m-eq-kwh').value),
-        valor_total: Number(document.getElementById('m-eq-val').value),
-        pago: false
-      });
+      const kwh = Number(document.getElementById('m-eq-kwh').value);
+      const val = Number(document.getElementById('m-eq-val').value);
+      if (isNaN(kwh) || kwh < 0 || isNaN(val) || val < 0) {
+        alert('Consumo e valor devem ser números positivos.');
+        return;
+      }
+      const data = {
+        mes_referencia: document.getElementById('m-eq-mes').value.trim(),
+        uc: document.getElementById('m-eq-uc').value.trim(),
+        consumo_kwh: kwh,
+        valor_total: val,
+        pago: document.getElementById('m-eq-pago').value === 'true'
+      };
+      if (!data.mes_referencia || !data.uc) {
+        alert('Preencha mês e UC.');
+        return;
+      }
+      if (id) {
+        updateItem('equatorial', id, data);
+      } else {
+        addItem('equatorial', data);
+      }
       closeModal();
       navigateTo('equatorial');
     }
 
-    // ------------------------------------------
-    // VIEW 9: CONFIGURAÇÕES DE API SUPABASE
-    // ------------------------------------------
+    // ==========================================
+    // VIEW 9: CONFIGURAÇÕES
+    // ==========================================
     function renderConfiguracoes(container) {
       container.innerHTML = `
-        <div class="max-w-2xl bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm space-y-6">
+        <div class="max-w-2xl bg-white dark:bg-gray-800 p-5 sm:p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm space-y-6">
           <div>
             <h3 class="text-base font-bold text-gray-900 dark:text-white">Conexão Supabase Backend</h3>
             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Configure suas chaves da nuvem para sincronização multi-dispositivo.</p>
@@ -1476,15 +1946,13 @@
               <label class="block text-xs font-semibold uppercase mb-1">Supabase URL</label>
               <input type="url" id="cfg-sb-url" value="${SUPABASE_URL}" placeholder="https://xyz.supabase.co" class="w-full p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm dark:text-white font-mono"/>
             </div>
-
             <div>
               <label class="block text-xs font-semibold uppercase mb-1">Supabase Anon Key</label>
               <textarea id="cfg-sb-key" rows="3" placeholder="ey..." class="w-full p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm dark:text-white font-mono">${SUPABASE_ANON_KEY}</textarea>
             </div>
-
-            <div class="pt-2 flex justify-between items-center">
-              <span class="text-xs text-slate-500">Intervalo de Sync Atual: 30 minutos</span>
-              <button type="submit" class="px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg text-sm shadow">
+            <div class="pt-2 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+              <span class="text-xs text-slate-500">Intervalo de Sync Atual: <strong>30 minutos</strong></span>
+              <button type="submit" class="px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg text-sm shadow touch-target w-full sm:w-auto">
                 Salvar e Sincronizar Agora
               </button>
             </div>
@@ -1497,20 +1965,17 @@
       e.preventDefault();
       const url = document.getElementById('cfg-sb-url').value.trim();
       const key = document.getElementById('cfg-sb-key').value.trim();
-
       localStorage.setItem('campogestor_sb_url', url);
       localStorage.setItem('campogestor_sb_key', key);
-
       SUPABASE_URL = url;
       SUPABASE_ANON_KEY = key;
-
       initSupabase();
       triggerManualSync();
       alert('Configurações salvas com sucesso!');
     }
 
     // ==========================================
-    // 6. UTILITY FUNCTIONS & MODALS
+    // 6. UTILITY
     // ==========================================
     function openModal(contentHtml) {
       const container = document.getElementById('modal-container');
@@ -1524,9 +1989,10 @@
       document.getElementById('modal-container').classList.add('hidden');
     }
 
-    function toggleDarkMode() {
-      document.documentElement.classList.toggle('dark');
-    }
+    // Fecha modal ao clicar fora
+    document.getElementById('modal-container')?.addEventListener('click', function(e) {
+      if (e.target === this) closeModal();
+    });
   </script>
 </body>
 </html>
