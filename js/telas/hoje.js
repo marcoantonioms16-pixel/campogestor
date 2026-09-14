@@ -1,63 +1,48 @@
-/* Tela: hoje. Somente renderização; eventos continuam centralizados no app. */
-
+/* Tela: hoje — dashboard principal. Eventos continuam centralizados no app. */
 window.CampoGestorTelas = window.CampoGestorTelas || {};
 window.CampoGestorTelas.hoje = function() {
-  let html = "";
   const hoje = hojeISO();
-    const listaRotina=rotinaHoje(hoje);
-    const feitas=listaRotina.filter(r=>state.rotinaFeita[r.id]===hoje).length;
-    const pct=listaRotina.length?Math.round((feitas/listaRotina.length)*100):0;
-    const dieselInv=dieselInventario();
-    const dieselLitros=dieselInv ? dieselInv.total : Number(state.diesel.litros)||0;
-    const dieselPct=Math.round((dieselLitros/state.diesel.capacidade)*100);
-    const niverHoje=state.pessoas.filter(p=>aniversarioHoje(p.nascimento,hoje));
-    const niver7=state.pessoas.filter(p=>p.nascimento&&aniversarioEmAte(p.nascimento,7,hoje)&&!aniversarioHoje(p.nascimento,hoje));
-    const chuvaLista = (state.chuva||[]).slice().sort((a,b)=>(b.data||"").localeCompare(a.data||""));
-    const ultimaChuva = chuvaLista[0];
-    html +=headerBar("CAMPOGESTOR", `Bem-vindo, ${esc(perfilAtual().nome)}`, `<div class="farm-context">${esc(state.farm.nome)}</div>`);
-    // Card Propriedade
-    html +=`<div class="card">
-      <p class="muted" style="text-transform:uppercase;letter-spacing:.06em;font-size:.7rem;margin:0">Propriedade</p>
-      <p style="font-family:var(--display);font-size:1.2rem;margin:.2rem 0">${esc(state.farm.nome)}</p>
-      <p class="muted">${esc(state.farm.municipio)} · safra ${esc(state.farm.safra)} · ${n(state.farm.areaTotal,0)} ha</p>
-      <p class="muted" style="margin-top:.35rem">Gerente: ${esc(state.farm.gerente)}</p>
-      <p class="muted">Auxiliar administrativo: Marcos Antonio da Silva Morais</p>
-      ${(()=>{ const v=versiculoDoDia(hoje); return `<div style="margin-top:.85rem;padding-top:.75rem;border-top:1px solid var(--border)">
-        <p style="font-family:var(--display);font-size:1.02rem;line-height:1.45">${esc(v[0])}</p>
-        <p class="muted" style="margin-top:.4rem">${esc(v[1])}</p>
-      </div>`; })()}
-    </div>`;
-    // Bloco resumo
-    html +=`<div class="grid2">
-      <button class="stat" data-hoje="diesel" style="text-align:left;border:1px solid var(--border)">
-        <div class="lbl">⛽ Diesel · inventário</div><div class="val">${n(dieselLitros,0)} L</div><div class="muted">${dieselPct}% do tanque${dieselPct<30?" · baixo":""}</div>
-      </button>
-      <button class="stat" data-hoje="chuva" style="text-align:left;border:1px solid var(--border)">
-        <div class="lbl">🌧 Última chuva</div><div class="val">${ultimaChuva ? n(ultimaChuva.mm,1)+" mm" : "—"}</div><div class="muted">${ultimaChuva ? (diasAtras(ultimaChuva.data,hoje)===0?"hoje":diasAtras(ultimaChuva.data,hoje)===1?"há 1 dia":"há "+diasAtras(ultimaChuva.data,hoje)+" dias") : "sem registro"}</div>
-      </button>
-      <button class="stat" data-hoje="equipe" style="text-align:left;border:1px solid var(--border)">
-        <div class="lbl">👥 Equipe</div><div class="val">${state.pessoas.filter(p=>p.tipo!=="encerrado").length}</div><div class="muted">colaboradores</div>
-      </button>
-      <button class="stat" data-hoje="area" style="text-align:left;border:1px solid var(--border)">
-        <div class="lbl">🗺 Área</div><div class="val">${n(state.farm.areaTotal,0)} ha</div><div class="muted">${state.talhoes.length} talhões</div>
-      </button>
-    </div>`;
-    html +=`<button class="card" data-hoje="tarefas" style="width:calc(100% - 2rem);margin:.15rem 1rem;display:flex;align-items:center;gap:.9rem;text-align:left">
-      <div class="ring" style="--p:${pct}"><span class="pct">${pct}%</span></div>
-      <div>
-        <div style="font-weight:500">Tarefas de hoje</div>
-        <div class="muted">toque para ver</div>
-      </div>
-    </button>`;
-    if(niverHoje.length){
-      html +=`<div class="card" style="border-color:var(--primary)"><p class="card-title">🎂 Aniversário hoje — avise o gerente</p><ul class="list">`;
-      niverHoje.forEach(p=>{ html +=`<li><div style="flex:1"><div style="font-weight:500">${esc(p.nome)}</div><div class="muted">${esc(p.funcao)} · completa ${idadeEm(p.nascimento,hoje)+1} anos</div></div><span class="badge ok">Hoje</span></li>`; });
-      html +=`</ul><p class="muted" style="margin-top:.5rem">Lembrete para ${esc(state.farm.gerente)}</p></div>`;
-    }
-    if(niver7.length){
-      html +=`<div class="card"><p class="card-title">Próximos aniversários (7 dias)</p><ul class="list">`;
-      niver7.forEach(p=>{ html +=`<li><div style="flex:1"><div style="font-weight:500">${esc(p.nome)}</div><div class="muted">${esc(p.funcao)} · ${dataNascimentoFmt(p.nascimento)}</div></div><span class="badge warn">Em breve</span></li>`; });
-      html +=`</ul></div>`;
-    }
+  const p = perfilAtual();
+  const ativos = state.pessoas.filter(x=>x.tipo!=="encerrado");
+  const dieselInv = dieselInventario();
+  const dieselLitros = dieselInv ? dieselInv.total : Number(state.diesel?.litros)||0;
+  const dieselCap = Number(state.diesel?.capacidade)||1;
+  const dieselPct = Math.max(0, Math.min(100, Math.round(dieselLitros/dieselCap*100)));
+  const chuvas = (state.chuva||[]).slice().sort((a,b)=>(b.data||"").localeCompare(a.data||""));
+  const ultima = chuvas[0];
+  const rotina = rotinaHoje(hoje);
+  const feitas = rotina.filter(r=>state.rotinaFeita[r.id]===hoje).length;
+  const pct = rotina.length ? Math.round(feitas/rotina.length*100) : 0;
+  const niverHoje = ativos.filter(x=>aniversarioHoje(x.nascimento,hoje));
+  const maquinas = state.maquinas || [];
+  const operando = maquinas.filter(x=>x.status==="operando").length;
+  const area = Number(state.farm?.areaTotal)||0;
+  const talhoes = state.talhoes?.length||0;
+  const v = versiculoDoDia(hoje);
+  let html = headerBar("CAMPOGESTOR", `Bem-vindo, ${esc(p.nome)}`, `<div class="farm-context">${esc(state.farm.nome)}</div>`);
+
+  html += `<section class="today-hero">
+    <div><span class="today-eyebrow">FAZENDA SANTA RITA</span><h2>Visão de hoje</h2><p>${esc(dataLonga(hoje))} · ${esc(state.farm.municipio||"")}</p></div>
+    <div class="today-sync"><span class="cloud-dot ${cloudStatus}"></span>${esc(perfilCloudResumo())}</div>
+  </section>`;
+
+  html += `<div class="today-metrics">
+    <button class="today-metric" data-hoje="equipe"><span class="metric-symbol">👥</span><strong>${ativos.length}</strong><small>Pessoas</small></button>
+    <button class="today-metric" data-hoje="area"><span class="metric-symbol">🌱</span><strong>${n(area,0)} ha</strong><small>Área plantada</small></button>
+    <button class="today-metric" data-hoje="diesel"><span class="metric-symbol">⛽</span><strong>${n(dieselLitros,0)} L</strong><small>Diesel · ${dieselPct}%</small></button>
+    <button class="today-metric" data-hoje="chuva"><span class="metric-symbol">🌧</span><strong>${ultima?n(ultima.mm,1)+" mm":"—"}</strong><small>${ultima?(diasAtras(ultima.data,hoje)===0?"Hoje":"há "+diasAtras(ultima.data,hoje)+" dias"):"Sem registro"}</small></button>
+  </div>`;
+
+  html += `<section class="today-feature">
+    <div class="today-feature-top"><div><span class="today-eyebrow">OPERAÇÃO</span><h3>Fazenda em movimento</h3></div><span class="today-feature-badge">${operando}/${maquinas.length||0} máquinas</span></div>
+    <div class="today-feature-grid"><div><strong>${n(area,0)} ha</strong><span>Área cadastrada</span></div><div><strong>${talhoes}</strong><span>Talhões</span></div><div><strong>${pct}%</strong><span>Rotina concluída</span></div></div>
+    <button class="today-task" data-hoje="tarefas"><span class="ring" style="--p:${pct}"><span class="pct">${pct}%</span></span><span><b>Tarefas de hoje</b><small>${feitas} de ${rotina.length} concluídas · toque para abrir</small></span><span class="today-arrow">›</span></button>
+  </section>`;
+
+  if(niverHoje.length) html += `<section class="today-panel today-birthday"><div class="panel-title"><h3>🎂 Aniversário hoje</h3><span>Avise o gerente</span></div><div class="today-rows">${niverHoje.map(x=>`<div class="today-row"><span class="row-avatar">${esc((x.nome||"?").slice(0,1).toUpperCase())}</span><div><b>${esc(x.nome)}</b><small>${esc(x.funcao||"Colaborador")} · completa ${idadeEm(x.nascimento,hoje)+1} anos</small></div></div>`).join("")}</div></section>`;
+
+  html += `<section class="today-panel"><div class="panel-title"><h3>Atalhos rápidos</h3><span>CampoGestor</span></div><div class="quick-grid"><button data-go="frota">🚜<b>Frota</b><small>${maquinas.length} cadastradas</small></button><button data-go="estoque">📦<b>Estoque</b><small>${state.insumos?.length||0} itens</small></button><button data-go="pessoas">👥<b>Pessoas</b><small>${ativos.length} ativas</small></button><button data-go="safra">🌾<b>Safra</b><small>${esc(state.farm?.safra||"Atual")}</small></button></div></section>`;
+
+  html += `<section class="today-quote"><span>“</span><div><b>${esc(v[0])}</b><small>${esc(v[1])}</small></div></section>`;
   return html;
 };

@@ -927,32 +927,18 @@ function renderDrawer(){
 
 function renderProfileModal(){
   const p=perfilAtual();
+  const cloud = perfilCloudResumo();
   return `<div class="profile-overlay" id="profile-overlay" role="dialog" aria-modal="true" aria-label="Perfil do usuário">
     <section class="profile-modal">
       <div class="profile-modal-head">
-        <div>
-          <div class="profile-modal-kicker">CAMPOGESTOR</div>
-          <h2>Seu perfil</h2>
-          <p class="muted">Escolha quem está usando o aplicativo.</p>
-        </div>
+        <div><div class="profile-modal-kicker">CAMPOGESTOR</div><h2>Seu perfil</h2><p class="muted">Escolha quem está usando o aplicativo.</p></div>
         <button type="button" class="profile-close" id="profile-close" aria-label="Fechar">×</button>
       </div>
-      <div class="profile-current">
-        <span class="profile-avatar large">${esc(p.inicial)}</span>
-        <div><strong>${esc(p.nome)}</strong><span>${esc(p.role)}</span></div>
-      </div>
-      <div class="profile-options">
-        ${PERFIS.map(x=>`<button type="button" class="profile-option ${x.id===p.id?"active":""}" data-profile-id="${x.id}">
-          <span class="profile-avatar">${esc(x.inicial)}</span>
-          <span class="profile-option-text"><strong>${esc(x.nome)}</strong><small>${esc(x.role)}</small></span>
-          ${x.id===p.id?`<span class="profile-check">✓</span>`:""}
-        </button>`).join("")}
-      </div>
-      <div class="profile-cloud">
-        <span class="cloud-dot ${cloudStatus}"></span>
-        <div><strong>Sincronização</strong><span>${esc(perfilCloudResumo())}</span></div>
-      </div>
-      ${sbUser?`<div class="profile-email">${esc(sbUser.email||"")}</div>`:""}
+      <div class="profile-current"><span class="profile-avatar large">${esc(p.inicial)}</span><div><strong>${esc(p.nome)}</strong><span>${esc(p.role)}</span></div></div>
+      <div class="profile-options">${PERFIS.map(x=>`<button type="button" class="profile-option ${x.id===p.id?"active":""}" data-profile-id="${x.id}"><span class="profile-avatar">${esc(x.inicial)}</span><span class="profile-option-text"><strong>${esc(x.nome)}</strong><small>${esc(x.role)}</small></span>${x.id===p.id?`<span class="profile-check">✓</span>`:""}</button>`).join("")}</div>
+      <div class="profile-cloud"><span class="cloud-dot ${cloudStatus}"></span><div><strong>☁ ${sbUser?"Nuvem conectada":"Nuvem não conectada"}</strong><span>${esc(cloud)}</span></div></div>
+      ${sbUser?`<div class="profile-email">${esc(sbUser.email||"")}</div><div style="display:flex;gap:8px;margin-top:10px"><button class="btn block" id="btn-push">Salvar agora</button><button class="btn block" id="btn-logout">Sair</button></div>`:
+      `<div class="profile-auth"><p class="muted">Entre com o e-mail e a senha da fazenda para sincronizar os dados na nuvem.</p><div class="field"><label>E-mail</label><input id="auth-email" type="email" placeholder="seu@email.com" autocomplete="username"/></div><div class="field"><label>Senha</label><input id="auth-pass" type="password" placeholder="••••••" autocomplete="current-password"/></div><div style="display:flex;gap:8px"><button class="btn primary block" id="btn-login">Entrar</button><button class="btn block" id="btn-signup">Criar</button></div></div>`}
     </section>
   </div>`;
 }
