@@ -93,8 +93,25 @@ const SEED = {"farm": {"nome": "Fazenda Santa Rita", "municipio": "Grupo Segredo
 const SAFRA = {"titulo": "Safra 2026/27 — Caderno de Campo", "corretivo": [{"talhoes": "Sede, Pista Tapera", "ha": 240.15, "cultivar": "DM 72IX74 I2X", "insumo": "Calcário", "dose": "2 ton/ha", "volume": "480 ton"}, {"talhoes": "Amargoso, 110, 190", "ha": 399.74, "cultivar": "76KA72 CE", "insumo": "Calcário", "dose": "2 ton/ha", "volume": "800 ton"}, {"talhoes": "Entrada, Jaime", "ha": 235.58, "cultivar": "Raptor I2X", "insumo": "Calcário", "dose": "2 ton/ha", "volume": "472 ton"}], "fertilizante": [{"talhoes": "Tapera, Luizinho", "ha": 248.99, "cultivar": "NEO700 I2X", "itens": [{"insumo": "KCl", "dose": "150 kg/ha", "volume": "37.348,5 kg"}, {"insumo": "00-21-00", "dose": "440 kg/ha", "volume": "109.555,6 kg"}, {"insumo": "Gran Boro 10", "dose": "18 kg/ha", "volume": "4.480,2 kg"}]}, {"talhoes": "Sede, Pista Tapera", "ha": 240.15, "cultivar": "DM 72IX74 I2X", "itens": [{"insumo": "KCl", "dose": "150 kg/ha", "volume": "36.022,5 kg"}, {"insumo": "00-21-00", "dose": "440 kg/ha", "volume": "105.666 kg"}, {"insumo": "Gran Boro 10", "dose": "18 kg/ha", "volume": "4.322,7 kg"}]}, {"talhoes": "Cascalheira", "ha": 61.18, "cultivar": "ST 752 I2X", "itens": [{"insumo": "KCl", "dose": "150 kg/ha", "volume": "9.177 kg"}, {"insumo": "00-21-00", "dose": "440 kg/ha", "volume": "26.919,2 kg"}, {"insumo": "Gran Boro 10", "dose": "18 kg/ha", "volume": "1.101,24 kg"}]}, {"talhoes": "Amargoso, 110, 190", "ha": 399.74, "cultivar": "76KA72 CE", "itens": [{"insumo": "KCl", "dose": "150 kg/ha", "volume": "59.961 kg"}, {"insumo": "00-21-00", "dose": "440 kg/ha", "volume": "175.885,6 kg"}, {"insumo": "Gran Boro 10", "dose": "18 kg/ha", "volume": "7.195,32 kg"}]}, {"talhoes": "Entrada, Jaime", "ha": 235.58, "cultivar": "Raptor I2X", "itens": [{"insumo": "KCl", "dose": "150 kg/ha", "volume": "35.337 kg"}, {"insumo": "00-21-00", "dose": "440 kg/ha", "volume": "103.655,2 kg"}, {"insumo": "Gran Boro 10", "dose": "18 kg/ha", "volume": "4.240,44 kg"}]}, {"talhoes": "Pivô 1, Pivô 2", "ha": 265.39, "cultivar": "NEO761 I2X", "itens": [{"insumo": "KCl", "dose": "150 kg/ha", "volume": "39.808,5 kg"}, {"insumo": "00-21-00", "dose": "440 kg/ha", "volume": "116.771,6 kg"}, {"insumo": "Gran Boro 10", "dose": "18 kg/ha", "volume": "4.777,02 kg"}]}, {"talhoes": "Duilio", "ha": 136.08, "cultivar": "Raptor I2X", "itens": [{"insumo": "KCl", "dose": "150 kg/ha", "volume": "20.412 kg"}, {"insumo": "00-21-00", "dose": "440 kg/ha", "volume": "59.875,2 kg"}, {"insumo": "Gran Boro 10", "dose": "18 kg/ha", "volume": "2.449,44 kg"}]}], "plantio": [{"talhoes": "Amargoso, 110, 190", "ha": 399.74, "cultivar": "76KA72 CE", "sem_m": "14", "espac": "50 cm", "sem_ha": "280.000"}, {"talhoes": "Entrada, Jaime", "ha": 235.58, "cultivar": "Raptor I2X", "sem_m": "14,5", "espac": "50 cm", "sem_ha": "290.000"}, {"talhoes": "Pivô 1, Pivô 2", "ha": 265.39, "cultivar": "NEO761 I2X", "sem_m": "14,5", "espac": "50 cm", "sem_ha": "290.000"}, {"talhoes": "Duilio", "ha": 136.08, "cultivar": "Raptor I2X", "sem_m": "14,5", "espac": "50 cm", "sem_ha": "290.000"}, {"talhoes": "Tapera, Luizinho", "ha": 248.99, "cultivar": "NEO700 I2X", "sem_m": "14,5", "espac": "50 cm", "sem_ha": "290.000"}, {"talhoes": "Sede, Pista Tapera", "ha": 240.15, "cultivar": "DM 72IX74 I2X", "sem_m": "14,5", "espac": "50 cm", "sem_ha": "290.000"}, {"talhoes": "Cascalheira", "ha": 61.18, "cultivar": "ST 752 I2X", "sem_m": "13", "espac": "50 cm", "sem_ha": "260.000"}], "sulco": [{"atividade": "Manejo de sulco", "insumo": "Biomax Azos", "tipo": "Inoculante", "fabricante": "Vittia", "dose": "1 dose/ha"}, {"atividade": "Manejo de sulco", "insumo": "Nimaxxa", "tipo": "Biológico", "fabricante": "UPL", "dose": "0,1 L/ha"}, {"atividade": "Manejo de sulco", "insumo": "Biomax 10", "tipo": "Inoculante", "fabricante": "Vittia", "dose": "10 doses/ha"}]};
 const KEY = "campogestor-fsrt-dist-v13";
 const THEME_KEY = "campogestor-tema";
-function temaAtual(){ return localStorage.getItem(THEME_KEY)==="sombra"?"sombra":"sol"; }
-function applyTema(){ document.documentElement.setAttribute("data-theme", temaAtual()); }
+function temaAtual(){ return "sol"; }
+function applyTema(){ document.documentElement.setAttribute("data-theme", "sol"); try{ localStorage.removeItem(THEME_KEY); }catch(e){} }
+
+function dieselInventario(){
+  const itens=(state && state.insumos)||[];
+  const diesel=itens.filter(i=>{
+    const nome=String(i.nome||"").toLowerCase();
+    const tipo=String(i.tipoDef||"").toLowerCase();
+    return nome.includes("diesel") || tipo.includes("diesel");
+  });
+  if(!diesel.length) return null;
+  const total=diesel.reduce((sum,i)=>sum+(Number(i.quantidade)||0),0);
+  return { total:Number(total.toFixed(2)), itens:diesel };
+}
+function sincronizaDieselInventario(){
+  const d=dieselInventario();
+  if(d) state.diesel.litros=d.total;
+  return d;
+}
 
 const SB_URL = "https://tetrqmzahbrfgrxzbnwj.supabase.co";
 const SB_KEY = "sb_publishable_tIgk-4oZtKneqljdgIqAWw_Ni6PtoIv";
@@ -155,9 +172,16 @@ async function sbLogin(email, password) {
   }
   saveSession(data);
   sbUser = data.user;
-  await pullCloud();
-  cloudStatus = "synced";
-  await pushCloud();
+  const pulled = await pullCloud();
+  if (pulled === true) {
+    cloudStatus = "synced";
+  } else if (pulled === false) {
+    // Primeiro acesso sem cadastro na nuvem: preserva o que está neste aparelho.
+    await pushCloud();
+  } else {
+    // Erro de leitura: não sobrescreve a nuvem com dados locais.
+    cloudStatus = "error";
+  }
   return data;
 }
 
@@ -234,6 +258,7 @@ async function pullCloud() {
         farm: { ...SEED.farm, ...(data.farm || {}) },
         diesel: { ...SEED.diesel, ...(data.diesel || {}) },
       };
+      sincronizaDieselInventario();
       if (!state.sementes) state.sementes = [];
       if (!state.folgas) state.folgas = [];
       if (!state.equatorial) state.equatorial = SEED.equatorial;
@@ -245,6 +270,7 @@ async function pullCloud() {
     console.warn("cloud pull", e);
     cloudStatus = "error";
     cloudError = (e && e.message) ? e.message : String(e);
+    return null;
   }
   return false;
 }
@@ -285,8 +311,8 @@ function load(){
         ...d,
         farm:{...SEED.farm, ...(d.farm||{})},
         diesel:{...SEED.diesel, ...(d.diesel||{})},
-        insumos: d.insumos && d.insumos.length ? d.insumos : SEED.insumos,
-        maquinas: d.maquinas && d.maquinas.length ? d.maquinas : SEED.maquinas,
+        insumos: Array.isArray(d.insumos) ? d.insumos : SEED.insumos,
+        maquinas: Array.isArray(d.maquinas) ? d.maquinas : SEED.maquinas,
         pessoas: d.pessoas && d.pessoas.length ? d.pessoas : SEED.pessoas,
         talhoes: d.talhoes && d.talhoes.length ? d.talhoes : SEED.talhoes,
         extintores: d.extintores && d.extintores.length ? d.extintores : (SEED.extintores||[]),
@@ -304,6 +330,7 @@ function load(){
   return JSON.parse(JSON.stringify(SEED));
 }
 function save(){
+  sincronizaDieselInventario();
   localStorage.setItem(KEY, JSON.stringify(state));
   scheduleCloudSave();
 }
@@ -326,6 +353,7 @@ function cloudLabel(){
 function uid(){ return (crypto.randomUUID && crypto.randomUUID()) || ("id-"+Date.now()+"-"+Math.random().toString(16).slice(2)); }
 
 let state = load();
+sincronizaDieselInventario();
 let sbUser = null;
 let cloudStatus = "local"; // local | syncing | synced | error
 let cloudError = "";
@@ -905,7 +933,9 @@ function renderDrawer(){
     });
   }
   if(edit.kind==="hoje-diesel"){
-    const p=Math.round((state.diesel.litros/state.diesel.capacidade)*100);
+    const dinv=dieselInventario();
+    const litros=dinv ? dinv.total : Number(state.diesel.litros)||0;
+    const p=Math.round((litros/state.diesel.capacidade)*100);
     const col=p>=50?"var(--ok)":p>=25?"var(--warn)":"var(--danger)";
     body=`<h2>Diesel</h2>
       <div class="ring-wrap" style="justify-content:center">
@@ -913,7 +943,8 @@ function renderDrawer(){
           <span class="pct">${p}%</span>
         </div>
       </div>
-      <p style="text-align:center">${n(state.diesel.litros,0)} L de ${n(state.diesel.capacidade,0)} L</p>`;
+      <p style="text-align:center">${n(litros,0)} L de ${n(state.diesel.capacidade,0)} L</p>
+      <p class="muted" style="text-align:center">Saldo puxado automaticamente do inventário.</p>`;
   }
   if(edit.kind==="hoje-chuva"){
     const lista=(state.chuva||[]).slice().sort((a,b)=>(b.data||"").localeCompare(a.data||""));
@@ -993,17 +1024,14 @@ function render(){
     const listaRotina=rotinaHoje(hoje);
     const feitas=listaRotina.filter(r=>state.rotinaFeita[r.id]===hoje).length;
     const pct=listaRotina.length?Math.round((feitas/listaRotina.length)*100):0;
-    const dieselPct=Math.round((state.diesel.litros/state.diesel.capacidade)*100);
+    const dieselInv=dieselInventario();
+    const dieselLitros=dieselInv ? dieselInv.total : Number(state.diesel.litros)||0;
+    const dieselPct=Math.round((dieselLitros/state.diesel.capacidade)*100);
     const niverHoje=state.pessoas.filter(p=>aniversarioHoje(p.nascimento,hoje));
     const niver7=state.pessoas.filter(p=>p.nascimento&&aniversarioEmAte(p.nascimento,7,hoje)&&!aniversarioHoje(p.nascimento,hoje));
     const chuvaLista = (state.chuva||[]).slice().sort((a,b)=>(b.data||"").localeCompare(a.data||""));
     const ultimaChuva = chuvaLista[0];
-    const sol=temaAtual()==="sol";
-    html+=headerBar(
-      "",
-      esc(state.farm.nome),
-      `<button class="btn sm" id="btn-tema">${sol?"☀ Sol":"☾ Sombra"}</button>`
-    );
+    html+=headerBar("", esc(state.farm.nome), "");
     // Card Propriedade
     html+=`<div class="card">
       <p class="muted" style="text-transform:uppercase;letter-spacing:.06em;font-size:.7rem;margin:0">Propriedade</p>
@@ -1019,7 +1047,7 @@ function render(){
     // Bloco resumo
     html+=`<div class="grid2">
       <button class="stat" data-hoje="diesel" style="text-align:left;border:1px solid var(--border)">
-        <div class="lbl">⛽ Diesel</div><div class="val">${n(state.diesel.litros,0)} L</div><div class="muted">${dieselPct}% do tanque${dieselPct<30?" · baixo":""}</div>
+        <div class="lbl">⛽ Diesel · inventário</div><div class="val">${n(dieselLitros,0)} L</div><div class="muted">${dieselPct}% do tanque · sincronizado com estoque${dieselPct<30?" · baixo":""}</div>
       </button>
       <button class="stat" data-hoje="chuva" style="text-align:left;border:1px solid var(--border)">
         <div class="lbl">🌧 Última chuva</div><div class="val">${ultimaChuva ? n(ultimaChuva.mm,1)+" mm" : "—"}</div><div class="muted">${ultimaChuva ? (diasAtras(ultimaChuva.data,hoje)===0?"hoje":diasAtras(ultimaChuva.data,hoje)===1?"há 1 dia":"há "+diasAtras(ultimaChuva.data,hoje)+" dias") : "sem registro"}</div>
@@ -1150,7 +1178,7 @@ function render(){
 
     html+=`<div style="padding:0 1rem .5rem"><button class="btn block" id="btn-notif">Ativar avisos de aniversário</button></div>`;
     const ativos=state.pessoas.filter(p=>p.tipo!=="encerrado");
-    const exs=[];
+    const exs=state.pessoas.filter(p=>p.tipo==="encerrado");
     const sortFn=(a,b)=>{
       if(sortPessoas==="aniversario"){
         const ka=(a.nascimento||"99-12-31").slice(5);
@@ -1659,13 +1687,6 @@ function bind(){
   document.querySelectorAll("[data-cat-ext]").forEach(b=>{
     b.onclick=()=>{ catExt=b.getAttribute("data-cat-ext"); render(); };
   });
-  const bt=document.getElementById("btn-tema");
-  if(bt) bt.onclick=()=>{
-    const n=temaAtual()==="sol"?"sombra":"sol";
-    localStorage.setItem(THEME_KEY,n);
-    applyTema();
-    render();
-  };
   const bx=document.getElementById("btn-xls-ext");
   if(bx) bx.onclick=()=>exportExtExcel();
   const qm=document.getElementById("q-maq");
@@ -1781,11 +1802,8 @@ function bind(){
       itens.forEach(it=>{
         state.insumos=state.insumos.map(x=>x.id===it.id?{...x, quantidade: Number((x.quantidade-it.qtd).toFixed(2))}:x);
       });
-      const prod=state.insumos.find(x=>x.id===itens[0].id);
-      // sync diesel se for diesel
-      if(prod.nome.toLowerCase().includes("diesel")){
-        state.diesel.litros = Math.max(0, Number((state.diesel.litros - qtd).toFixed(0)));
-      }
+      // Diesel é derivado do inventário; a baixa acima já alterou os itens.
+      sincronizaDieselInventario();
       save(); toast("Saída lançada e baixa no estoque"); closeEdit(); return;
     }
     if(edit.kind==="protocolo"||edit.kind==="novo-protocolo"){
@@ -1981,10 +1999,13 @@ function bind(){
   const bp=document.getElementById("btn-push");
   if(bp) bp.onclick=async()=>{ await pushCloud(); toast(cloudStatus==="synced"?"Salvo na nuvem":"Erro ao salvar"); render(); };
   const bpull=document.getElementById("btn-pull");
-  if(bpull) bpull.onclick=async()=>{ const ok=await pullCloud(); toast(ok?"Dados da nuvem carregados":"Nada na nuvem ou erro"); render(); };
+  if(bpull) bpull.onclick=async()=>{ const ok=await pullCloud(); toast(ok===true?"Dados da nuvem carregados":ok===false?"Nada cadastrado na nuvem":"Erro ao buscar a nuvem — dados locais preservados"); render(); };
 
   const br=document.getElementById("btn-reset");
-  if(br) br.onclick=()=>{ state=JSON.parse(JSON.stringify(SEED)); state.rotinaFeita={}; save(); toast("Dados restaurados"); render(); };
+  if(br) br.onclick=()=>{
+    if(!confirm("Restaurar o cadastro oficial do app? Os lançamentos feitos depois serão apagados.")) return;
+    state=JSON.parse(JSON.stringify(SEED)); state.rotinaFeita={}; save(); toast("Dados restaurados"); render();
+  };
 }
 
 (function swipeMenu(){
