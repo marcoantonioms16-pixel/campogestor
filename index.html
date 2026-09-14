@@ -1047,7 +1047,7 @@ function render(){
     // Bloco resumo
     html+=`<div class="grid2">
       <button class="stat" data-hoje="diesel" style="text-align:left;border:1px solid var(--border)">
-        <div class="lbl">⛽ Diesel · inventário</div><div class="val">${n(dieselLitros,0)} L</div><div class="muted">${dieselPct}% do tanque · sincronizado com estoque${dieselPct<30?" · baixo":""}</div>
+        <div class="lbl">⛽ Diesel · inventário</div><div class="val">${n(dieselLitros,0)} L</div><div class="muted">${dieselPct}% do tanque${dieselPct<30?" · baixo":""}</div>
       </button>
       <button class="stat" data-hoje="chuva" style="text-align:left;border:1px solid var(--border)">
         <div class="lbl">🌧 Última chuva</div><div class="val">${ultimaChuva ? n(ultimaChuva.mm,1)+" mm" : "—"}</div><div class="muted">${ultimaChuva ? (diasAtras(ultimaChuva.data,hoje)===0?"hoje":diasAtras(ultimaChuva.data,hoje)===1?"há 1 dia":"há "+diasAtras(ultimaChuva.data,hoje)+" dias") : "sem registro"}</div>
@@ -1671,16 +1671,15 @@ function bind(){
     b.onclick=()=>{
       const v=b.getAttribute("data-cat-maq")||"todos";
       if(v==="todos"){ catMaq="todos"; catFaz="todos"; }
-      else catMaq = (catMaq===v ? "todos" : v);
+      else { catMaq = (catMaq===v ? "todos" : v); }
       render();
     };
   });
   document.querySelectorAll("[data-cat-faz]").forEach(b=>{
-    if(b.hasAttribute("data-cat-maq")) return;
     b.onclick=()=>{
-      const v=b.getAttribute("data-cat-faz");
-      catFaz = (catFaz===v ? "todos" : v);
-      catMaq="todos";
+      const v=b.getAttribute("data-cat-faz")||"todos";
+      if(v==="todos"){ catMaq="todos"; catFaz="todos"; }
+      else { catFaz = (catFaz===v ? "todos" : v); }
       render();
     };
   });
