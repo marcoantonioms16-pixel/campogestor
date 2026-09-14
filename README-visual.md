@@ -17,3 +17,8 @@ A imagem usada na abertura já está dentro do projeto em `assets/splash-fazenda
 ## Segurança da alteração
 
 Os arquivos JavaScript foram verificados com `node --check`. A lógica de dados, Supabase e renderização existente foi preservada; as mudanças principais são de apresentação e navegação visual.
+
+
+## Visual total
+
+Esta versão aplica a linguagem visual inspirada no mockup aprovado, com fundo agrícola visível, superfícies translúcidas, navegação inferior, cards premium e chips padronizados. A lógica das telas foi preservada.
