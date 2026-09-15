@@ -39,9 +39,6 @@ window.CampoGestorTelas.frota = function() {
       return okT && okF && okQ;
     });
     html +=headerBar(`Máquinas · ${lista.length}/${state.maquinas.length}`,"Frota");
-    html +=`<div class="page-actions">
-      <button type="button" class="btn primary sm" data-new="maquina">+ Nova</button>
-    </div>`;
     html +=`<div class="chips-row">
       <div class="chips">
         <button type="button" class="chip ${catMaq==="todos"&&catFaz==="todos"?"on":""}" data-cat-maq="todos" data-cat-faz="todos">Todos</button>`;
@@ -53,6 +50,7 @@ window.CampoGestorTelas.frota = function() {
       html +=`<button type="button" class="chip ${catMaq===t?"on":""}" data-cat-maq="${t}">${TIPO_MAQ[t]||t}</button>`;
     });
     html +=`</div>
+      <button type="button" class="btn primary sm" data-new="maquina">+ Nova</button>
       <button type="button" class="search-icon-btn ${qMaq?"on":""}" id="btn-search-frota" aria-label="Pesquisar">🔍</button>`;
     if(qMaq || (typeof frotaBuscaAberta!=="undefined" && frotaBuscaAberta)){
       html +=`<div class="search-expand"><input id="q-maq" placeholder="Nome, código, marca, fazenda..." value="${esc(qMaq)}"/></div>`;

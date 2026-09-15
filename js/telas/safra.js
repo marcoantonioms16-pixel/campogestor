@@ -72,24 +72,22 @@ window.CampoGestorTelas.safra = function() {
         ${st==="concluido"&&getStDate("fer",i)?`<p class="muted">Concluído em ${getStDate("fer",i).split("-").reverse().join("/")}</p>`:""}
       </div>`;
     });
-    // Plantio
+    // Plantio — um card por talhão
     html +=`<p class="sec">Plantio soja</p>`;
-    SAFRA.plantio.forEach((r,i)=>{
+    (state.talhoes||[]).forEach((t,i)=>{
       if(!matchFiltro("pla",i)) return;
       const st=getSt("pla",i);
-      const ov = (state.safraPlantio||{})[i] || {};
-      const cult = ov.cultivar || r.cultivar;
-      const semM = ov.sem_m || r.sem_m;
-      const semHa = ov.sem_ha || r.sem_ha;
+      const ov = (state.safraPlantio||{})[t.id] || {};
+      const seeds = (ov.sementes && ov.sementes.length) ? ov.sementes : [{cultivar: ov.cultivar || t.variedade || "—", qtd:"", un:"kg"}];
       html +=`<div class="card safra-item"><div class="safra-item-top">
-        <p class="card-title">${esc(r.talhoes)}</p>
+        <p class="card-title">${esc(t.nome||t.codigo)}</p>
         <div class="safra-item-actions">
           <button type="button" class="badge ${stBadge[st]}" data-safra-st="pla" data-i="${i}">${stLabel[st]}</button>
-          <button type="button" class="btn sm" data-edit-plantio="${i}">✎</button>
+          <button type="button" class="btn sm" data-edit-plantio="${t.id}">✎</button>
         </div>
       </div>
-        <p class="muted">${n(r.ha,2)} ha · ${esc(cult)}</p>
-        <p class="muted">${esc(semM)} sem/m · ${esc(r.espac)} · ${esc(semHa)} sem/ha</p>
+        <p class="muted">${n(t.area,2)} ha · ${t.fazenda==="campo-alegre"?"Campo Alegre":"Santa Rita"}</p>
+        ${seeds.map(s=>`<p class="muted">${esc(s.cultivar||"—")}${s.qtd?` · ${esc(s.qtd)} ${esc(s.un||"")}`:""}</p>`).join("")}
         ${st==="concluido"&&getStDate("pla",i)?`<p class="muted">Concluído em ${getStDate("pla",i).split("-").reverse().join("/")}</p>`:""}
       </div>`;
     });
@@ -109,8 +107,8 @@ window.CampoGestorTelas.safra = function() {
     // Talhões
     html +=`<p class="sec">Talhões cadastrados</p><ul class="list card" style="padding:.25rem 1rem">`;
     state.talhoes.forEach(t=>{
-      const tag=t.fazenda==="campo-alegre"?"C. Alegre":"Sta Rita";
-      html +=`<li><div style="flex:1"><div style="font-weight:500">${esc(t.nome||t.codigo)}</div><div class="muted">${ha(t.area)} · ${esc(t.variedade||"")} · ${tag}</div></div></li>`;
+      const tag=t.fazenda==="campo-alegre"?"Campo Alegre":"Santa Rita";
+      html +=`<li><div style="flex:1"><div style="font-weight:500">${esc(t.nome||t.codigo)}</div><div class="muted">${ha(t.area)} · ${tag}</div></div></li>`;
     });
     html +=`</ul>`;
   return html;

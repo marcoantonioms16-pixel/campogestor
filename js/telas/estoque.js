@@ -11,15 +11,13 @@ window.CampoGestorTelas.estoque = function() {
       return okQ && okC;
     }).sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR"));
     html +=headerBar(`Almoxarifado · ${state.insumos.length} itens`,"Estoque");
-    html +=`<div class="page-actions">
-      <button type="button" class="btn primary sm" data-new="insumo">+ Novo</button>
-    </div>`;
     html +=`<button type="button" class="btn-lancamento" data-new="saida"><span>📋</span> Lançamento de entrada / saída</button>`;
     html +=`<div class="chips-row">
       <div class="chips">
         <button type="button" class="chip ${catInsumo==="todos"?"on":""}" data-cat="todos">Todos</button>`;
     CATS.forEach(c=>{ html +=`<button type="button" class="chip ${catInsumo===c?"on":""}" data-cat="${c}">${CAT[c]}</button>`; });
     html +=`</div>
+      <button type="button" class="btn primary sm" data-new="insumo">+ Novo</button>
       <button type="button" class="search-icon-btn ${estoqueBuscaAberta?"on":""}" id="btn-search-estoque" aria-label="Pesquisar">🔍</button>`;
     if(estoqueBuscaAberta){
       html +=`<div class="search-expand"><input id="q-insumo" placeholder="Nome, ativo ou código..." value="${esc(qInsumo)}"/></div>`;
@@ -61,7 +59,8 @@ window.CampoGestorTelas.estoque = function() {
           ${s.extra?`<div class="muted">${esc(s.extra)}</div>`:""}
           ${sraw.tipo==="Empréstimo" && !sraw.devolvido?`<button type="button" class="btn sm primary" style="margin-top:.3rem" data-devolver="${sraw.id}">✓ Devolvido</button>`:""}
           ${sraw.devolvido?'<span class="badge ok">Devolvido</span>':""}
-        </div></li>`;
+        </div>
+        ${sraw.id?`<button type="button" class="btn sm" data-del-mov="${sraw.id}" data-del-origem="${s.sentido==="entrou" && (sraw.tipo||s.tipo)==="Entrada"?"entradas":"saidas"}">Excluir</button>`:""}</li>`;
       });
       html +=`</ul>`;
     }

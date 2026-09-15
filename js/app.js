@@ -644,7 +644,30 @@ function exportCSV(filename, rows){
   const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=filename; a.click();
   toast("Arquivo gerado: "+filename);
 }
-function toast(msg){ let el=document.getElementById("toast"); if(!el){ el=document.createElement("div"); el.id="toast"; el.className="toast"; document.body.appendChild(el);} el.textContent=msg; el.classList.remove("hidden"); clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.add("hidden"),2000); }
+function toast(msg){ let el=document.getElementById("toast"); if(!el){ el=document.createElement("div"); el.id="toast"; el.className="toast"; document.body.appendChild(el);} el.textContent=msg; el.classList.remove("hidden"); clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.add("hidden"),2800); }
+function acharInsumoCatalogo(nome){
+  const q=String(nome||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
+  if(q.length<3) return null;
+  const pool=[...(SEED.insumos||[]),...((state&&state.insumos)||[])];
+  return pool.find(i=>{
+    const n=String(i.nome||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+    return n===q || n.startsWith(q) || q.startsWith(n);
+  }) || null;
+}
+async function copiarTexto(txt){
+  txt=String(txt||"");
+  try{
+    if(navigator.clipboard && window.isSecureContext){ await navigator.clipboard.writeText(txt); return true; }
+  }catch(e){}
+  try{
+    const ta=document.createElement("textarea");
+    ta.value=txt; ta.setAttribute("readonly",""); ta.style.position="fixed"; ta.style.left="-9999px";
+    document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0,txt.length);
+    const ok=document.execCommand("copy");
+    document.body.removeChild(ta);
+    return ok;
+  }catch(e){ return false; }
+}
 
 function notifyRotina(){
   if(!("Notification" in window) || Notification.permission!=="granted") return;
@@ -862,16 +885,23 @@ function renderDrawer(){
       <button type="button" class="btn primary block" id="e-save">Salvar lançamento</button>`;
   }
   if(edit.kind==="edit-plantio"){
-    const idx=Number(edit.id);
-    const r=SAFRA.plantio[idx]||{};
-    const ov=(state.safraPlantio||{})[idx]||{};
-    const cults=["76KA72 CE","Raptor I2X","NEO761 I2X","NEO700 I2X","DM 72IX74 I2X","ST 752 I2X","RAPTOR I2X"];
-    const curCult=ov.cultivar||r.cultivar||"";
-    body=`<h2>Editar plantio</h2>
-      <p class="muted" style="margin-bottom:.6rem">${esc(r.talhoes||"")} · ${n(r.ha||0,2)} ha</p>
-      <div class="field"><label>Cultivar / semente</label><select id="e-cult">${cults.map(c=>`<option value="${c}" ${curCult===c?"selected":""}>${c}</option>`).join("")}</select></div>
-      <div class="field"><label>Sementes por metro (sem/m)</label><input id="e-semm" value="${esc(ov.sem_m||r.sem_m||"")}"/></div>
-      <div class="field"><label>Sementes por hectare (sem/ha)</label><input id="e-semha" value="${esc(ov.sem_ha||r.sem_ha||"")}"/></div>
+    const tid=String(edit.id||"");
+    const t=(state.talhoes||[]).find(x=>x.id===tid)||{};
+    const ov=(state.safraPlantio||{})[tid]||{};
+    const cults=["76KA72 CE","Raptor I2X","NEO761 I2X","NEO700 I2X","DM 72IX74 I2X","ST 752 I2X"];
+    const seeds=(ov.sementes && ov.sementes.length)?ov.sementes:[{cultivar:ov.cultivar||t.variedade||cults[0], qtd:ov.qtd||"", un:ov.un||"kg"}];
+    const linha=(s)=>`<div class="saida-linha plantio-semente">
+        <select class="e-cult">${cults.map(c=>`<option value="${c}" ${(s.cultivar||"")===c?"selected":""}>${c}</option>`).join("")}</select>
+        <input class="e-qtd" inputmode="decimal" placeholder="Qtd plantada" value="${esc(s.qtd||"")}"/>
+        <select class="e-un"><option value="kg" ${(s.un||"kg")==="kg"?"selected":""}>kg</option><option value="sc" ${s.un==="sc"?"selected":""}>sc</option><option value="bags" ${s.un==="bags"?"selected":""}>bags</option></select>
+      </div>`;
+    body=`<h2>Plantio do talhão</h2>
+      <p class="muted" style="margin-bottom:.6rem">${esc(t.nome||t.codigo||"")} · ${n(t.area||0,2)} ha</p>
+      <div class="field"><label>Semente e quantidade plantada</label>
+        <div id="plantio-sementes">${seeds.map(linha).join("")}</div>
+        <button type="button" class="btn sm" id="add-semente-talhao" style="margin-top:.3rem">+ Outra semente</button>
+      </div>
+      <p class="muted">Use + Outra semente se o talhão recebeu 2 ou mais cultivares.</p>
       <button type="button" class="btn primary block" id="e-save-plantio">Salvar</button>`;
   }
   if(edit.kind==="cel-folga"){
@@ -940,19 +970,20 @@ function renderDrawer(){
           <small>de ${n(cap,0)} L de capacidade</small>
         </div>
       </div>
-      <p class="muted" style="text-align:center">Saldo puxado automaticamente do inventário de combustível.</p>`;
+      `;
   }
   if(edit.kind==="hoje-chuva"){
     const lista=(state.chuva||[]).slice().sort((a,b)=>(b.data||"").localeCompare(a.data||""));
     const u=lista[0];
-    body=`<h2>Última chuva</h2>
-      ${u?`<p style="font-size:1.4rem;font-weight:500">${n(u.mm,1)} mm</p><p class="muted">${(u.data||"").split("-").reverse().join("/")}${u.obs?" · "+esc(u.obs):""}</p>`:`<p class="muted">Sem registro ainda.</p>`}`;
+    body=`<h2>Chuva registrada</h2>
+      ${u?`<p style="font-size:1.4rem;font-weight:500">${n(u.mm,1)} mm</p><p class="muted">${(u.data||"").split("-").reverse().join("/")}${u.obs?" · "+esc(u.obs):""}</p>`:`<p class="muted">Sem registro ainda.</p>`}
+      <button type="button" class="btn primary block" data-go="chuva" style="margin-top:.8rem">Abrir pluviometria</button>`;
   }
   if(edit.kind==="hoje-area"){
-    const ts=(state.talhoes||[]).slice().sort((a,b)=>String(a.codigo||a.nome).localeCompare(String(b.codigo||b.nome),"pt-BR"));
+    const ts=(state.talhoes||[]).slice().sort((a,b)=>String(a.nome||a.codigo).localeCompare(String(b.nome||b.codigo),"pt-BR"));
     body=`<h2>Área cadastrada</h2>
-      <p style="margin-bottom:.5rem"><b>${n(state.farm.areaTotal,0)} ha</b> · ${ts.length} talhões</p>
-      <ul class="list" style="margin-top:.4rem">${ts.map(t=>`<li><div style="flex:1"><div style="font-weight:600">${esc(nomeTalhao(t))}</div><div class="muted">${esc(t.codigo||"")}${t.variedade?" · "+esc(t.variedade):""}</div></div><div style="font-weight:600">${n(t.area,2)} ha</div></li>`).join("")||'<li class="muted">Sem talhões</li>'}</ul>`;
+      <p style="margin-bottom:.5rem"><b>${n(state.farm.areaTotal,2)} ha</b> · ${ts.length} talhões</p>
+      <ul class="list area-talhoes" style="margin-top:.4rem">${ts.map(t=>`<li><div style="flex:1"><div style="font-weight:600">${esc(t.nome||t.codigo)}</div></div><div style="font-weight:600">${n(t.area,2)} ha</div></li>`).join("")||'<li class="muted">Sem talhões</li>'}</ul>`;
   }
   if(edit.kind==="hoje-clima"){
     const w=lastWeather || weatherCached();
@@ -1079,7 +1110,7 @@ function render(){
     {id:"folgas",ic:"📅",label:"Folgas"},
     {id:"equatorial",ic:"⚡",label:"Energia"},
     {id:"extintores",ic:"🧯",label:"Extintores"},
-    {id:"mais",ic:"⋯",label:"Mais"},
+    {id:"mais",ic:"🏡",label:"Fazenda"},
   ];
   html+=`<div class="menu-overlay ${menuOpen?"open":""}" id="side-bg" aria-hidden="${menuOpen?"false":"true"}"></div>`;
   if(menuOpen){
@@ -1123,7 +1154,7 @@ function bind(){
       const k=b.getAttribute("data-hoje");
       if(k==="equipe"){ page="pessoas"; edit=null; menuOpen=false; render(); return; }
       if(k==="diesel"){ edit={kind:"hoje-diesel"}; render(); return; }
-      if(k==="chuva"){ page="chuva"; edit=null; menuOpen=false; render(); return; }
+      if(k==="chuva"){ edit={kind:"hoje-chuva"}; render(); return; }
       if(k==="area"){ edit={kind:"hoje-area"}; render(); return; }
       if(k==="tarefas"){ edit={kind:"hoje-tarefas"}; render(); return; }
     };
@@ -1564,20 +1595,41 @@ function bind(){
     if(wa) state.farm.whatsappClara=wa.value.replace(/\D/g,"");
     save(); toast("Fazenda atualizada"); closeEdit();
   };
+  const addSem=document.getElementById("add-semente-talhao");
+  if(addSem) addSem.onclick=()=>{
+    const box=document.getElementById("plantio-sementes");
+    if(!box) return;
+    const first=box.querySelector(".plantio-semente");
+    if(first) box.appendChild(first.cloneNode(true));
+  };
   const ep=document.getElementById("e-save-plantio");
   if(ep) ep.onclick=()=>{
     if(!state.safraPlantio) state.safraPlantio={};
-    const idx=Number(edit.id);
-    state.safraPlantio[idx]={
-      cultivar:document.getElementById("e-cult").value,
-      sem_m:document.getElementById("e-semm").value.trim(),
-      sem_ha:document.getElementById("e-semha").value.trim()
-    };
-    save(); toast("Plantio atualizado"); closeEdit();
+    const tid=String(edit.id||"");
+    const sementes=[...document.querySelectorAll("#plantio-sementes .plantio-semente")].map(ln=>({
+      cultivar:(ln.querySelector(".e-cult")||{}).value||"",
+      qtd:((ln.querySelector(".e-qtd")||{}).value||"").trim(),
+      un:(ln.querySelector(".e-un")||{}).value||"kg"
+    })).filter(s=>s.cultivar);
+    state.safraPlantio[tid]={ sementes, cultivar:(sementes[0]||{}).cultivar||"" };
+    save(); toast("Plantio do talhão atualizado"); closeEdit();
   };
   const bn=document.getElementById("btn-notif");
-  if(bn) bn.onclick=()=>{ if(!("Notification" in window)){ toast("Sem suporte a notificação"); return; }
-    Notification.requestPermission().then(p=>{ if(p==="granted"){ toast("Avisos ativados"); new Notification("CampoGestor",{body:"Aniversários ativos"}); } else toast("Permissão negada"); }); };
+  if(bn) bn.onclick=()=>{
+    const hoje=hojeISO();
+    const ativos=(state.pessoas||[]).filter(p=>p.tipo!=="encerrado" && p.nascimento);
+    const hojeN=ativos.filter(p=>aniversarioHoje(p.nascimento,hoje));
+    const prox=ativos.filter(p=>!aniversarioHoje(p.nascimento,hoje) && aniversarioEmAte(p.nascimento,15,hoje));
+    let msg = hojeN.length ? ("Hoje: "+hojeN.map(p=>p.nome).join(", ")) : "Nenhum aniversário hoje.";
+    if(prox.length) msg += " · Próximos 15 dias: "+prox.map(p=>p.nome+" ("+dataNascimentoFmt(p.nascimento)+")").join(", ");
+    toast(msg);
+    if(!("Notification" in window)) return;
+    Notification.requestPermission().then(p=>{
+      if(p==="granted"){
+        try{ new Notification("CampoGestor — aniversários",{body:msg}); }catch(e){}
+      }
+    });
+  };
 
   const bex=document.getElementById("btn-exp-folgas");
   if(bex) bex.onclick=()=>{
@@ -1594,8 +1646,49 @@ function bind(){
     exportCSV("protocolos-equatorial.csv", rows);
   };
   document.querySelectorAll("[data-copy]").forEach(b=>{
-    b.onclick=async()=>{ try{ await navigator.clipboard.writeText(b.getAttribute("data-copy")); toast("UC copiada"); }catch(e){ toast(b.getAttribute("data-copy")); } };
+    b.onclick=async()=>{
+      const txt=b.getAttribute("data-copy")||"";
+      const ok=await copiarTexto(txt);
+      const kind=b.getAttribute("data-copy-kind")||"";
+      toast(ok ? (kind==="carteira"?"Carteira copiada":kind==="uc"?"UC copiada":"Copiado") : txt);
+    };
   });
+  document.querySelectorAll("[data-del-mov]").forEach(b=>{
+    b.onclick=()=>{
+      const id=b.getAttribute("data-del-mov");
+      const origem=b.getAttribute("data-del-origem")||"saidas";
+      if(!confirm("Excluir este lançamento?")) return;
+      if(origem==="entradas") state.entradas=(state.entradas||[]).filter(x=>x.id!==id);
+      else state.saidas=(state.saidas||[]).filter(x=>x.id!==id);
+      save(); toast("Lançamento excluído"); render();
+    };
+  });
+  const euc=document.getElementById("e-uc");
+  if(euc){
+    const fillLocal=()=>{
+      const eq=state.equatorial||SEED.equatorial;
+      const u=(eq.ucs||[]).find(x=>String(x.uc)===String(euc.value));
+      const loc=document.getElementById("e-local");
+      if(loc && u) loc.value=u.unid||u.desc||loc.value;
+    };
+    euc.onchange=fillLocal;
+    if(edit && edit.kind==="novo-protocolo") fillLocal();
+  }
+  const enome=document.getElementById("e-nome");
+  if(enome && edit && (edit.kind==="novo-insumo"||edit.kind==="insumo")){
+    enome.addEventListener("input",()=>{
+      const hit=acharInsumoCatalogo(enome.value);
+      if(!hit) return;
+      const cat=document.getElementById("e-cat");
+      const tec=document.getElementById("e-tec");
+      const tip=document.getElementById("e-tipodef");
+      const un=document.getElementById("e-un");
+      if(cat && hit.categoria) cat.value=hit.categoria;
+      if(tec && hit.tecnico) tec.value=hit.tecnico;
+      if(tip && hit.tipoDef) tip.value=hit.tipoDef;
+      if(un && hit.unidade) un.value=hit.unidade;
+    });
+  }
 
 
   const bl=document.getElementById("btn-login");

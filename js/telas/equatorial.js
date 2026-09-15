@@ -12,15 +12,15 @@ window.CampoGestorTelas.equatorial = function() {
     html +=`<div class="card energia-card">
       <p class="card-title">Atendimento Equatorial</p>
       <p class="energia-fone">${esc(eq.telefone||"0800-620-196")}</p>
-      <p class="muted">Ligue e anote o protocolo. Depois registre abaixo.</p>
-      <a class="btn primary block" style="margin-top:.7rem;text-align:center;text-decoration:none" id="btn-wa-clara" href="#">WhatsApp Clara</a>
+      <p class="energia-help">Ligue, anote o protocolo e registre abaixo.</p>
+      <a class="btn primary block btn-wa-grande" id="btn-wa-clara" href="#">WhatsApp Clara</a>
     </div>`;
     const ucKeep=["10026027184","980046051"];
     html +=`<p class="sec">Unidades consumidoras</p><ul class="list card" style="padding:.25rem 1rem">`;
     (eq.ucs||[]).filter(u=>ucKeep.includes(String(u.uc))).forEach(u=>{
       html +=`<li><div style="flex:1"><div style="font-weight:500">${esc(u.desc)}</div>
         <div class="muted">UC ${esc(u.uc)} · ${esc(u.unid)} · ${esc(u.titular)}</div></div>
-        <button type="button" class="btn sm" data-copy="${esc(u.uc)}">Copiar UC</button></li>`;
+        <button type="button" class="btn sm" data-copy="${esc(u.uc)}" data-copy-kind="uc">Copiar UC</button></li>`;
     });
     html +=`</ul>`;
     html +=`<p class="sec">Protocolos</p>

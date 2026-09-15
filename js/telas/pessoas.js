@@ -10,7 +10,7 @@ window.CampoGestorTelas.pessoas = function() {
       <button type="button" class="btn sm" id="btn-notif">Avisos de aniversário</button>
     </div>`;
     const ativos=state.pessoas.filter(p=>p.tipo!=="encerrado");
-    const exs=state.pessoas.filter(p=>p.tipo==="encerrado");
+    const exs=[];
     const sortFn=(a,b)=>{
       if(sortPessoas==="aniversario"){
         const ka=(a.nascimento||"99-12-31").slice(5);
@@ -36,7 +36,7 @@ window.CampoGestorTelas.pessoas = function() {
           ${tempo && p.tipo!=="encerrado"?`<div class="pessoa-meta">Tempo de casa: <b>${esc(tempo)}</b></div>`:""}
           ${p.carteira?`<div style="margin-top:.45rem;padding:.5rem .6rem;background:var(--elevated);border-radius:10px;display:flex;align-items:center;justify-content:space-between;gap:.5rem">
             <div><div class="muted" style="font-size:.7rem">Carteira Unimed</div><div style="font-weight:500">${esc(p.carteira)}</div></div>
-            <button type="button" class="btn sm" data-copy="${esc(p.carteira)}">Copiar</button>
+            <button type="button" class="btn sm" data-copy="${esc(p.carteira)}" data-copy-kind="carteira">Copiar</button>
           </div>`:`<div class="muted" style="margin-top:.35rem">Sem carteira</div>`}
         </div>
         <button type="button" class="btn sm" data-edit="pessoa" data-id="${p.id}">✎</button>

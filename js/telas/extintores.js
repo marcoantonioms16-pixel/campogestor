@@ -17,14 +17,14 @@ window.CampoGestorTelas.extintores = function() {
     const lista=state.extintores.filter(e=>catExt==="todos"||e.grupo===catExt)
       .slice().sort((a,b)=>String(a.local||a.maquina||"").localeCompare(b.local||b.maquina||"","pt-BR"));
     html +=headerBar("Prevenção","Extintores");
-    html +=`<div class="page-actions">
+    html +=`<div class="chips-row">
+      <div class="chips">
+        <button type="button" class="chip ${catExt==="todos"?"on":""}" data-cat-ext="todos">Todos</button>
+        <button type="button" class="chip ${catExt==="santa-rita"?"on":""}" data-cat-ext="santa-rita">Santa Rita</button>
+        <button type="button" class="chip ${catExt==="maquinario"?"on":""}" data-cat-ext="maquinario">Maquinário</button>
+      </div>
       <button type="button" class="btn sm" id="btn-xls-ext">Excel</button>
       <button type="button" class="btn primary sm" data-new="extintor">+ Novo</button>
-    </div>`;
-    html +=`<div class="chips" style="justify-content:center">
-      <button type="button" class="chip ${catExt==="todos"?"on":""}" data-cat-ext="todos">Todos</button>
-      <button type="button" class="chip ${catExt==="santa-rita"?"on":""}" data-cat-ext="santa-rita">Santa Rita</button>
-      <button type="button" class="chip ${catExt==="maquinario"?"on":""}" data-cat-ext="maquinario">Maquinário</button>
     </div>`;
     html +=`<p class="sub">${lista.length} aparelho(s)</p>`;
     html +=`<ul class="list card" style="padding:.25rem 1rem">`;
