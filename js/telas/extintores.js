@@ -28,6 +28,7 @@ window.CampoGestorTelas.extintores = function() {
     </div>`;
     html +=`<p class="sub">${lista.length} aparelho(s)</p>`;
     html +=`<ul class="list card" style="padding:.25rem 1rem">`;
+    if(!lista.length) html +=`<li class="empty-state"><span class="empty-ico">🧯</span><b>Nenhum extintor neste filtro</b><span>Cadastre ou mude o filtro.</span></li>`;
     if(!lista.length) html +=`<li class="muted">Nenhum extintor neste filtro.</li>`;
     lista.forEach(e=>{
       const st=stOf(e);

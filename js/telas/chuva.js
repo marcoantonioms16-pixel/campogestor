@@ -24,10 +24,10 @@ window.CampoGestorTelas.chuva = function() {
       </div>`;
     }
     html +=`<p class="sec">Histórico</p><ul class="list card chuva-hist">`;
-    if(!lista.length) html +=`<li class="muted">Nenhum registro ainda.</li>`;
+    if(!lista.length) html +=`<li class="empty-state"><span class="empty-ico">🌧</span><b>Nenhuma chuva registrada</b><span>Toque em + Nova para lançar mm.</span></li>`;
     lista.forEach(c=>{
-      html +=`<li><div style="flex:1"><div style="font-weight:500">${n(c.mm,1)} mm</div>
-        <div class="muted">${(c.data||"").split("-").reverse().join("/")}${c.obs?" · "+esc(c.obs):""}</div></div>
+      html +=`<li><div style="flex:1;min-width:0"><div class="list-title">${n(c.mm,1)} mm</div>
+        <div class="list-sub muted">${(c.data||"").split("-").reverse().join("/")}${c.obs?" · "+esc(c.obs):""}</div></div>
         <button type="button" class="btn sm" data-edit="chuva" data-id="${c.id}">✎</button></li>`;
     });
     html +=`</ul>`;

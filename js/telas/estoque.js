@@ -26,12 +26,16 @@ window.CampoGestorTelas.estoque = function() {
     }
     html +=`</div>`;
     html +=`<ul class="list card" style="padding:.25rem 1rem">`;
-    if(!lista.length) html +=`<li class="muted">Nenhum insumo encontrado.</li>`;
+    if(!lista.length) html +=`<li class="empty-state"><span class="empty-ico">📦</span><b>Nenhum insumo neste filtro</b><span>Ajuste o filtro ou cadastre um novo item.</span></li>`;
     lista.forEach(i=>{
-      html +=`<li><div style="flex:1"><div style="font-weight:500">${esc(i.nome)}</div>
-        <div class="muted">${i.codigo?("Cód. "+esc(i.codigo)+" · "):""}${esc(i.tipoDef||CAT[i.categoria]||"")} · ${esc(i.tecnico||"—")}</div></div>
-        <div style="text-align:right"><div style="font-weight:500">${n(i.quantidade,i.quantidade>=100?0:1)} ${esc(i.unidade)}</div></div>
-        <button type="button" class="btn sm" data-edit="insumo" data-id="${i.id}">✎</button></li>`;
+      html +=`<li>
+        <div style="flex:1;min-width:0">
+          <div class="list-title">${esc(i.nome)}</div>
+          <div class="muted list-sub">${i.codigo?("Cód. "+esc(i.codigo)+" · "):""}${esc(i.tipoDef||CAT[i.categoria]||"")} · ${esc(i.tecnico||"—")}</div>
+        </div>
+        <div style="text-align:right;flex:0 0 auto"><div style="font-weight:700;color:#173f2f">${n(i.quantidade,i.quantidade>=100?0:1)} ${esc(i.unidade)}</div></div>
+        <button type="button" class="btn sm" data-edit="insumo" data-id="${i.id}">✎</button>
+      </li>`;
     });
     html +=`</ul>`;
     // Histórico entra / sai

@@ -22,250 +22,6 @@ function sincronizaDieselInventario(){
   return d;
 }
 
-function sbHeaders(token) {
-  const h = {
-    "apikey": SB_KEY,
-    "Content-Type": "application/json",
-  };
-  if (token) h["Authorization"] = "Bearer " + token;
-  else h["Authorization"] = "Bearer " + SB_KEY;
-  return h;
-}
-
-function loadSession() {
-  try { return JSON.parse(localStorage.getItem(SB_AUTH_KEY) || "null"); } catch(e) { return null; }
-}
-function saveSession(sess) {
-  if (sess) localStorage.setItem(SB_AUTH_KEY, JSON.stringify(sess));
-  else localStorage.removeItem(SB_AUTH_KEY);
-}
-
-async function sbSignup(email, password) {
-  const res = await fetch(SB_URL + "/auth/v1/signup", {
-    method: "POST",
-    headers: sbHeaders(),
-    body: JSON.stringify({ email, password }),
-  });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error_description || data.msg || data.error || data.message || ("Erro " + res.status));
-  if (data.access_token) {
-    saveSession(data);
-    sbUser = data.user;
-  } else if (data.user) {
-    // email confirmation required — try login anyway or inform
-    sbUser = data.user;
-    if (data.session && data.session.access_token) {
-      saveSession(data.session);
-    }
-  }
-  return data;
-}
-
-async function sbLogin(email, password) {
-  const res = await fetch(SB_URL + "/auth/v1/token?grant_type=password", {
-    method: "POST",
-    headers: sbHeaders(),
-    body: JSON.stringify({ email, password }),
-  });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    const msg = data.error_description || data.msg || data.error || data.message || ("Erro " + res.status);
-    if (String(msg).toLowerCase().includes("confirm") || String(msg).toLowerCase().includes("email")) {
-      throw new Error("E-mail ainda não confirmado. No Supabase: Authentication → Users → confirme o usuário, ou desligue Confirm email.");
-    }
-    throw new Error(msg);
-  }
-  saveSession(data);
-  sbUser = data.user;
-  const pulled = await pullCloud();
-  if (pulled === true) {
-    cloudStatus = "synced";
-  } else if (pulled === false) {
-    // Primeiro acesso sem cadastro na nuvem: preserva o que está neste aparelho.
-    await pushCloud();
-  } else {
-    // Erro de leitura: não sobrescreve a nuvem com dados locais.
-    cloudStatus = "error";
-  }
-  return data;
-}
-
-async function sbLogout() {
-  const sess = loadSession();
-  if (sess && sess.access_token) {
-    try {
-      await fetch(SB_URL + "/auth/v1/logout", { method: "POST", headers: sbHeaders(sess.access_token) });
-    } catch(e) {}
-  }
-  saveSession(null);
-  sbUser = null;
-  cloudStatus = "local";
-}
-
-async function sbRefreshSession(sess) {
-  if (!sess || !sess.refresh_token) return null;
-  try {
-    const res = await fetch(SB_URL + "/auth/v1/token?grant_type=refresh_token", {
-      method: "POST",
-      headers: sbHeaders(),
-      body: JSON.stringify({ refresh_token: sess.refresh_token }),
-    });
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok || !data.access_token) return null;
-    // Mantém refresh_token se a API não devolver um novo
-    if (!data.refresh_token && sess.refresh_token) data.refresh_token = sess.refresh_token;
-    saveSession(data);
-    return data;
-  } catch (e) {
-    console.warn("refresh session", e);
-    return null;
-  }
-}
-
-async function initAuth() {
-  let sess = loadSession();
-  if (!sess || (!sess.access_token && !sess.refresh_token)) return;
-  try {
-    // 1) tenta validar access_token atual
-    let user = null;
-    if (sess.access_token) {
-      const res = await fetch(SB_URL + "/auth/v1/user", { headers: sbHeaders(sess.access_token) });
-      if (res.ok) {
-        user = await res.json();
-      }
-    }
-    // 2) se expirou, renova com refresh_token (não desloga na atualização do app)
-    if (!user) {
-      const refreshed = await sbRefreshSession(sess);
-      if (!refreshed || !refreshed.access_token) {
-        // só limpa se realmente não der para renovar
-        saveSession(null);
-        return;
-      }
-      sess = refreshed;
-      const res2 = await fetch(SB_URL + "/auth/v1/user", { headers: sbHeaders(sess.access_token) });
-      if (!res2.ok) { saveSession(null); return; }
-      user = await res2.json();
-    }
-    sbUser = user;
-    await pullCloud();
-  } catch (e) {
-    console.warn(e);
-  }
-}
-
-async function pushCloud() {
-  if (!sbUser) return;
-  const sess = loadSession();
-  if (!sess || !sess.access_token) return;
-  try {
-    cloudStatus = "syncing";
-    const payload = { user_id: sbUser.id, data: state, updated_at: new Date().toISOString() };
-    const res = await fetch(SB_URL + "/rest/v1/app_state?on_conflict=user_id", {
-      method: "POST",
-      headers: Object.assign(sbHeaders(sess.access_token), {
-        "Prefer": "resolution=merge-duplicates,return=minimal",
-      }),
-      body: JSON.stringify(payload),
-    });
-    if (!res.ok) {
-      const t = await res.text();
-      throw new Error(t || ("HTTP " + res.status));
-    }
-    cloudStatus = "synced";
-  } catch(e) {
-    console.warn("cloud save", e);
-    cloudStatus = "error";
-    cloudError = (e && e.message) ? e.message : String(e);
-  }
-  const el = document.getElementById("cloud-status");
-  if (el) el.textContent = cloudLabel();
-}
-
-async function pullCloud() {
-  if (!sbUser) return false;
-  const sess = loadSession();
-  if (!sess || !sess.access_token) return false;
-  try {
-    const res = await fetch(SB_URL + "/rest/v1/app_state?user_id=eq." + encodeURIComponent(sbUser.id) + "&select=data,updated_at", {
-      headers: sbHeaders(sess.access_token),
-    });
-    if (!res.ok) throw new Error("HTTP " + res.status);
-    const rows = await res.json();
-    if (rows && rows[0] && rows[0].data) {
-      const data = rows[0].data;
-      state = {
-        ...JSON.parse(JSON.stringify(SEED)),
-        ...data,
-        farm: { ...SEED.farm, ...(data.farm || {}) },
-        diesel: { ...SEED.diesel, ...(data.diesel || {}) },
-      };
-      sincronizaDieselInventario();
-      if (!state.sementes) state.sementes = [];
-      if (!state.folgas) state.folgas = [];
-      if (!state.equatorial) state.equatorial = SEED.equatorial;
-      localStorage.setItem(KEY, JSON.stringify(state));
-      cloudStatus = "synced";
-      return true;
-    }
-  } catch(e) {
-    console.warn("cloud pull", e);
-    cloudStatus = "error";
-    cloudError = (e && e.message) ? e.message : String(e);
-    return null;
-  }
-  return false;
-}
-
-function load(){
-  try{
-    const raw = localStorage.getItem(KEY);
-    if(raw){
-      const d = JSON.parse(raw);
-      return {
-        ...JSON.parse(JSON.stringify(SEED)),
-        ...d,
-        farm:{...SEED.farm, ...(d.farm||{})},
-        diesel:{...SEED.diesel, ...(d.diesel||{})},
-        insumos: Array.isArray(d.insumos) ? d.insumos : SEED.insumos,
-        maquinas: Array.isArray(d.maquinas) ? d.maquinas : SEED.maquinas,
-        pessoas: d.pessoas && d.pessoas.length ? d.pessoas : SEED.pessoas,
-        talhoes: d.talhoes && d.talhoes.length ? d.talhoes : SEED.talhoes,
-        extintores: d.extintores && d.extintores.length ? d.extintores : (SEED.extintores||[]),
-        sementes: Array.isArray(d.sementes) ? d.sementes : (SEED.sementes||[]),
-        folgas: Array.isArray(d.folgas) ? d.folgas : (SEED.folgas||[]),
-        chuva: Array.isArray(d.chuva) ? d.chuva : (SEED.chuva||[]),
-        saidas: Array.isArray(d.saidas) ? d.saidas : (SEED.saidas||[]),
-        safraStatus: d.safraStatus || {},
-        safraPlantio: d.safraPlantio || {},
-        equatorial: d.equatorial || SEED.equatorial,
-        rotinaFeita: d.rotinaFeita || {},
-      };
-    }
-  }catch(e){}
-  return JSON.parse(JSON.stringify(SEED));
-}
-function save(){
-  sincronizaDieselInventario();
-  localStorage.setItem(KEY, JSON.stringify(state));
-  scheduleCloudSave();
-}
-let cloudTimer=null;
-function scheduleCloudSave(){
-  if(!sbUser) return;
-  cloudStatus="syncing";
-  clearTimeout(cloudTimer);
-  cloudTimer=setTimeout(pushCloud, 800);
-}
-
-
-function cloudLabel(){
-  if(!sbUser) return "Só neste aparelho (não logado)";
-  if(cloudStatus==="syncing") return "Salvando na nuvem…";
-  if(cloudStatus==="synced") return "Sincronizado na nuvem ✓ · " + (sbUser.email||"");
-  if(cloudStatus==="error") return "Erro sync: " + (cloudError || "falha") + " — dados locais ok";
-  return "Logado: "+(sbUser.email||"");
-}
 function uid(){ return (crypto.randomUUID && crypto.randomUUID()) || ("id-"+Date.now()+"-"+Math.random().toString(16).slice(2)); }
 
 const PROFILE_KEY = "campogestor_perfil_atual_v1";
@@ -350,6 +106,8 @@ async function atualizarPrevisaoChuva(){
 }
 
 function perfilCloudResumo(){
+  if(typeof isAppOnline === "function" && !isAppOnline()) return "Sem internet · dados neste aparelho";
+  if(cloudStatus === "offline") return "Sem internet · dados neste aparelho";
   if(!sbUser) return "Somente neste aparelho";
   if(cloudStatus === "syncing") return "Sincronizando com a nuvem…";
   if(cloudStatus === "synced") return "Sincronizado agora";
@@ -359,9 +117,6 @@ function perfilCloudResumo(){
 
 let state = load();
 sincronizaDieselInventario();
-let sbUser = null;
-let cloudStatus = "local"; // local | syncing | synced | error
-let cloudError = "";
 
 let page = "hoje";
 let menuOpen = false;
@@ -1131,6 +886,10 @@ function render(){
   const root=document.getElementById("app");
   const hoje=hojeISO();
   let html="";
+  const offline = (typeof isAppOnline === "function" && !isAppOnline()) || cloudStatus === "offline";
+  if (offline) {
+    html += `<div class="net-banner" role="status">Sem internet · mostrando dados salvos neste aparelho</div>`;
+  }
 
   const renderers = window.CampoGestorTelas || {};
   const renderPage = renderers[page];
@@ -1831,93 +1590,22 @@ document.addEventListener("keydown", e=>{
 });
 
 /* Gestos padrão: swipe menu + pull-to-refresh */
-(function gestosApp(){
-  let x0=null, y0=null, t0=0;
-  let ptrActive=false;
-  let ptrEl=null;
-  function ensurePtr(){
-    if(ptrEl) return ptrEl;
-    ptrEl=document.createElement("div");
-    ptrEl.className="ptr-indicator";
-    ptrEl.textContent="Atualizar";
-    document.body.appendChild(ptrEl);
-    return ptrEl;
-  }
-  function setPtr(state, text){
-    const el=ensurePtr();
-    el.textContent=text||"Atualizar";
-    el.classList.toggle("visible", state==="pull"||state==="release");
-    el.classList.toggle("refreshing", state==="refresh");
-    if(state==="hide"){ el.classList.remove("visible","refreshing"); }
-  }
-  document.addEventListener("touchstart",e=>{
-    if(e.touches.length!==1) return;
-    // não interferir em inputs / scroll horizontal de tabelas
-    const tag=(e.target&&e.target.tagName||"").toLowerCase();
-    if(tag==="input"||tag==="textarea"||tag==="select") return;
-    const t=e.touches[0];
-    x0=t.clientX; y0=t.clientY; t0=Date.now();
-    ptrActive=false;
-  },{passive:true});
-  document.addEventListener("touchmove",e=>{
-    if(x0==null||y0==null) return;
-    if(menuOpen) return;
-    const t=e.touches[0];
-    const dy=t.clientY-y0;
-    const dx=t.clientX-x0;
-    const scrollY=window.scrollY||document.documentElement.scrollTop||0;
-    // Pull to refresh: só no topo, gesto vertical dominante
-    if(scrollY<=2 && dy>40 && Math.abs(dy)>Math.abs(dx)*1.2){
-      ptrActive=true;
-      if(dy>90) setPtr("release","Solte para atualizar");
-      else setPtr("pull","Puxe para atualizar");
-    }
-  },{passive:true});
-  document.addEventListener("touchend",e=>{
-    if(x0==null) return;
-    const t=e.changedTouches[0];
-    const dx=t.clientX-x0, dy=t.clientY-y0;
-    const startX=x0;
-    const startY=y0;
-    x0=null; y0=null;
-
-    // Pull to refresh
-    if(ptrActive){
-      ptrActive=false;
-      const scrollY=window.scrollY||document.documentElement.scrollTop||0;
-      if(scrollY<=4 && dy>90 && Math.abs(dy)>Math.abs(dx)){
-        setPtr("refresh","Atualizando…");
-        const run=async()=>{
-          try{
-            if(typeof pullCloud==="function" && sbUser) await pullCloud();
-            if(typeof atualizarPrevisaoChuva==="function"){
-              try{ await atualizarPrevisaoChuva(); }catch(_e){}
-            } else if(typeof buscarPrevisaoChuva==="function"){
-              try{ await buscarPrevisaoChuva(); }catch(_e){}
-            }
-          }catch(_e){}
-          render();
-          setTimeout(()=>setPtr("hide"),500);
-        };
-        run();
-        return;
-      }
-      setPtr("hide");
-    }
-
-    // Swipe horizontal para menu
-    if(Math.abs(dx)<56 || Math.abs(dx)<Math.abs(dy)*1.1) return;
-    // Abrir: borda esquerda → direita
-    if(!menuOpen && startX<36 && dx>70){
-      menuOpen=true; render(); return;
-    }
-    // Fechar: qualquer área, swipe esquerda com menu aberto
-    if(menuOpen && dx<-70){
-      menuOpen=false; render(); return;
-    }
-  },{passive:true});
-})();
 applyTema();
+
+/* Onda A: status de rede ao vivo */
+window.addEventListener("offline", ()=>{
+  cloudStatus = "offline";
+  try { toast("Sem internet · usando dados deste aparelho"); } catch(e) {}
+  try { render(); } catch(e) {}
+});
+window.addEventListener("online", async ()=>{
+  try { toast("Internet de volta · sincronizando…"); } catch(e) {}
+  try {
+    if (typeof initAuth === "function") await initAuth();
+  } catch(e) {}
+  try { render(); } catch(e) {}
+});
+
 (function bootSplash(){
   const splash=document.createElement("div");
   splash.className="app-splash";

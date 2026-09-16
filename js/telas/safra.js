@@ -108,7 +108,7 @@ window.CampoGestorTelas.safra = function() {
     html +=`<p class="sec">Talhões cadastrados</p><ul class="list card" style="padding:.25rem 1rem">`;
     state.talhoes.forEach(t=>{
       const tag=t.fazenda==="campo-alegre"?"Campo Alegre":"Santa Rita";
-      html +=`<li><div style="flex:1"><div style="font-weight:500">${esc(t.nome||t.codigo)}</div><div class="muted">${ha(t.area)} · ${tag}</div></div></li>`;
+      html +=`<li><div style="flex:1;min-width:0"><div class="list-title">${esc(t.nome||t.codigo)}</div><div class="list-sub muted">${ha(t.area)} · ${tag}</div></div></li>`;
     });
     html +=`</ul>`;
   return html;

@@ -54,7 +54,7 @@ window.CampoGestorTelas.folgas = function() {
       html +=`<th style="text-align:center;padding:.2rem .1rem">${Number(iso.slice(8))}<br><span class="muted">${letraDow(iso)}</span></th>`;
     });
     html +=`<th>Saldo</th></tr>`;
-    if(!nomes.length) html +=`<tr><td colspan="${diasView.length+2}" class="muted">Ninguém neste mês.</td></tr>`;
+    if(!nomes.length) html +=`<tr><td colspan="${diasView.length+2}"><div class="empty-state"><span class="empty-ico">📅</span><b>Ninguém neste mês</b><span>Cadastre pessoas ou mude o mês.</span></div></td></tr>`;
     nomes.forEach(nome=>{
       const s=saldoFolgas(nome);
       html +=`<tr><td style="position:sticky;left:0;background:var(--surface);font-weight:500;font-size:.7rem">${esc(nome)}</td>`;

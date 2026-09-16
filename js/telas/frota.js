@@ -52,7 +52,7 @@ window.CampoGestorTelas.frota = function() {
     }
     html +=`</div>`;
     html +=`<ul class="list card" style="padding:.25rem 1rem">`;
-    if(!lista.length) html +=`<li class="muted">Nenhuma máquina neste filtro.</li>`;
+    if(!lista.length) html +=`<li class="empty-state"><span class="empty-ico">🚜</span><b>Nenhuma máquina neste filtro</b><span>Mude o tipo ou limpe a busca.</span></li>`;
     lista.forEach(m=>{
       const tone=m.status==="operando"?"ok":m.status==="manutencao"?"warn":"muted";
       const label=m.status==="operando"?"Operando":m.status==="manutencao"?"Manutenção":"Parada";
