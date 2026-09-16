@@ -707,12 +707,19 @@ body{
 }
 .chips{gap:8px!important;flex-wrap:wrap;}
 .chip{
-  border:1.5px solid #244f3c!important;
-  background:rgba(255,255,255,.86)!important;color:#244f3c!important;
+  border:1.5px solid rgba(36,79,60,.55)!important;
+  background:rgba(255,255,255,.62)!important;color:#244f3c!important;
   border-radius:999px!important;padding:.48rem .78rem!important;font-weight:750!important;
-  box-shadow:0 3px 10px rgba(23,63,47,.05);
+  box-shadow:0 3px 10px rgba(23,63,47,.06);
+  backdrop-filter:blur(14px) saturate(1.15);
+  -webkit-backdrop-filter:blur(14px) saturate(1.15);
 }
-.chip.on{background:#1b503b!important;color:#fff!important;border-color:#1b503b!important;box-shadow:0 7px 16px rgba(23,80,59,.18);}
+.chip.on{
+  background:rgba(27,80,59,.92)!important;color:#fff!important;border-color:#1b503b!important;
+  box-shadow:0 7px 16px rgba(23,80,59,.22);
+  backdrop-filter:blur(12px) saturate(1.1);
+  -webkit-backdrop-filter:blur(12px) saturate(1.1);
+}
 .list{list-style:none;}
 .list>li{position:relative;padding:13px 0!important;border-bottom:1px solid #24513d!important;}
 .list>li:last-child{border-bottom:0!important;}
@@ -860,8 +867,21 @@ body{padding-bottom:0!important;overflow-x:hidden;}
 .list>li>.btn,.list>li>.badge{flex:0 0 auto;}
 .list .muted{overflow-wrap:anywhere;word-break:break-word;}
 .chips{display:flex!important;align-items:center;gap:8px!important;flex-wrap:wrap!important;margin:0 0 10px;padding:2px 1rem 4px!important;}
-.chip{flex:0 0 auto!important;min-height:34px;padding:.42rem .72rem!important;border:1px solid #24513d!important;border-radius:999px!important;background:rgba(255,255,255,.92)!important;color:#173f2f!important;font-weight:750!important;white-space:nowrap!important;}
-.chip.on{background:#173f2f!important;color:#fff!important;border-color:#173f2f!important;}
+.chip{
+  flex:0 0 auto!important;min-height:34px;padding:.42rem .72rem!important;
+  border:1px solid rgba(36,81,61,.45)!important;border-radius:999px!important;
+  background:rgba(255,255,255,.58)!important;color:#173f2f!important;font-weight:750!important;
+  white-space:nowrap!important;
+  backdrop-filter:blur(14px) saturate(1.15);
+  -webkit-backdrop-filter:blur(14px) saturate(1.15);
+  box-shadow:0 2px 8px rgba(23,63,47,.05);
+}
+.chip.on{
+  background:rgba(23,63,47,.92)!important;color:#fff!important;border-color:#173f2f!important;
+  backdrop-filter:blur(12px) saturate(1.1);
+  -webkit-backdrop-filter:blur(12px) saturate(1.1);
+  box-shadow:0 6px 14px rgba(23,63,47,.2);
+}
 .btn{min-height:38px;line-height:1.1;white-space:nowrap;}
 .btn.sm{min-height:34px;padding:.42rem .62rem;}
 .field{min-width:0;}
@@ -898,15 +918,21 @@ body{padding-bottom:0!important;overflow-x:hidden;}
 /* Remove qualquer sobra de navegação inferior — o app usa hamburger. */
 .bottom-nav{display:none!important;}
 
-/* Chips centralizados e iguais em todas as abas */
+/* Chips alinhados à esquerda (evita centralizar grupos pequenos) */
 .chips{
   display:flex!important;
-  justify-content:center!important;
+  justify-content:flex-start!important;
   align-items:center!important;
   flex-wrap:wrap!important;
   gap:8px!important;
   margin:4px 0 12px!important;
   padding:4px 12px!important;
+}
+.chips-fazenda,
+.chips-tipo{
+  justify-content:flex-start!important;
+  margin:0!important;
+  padding:0!important;
 }
 .chip{
   flex:0 0 auto!important;
@@ -1037,29 +1063,83 @@ button.weather-day{cursor:pointer;font:inherit;color:inherit;}
 }
 .page-actions .btn{flex:0 0 auto;}
 
-/* Busca com lupa ao lado dos chips */
+/* Busca com lupa ao lado dos chips + sticky + grupos */
 .chips-row{
-  display:flex;align-items:center;gap:8px;
-  padding:2px 1rem 8px;flex-wrap:wrap;
+  display:flex;align-items:flex-start;gap:10px;
+  padding:6px 1rem 10px;flex-wrap:wrap;
 }
 .chips-row .chips{flex:1;margin:0;padding:0!important;min-width:0;}
 .chips-row .search-icon-btn,
 .search-icon-btn{
   width:38px;height:38px;border-radius:12px;
-  border:1px solid rgba(23,63,47,.12);
-  background:#f0f5ef;color:#173f2f;
+  border:1px solid rgba(23,63,47,.14);
+  background:rgba(240,245,239,.72);color:#173f2f;
   font-size:1.05rem;cursor:pointer;flex:0 0 auto;
   display:inline-flex;align-items:center;justify-content:center;
+  backdrop-filter:blur(12px) saturate(1.1);
+  -webkit-backdrop-filter:blur(12px) saturate(1.1);
+  transition:background .18s ease,color .18s ease,border-color .18s ease,transform .12s ease;
 }
+.search-icon-btn:active{transform:scale(.94);}
 .search-icon-btn.on{background:var(--color-primary-green,#1b4d3e);color:#fff;border-color:transparent;}
 .chips-row .search-expand{
-  flex:1 1 100%;order:3;
+  flex:1 1 100%;order:5;
+  max-height:0;opacity:0;overflow:hidden;
+  transition:max-height .28s ease,opacity .22s ease,margin .22s ease;
+  margin:0;
+}
+.chips-row .search-expand:not(:empty),
+.chips-row .search-expand:has(input:not([type=hidden])){
+  max-height:56px;opacity:1;margin-top:4px;
 }
 .chips-row .search-expand input{
   width:100%;min-height:40px;padding:.5rem .7rem;
   border:1px solid rgba(23,63,47,.14);border-radius:12px;
-  background:#fff;font:inherit;
+  background:rgba(255,255,255,.88);font:inherit;
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
 }
+
+/* Grupos de chips (fazenda vs tipo) + ações */
+.chips-groups{
+  display:flex;flex-direction:column;gap:6px;
+  flex:1 1 100%;min-width:0;width:100%;
+  order:1;
+}
+.chips-fazenda,
+.chips-tipo{
+  display:flex!important;flex-wrap:wrap!important;gap:7px!important;
+  margin:0!important;padding:0!important;
+  width:100%;
+}
+.chips-fazenda{order:1;}
+.chips-tipo{order:2;}
+.chips-actions{
+  display:flex;align-items:center;gap:8px;
+  flex:0 0 auto;
+  order:0;
+  width:100%;
+  justify-content:flex-end;
+  margin:0 0 2px;
+}
+.chips-actions .btn.sm{min-height:36px;}
+
+/* Sticky chips com efeito vidro (igual header) */
+.chips-row.sticky-chips{
+  position:sticky;
+  top:56px; /* abaixo do header sticky */
+  z-index:35;
+  background:rgba(246,249,244,.82);
+  backdrop-filter:blur(18px) saturate(1.1);
+  -webkit-backdrop-filter:blur(18px) saturate(1.1);
+  border-bottom:1px solid rgba(23,63,47,.08);
+  margin:0 0 4px;
+  padding-top:8px;padding-bottom:10px;
+  box-shadow:0 8px 20px rgba(17,48,34,.04);
+}
+/* Garante que overflow-x:hidden no body não quebre sticky */
+html{overflow-x:clip;}
+body{overflow-x:clip;}
+#app,.app{overflow-x:clip;}
 
 /* Lançamento estoque — botão destacado */
 .btn-lancamento{
@@ -1188,7 +1268,9 @@ button.weather-day{cursor:pointer;font:inherit;color:inherit;}
   }
   .sec,.sub,.page-actions{padding-left:12px;padding-right:12px;}
   .chips-row{padding-left:12px;padding-right:12px;align-items:flex-start;}
-  .chips-row .chips{justify-content:flex-start!important;}
+  .chips-row .chips,
+  .chips-fazenda,
+  .chips-tipo{justify-content:flex-start!important;}
   .plantio-semente{grid-template-columns:1fr;}
   .safra-timeline{grid-template-columns:1fr;}
   .weather-days{grid-template-columns:repeat(5,minmax(56px,1fr));}
@@ -1200,10 +1282,33 @@ button.weather-day{cursor:pointer;font:inherit;color:inherit;}
 .app,#app{max-width:760px;margin:0 auto;}
 .list>li{align-items:flex-start;}
 .list>li>.btn,.list>li>.badge{margin-top:2px;}
-.chips-row{align-items:center;}
+.chips-row{align-items:flex-start;}
 .toast{bottom:24px;max-width:min(420px, calc(100vw - 24px));overflow-wrap:anywhere;}
 .folga-table-wrap{max-width:100%;-webkit-overflow-scrolling:touch;}
 .more-row,.today-metric,.weather-day{min-width:0;}
 .today-metric strong,.today-metric small{overflow-wrap:anywhere;}
 body{background-attachment:scroll;}
+
+/* Densidade de texto em listas longas (Frota / Estoque) */
+.list-title{
+  font-weight:600;font-size:.92rem;line-height:1.25;
+  overflow-wrap:anywhere;word-break:break-word;
+  letter-spacing:-.01em;
+}
+.list-sub{
+  font-size:.78rem;line-height:1.3;margin-top:2px;
+  overflow-wrap:anywhere;word-break:break-word;
+  opacity:.92;
+}
+.list>li{padding:11px 0!important;}
+.list>li .badge{font-size:.68rem;padding:.22rem .48rem!important;}
+
+/* Ajuste mobile dos grupos de chips */
+@media (max-width:430px){
+  .chips-row.sticky-chips{padding-left:12px;padding-right:12px;}
+  .chips-groups{gap:5px;}
+  .chips-fazenda,.chips-tipo{gap:6px!important;}
+  .chips-actions{width:100%;justify-content:flex-end;margin-left:0;order:2;}
+  .chips-row .search-expand{order:6;}
+}
 
