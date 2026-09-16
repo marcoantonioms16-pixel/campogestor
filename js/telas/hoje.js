@@ -43,8 +43,56 @@ window.CampoGestorTelas.hoje = function() {
   </section>`;
 
   if(tarefasMarcos){
-    html += `<section class="today-panel today-tasks"><div class="panel-title"><div><h3>✓ Tarefas de hoje</h3><span class="today-task-progress">${feitas}/${rotina.length} concluídas · ${pct}%</span></div><button type="button" class="today-link" data-hoje="tarefas">Ver todas ›</button></div>
-      <div class="task-list">${tarefasVisiveis.map(r=>{const done=state.rotinaFeita?.[r.id]===hoje; return `<label class="task-item ${done?"done":""}"><input type="checkbox" data-rotina="${esc(r.id)}" ${done?"checked":""}/><span class="task-check"></span><span class="task-copy"><b>${esc(r.titulo)}</b><small>${esc(r.grupo)}</small></span></label>`;}).join("")}</div>
+    const iconeGrupo = (g, titulo)=>{
+      const t = String(titulo||"").toLowerCase();
+      const gg = String(g||"").toLowerCase();
+      if(/diesel|óleo|oleo|abastec/.test(t)) return "⛽";
+      if(/epi|extintor|segurança|seguranca|incêndio|incendio/.test(t)) return "🧯";
+      if(/diarista|equipe|assinatura|holerite|contrata/.test(t)) return "👥";
+      if(/material|nota|nf|documento|pesagem|embalagem/.test(t)) return "📦";
+      if(/frota|oficina|manuten/.test(t)) return "🚜";
+      if(/folga/.test(t) || /folga/.test(gg)) return "📅";
+      if(/segunda/.test(gg)) return "📌";
+      if(/sexta/.test(gg)) return "📌";
+      if(/mês|mes|dia 30|final/.test(gg)) return "🗓";
+      if(/diário|diario/.test(gg)) return "📋";
+      return "✓";
+    };
+    const chipGrupo = (g)=>{
+      const gg = String(g||"");
+      if(/diário|diario/i.test(gg)) return {cls:"task-chip-diario", label:"Diário"};
+      if(/segunda/i.test(gg)) return {cls:"task-chip-semana", label:"Segunda"};
+      if(/sexta/i.test(gg)) return {cls:"task-chip-semana", label:"Sexta"};
+      if(/folga/i.test(gg)) return {cls:"task-chip-mes", label:"Folgas"};
+      if(/mês|mes|dia 30|final|início/i.test(gg)) return {cls:"task-chip-mes", label: gg.slice(0,18)};
+      if(/quando/i.test(gg)) return {cls:"task-chip-evento", label:"Quando precisar"};
+      return {cls:"task-chip-evento", label: gg || "Rotina"};
+    };
+    html += `<section class="today-panel today-tasks">
+      <div class="panel-title">
+        <div>
+          <h3>Tarefas de hoje</h3>
+          <span class="today-task-progress">${feitas}/${rotina.length} concluídas · ${pct}%</span>
+        </div>
+        <button type="button" class="today-link" data-hoje="tarefas">Ver todas ›</button>
+      </div>
+      <div class="task-progress-bar" aria-hidden="true"><span style="width:${pct}%"></span></div>
+      <div class="task-list task-list-cards">${tarefasVisiveis.map((r, idx)=>{
+        const done = state.rotinaFeita?.[r.id]===hoje;
+        const chip = chipGrupo(r.grupo);
+        const icon = iconeGrupo(r.grupo, r.titulo);
+        // "próxima" = primeira pendente da lista visível
+        const isNext = !done && tarefasVisiveis.findIndex(x=>state.rotinaFeita?.[x.id]!==hoje)===idx;
+        return `<label class="task-item task-card ${done?"done":""} ${isNext?"task-next":""}">
+          <input type="checkbox" data-rotina="${esc(r.id)}" ${done?"checked":""}/>
+          <span class="task-icon" aria-hidden="true">${icon}</span>
+          <span class="task-copy">
+            <b>${esc(r.titulo)}</b>
+            <span class="task-meta"><span class="task-chip ${chip.cls}">${esc(chip.label)}</span>${done?`<span class="task-done-label">Concluída</span>`:(isNext?`<span class="task-next-label">Próxima</span>`:"")}</span>
+          </span>
+          <span class="task-check"></span>
+        </label>`;
+      }).join("")}</div>
       ${rotina.length>tarefasVisiveis.length?`<div class="task-more">+ ${rotina.length-tarefasVisiveis.length} tarefa${rotina.length-tarefasVisiveis.length>1?"s":""} na rotina de hoje</div>`:""}
     </section>`;
   }

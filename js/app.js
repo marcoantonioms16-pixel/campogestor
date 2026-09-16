@@ -102,17 +102,54 @@ async function sbLogout() {
   cloudStatus = "local";
 }
 
-async function initAuth() {
-  const sess = loadSession();
-  if (!sess || !sess.access_token) return;
-  // validate session
+async function sbRefreshSession(sess) {
+  if (!sess || !sess.refresh_token) return null;
   try {
-    const res = await fetch(SB_URL + "/auth/v1/user", { headers: sbHeaders(sess.access_token) });
-    if (!res.ok) { saveSession(null); return; }
-    const user = await res.json();
+    const res = await fetch(SB_URL + "/auth/v1/token?grant_type=refresh_token", {
+      method: "POST",
+      headers: sbHeaders(),
+      body: JSON.stringify({ refresh_token: sess.refresh_token }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.access_token) return null;
+    // Mantém refresh_token se a API não devolver um novo
+    if (!data.refresh_token && sess.refresh_token) data.refresh_token = sess.refresh_token;
+    saveSession(data);
+    return data;
+  } catch (e) {
+    console.warn("refresh session", e);
+    return null;
+  }
+}
+
+async function initAuth() {
+  let sess = loadSession();
+  if (!sess || (!sess.access_token && !sess.refresh_token)) return;
+  try {
+    // 1) tenta validar access_token atual
+    let user = null;
+    if (sess.access_token) {
+      const res = await fetch(SB_URL + "/auth/v1/user", { headers: sbHeaders(sess.access_token) });
+      if (res.ok) {
+        user = await res.json();
+      }
+    }
+    // 2) se expirou, renova com refresh_token (não desloga na atualização do app)
+    if (!user) {
+      const refreshed = await sbRefreshSession(sess);
+      if (!refreshed || !refreshed.access_token) {
+        // só limpa se realmente não der para renovar
+        saveSession(null);
+        return;
+      }
+      sess = refreshed;
+      const res2 = await fetch(SB_URL + "/auth/v1/user", { headers: sbHeaders(sess.access_token) });
+      if (!res2.ok) { saveSession(null); return; }
+      user = await res2.json();
+    }
     sbUser = user;
     await pullCloud();
-  } catch(e) {
+  } catch (e) {
     console.warn(e);
   }
 }
@@ -552,21 +589,27 @@ function setFolgaDia(nome, iso, tipo){
   save();
 }
 function pessoaNoMes(p, ym){
+  if(!p) return false;
+  if(p.tipo==="encerrado") return false;
   const ini=ym+"-01";
   const fim=daysInMonth(ym).slice(-1)[0];
+  // Sem admissão = já conta no mês (pessoa nova aparece em Folgas)
   if(p.admissao && p.admissao>fim) return false;
   if(p.contratoFim && p.contratoFim<ini) return false;
   return true;
 }
 function nomesDoMes(ym){
   const set=new Set();
-  const ativos=new Set((state.pessoas||[]).filter(p=>p.tipo!=="encerrado" && pessoaNoMes(p,ym)).map(p=>p.nome));
-  ativos.forEach(n=>set.add(n));
+  // Todas as pessoas ativas do mês (efetivo, diarista, candidato)
+  (state.pessoas||[]).forEach(p=>{
+    if(p.tipo==="encerrado") return;
+    if(pessoaNoMes(p,ym)) set.add(p.nome);
+  });
   (state.folgas||[]).forEach(f=>{
     if(!(f.data||"").startsWith(ym+"-") || !f.pessoaNome) return;
     const p=(state.pessoas||[]).find(x=>x.nome===f.pessoaNome);
     if(p && p.tipo==="encerrado") return;
-    if(!p || ativos.has(f.pessoaNome) || pessoaNoMes(p,ym)) set.add(f.pessoaNome);
+    if(!p || pessoaNoMes(p,ym)) set.add(f.pessoaNome);
   });
   return [...set].filter(n=>{
     const p=(state.pessoas||[]).find(x=>x.nome===n);
@@ -1313,6 +1356,62 @@ function bind(){
   if(tipoSaida){ tipoSaida.onchange=syncEmp; syncEmp(); }
   const dclose=document.getElementById("drawer-close");
   if(dclose) dclose.onclick=()=>closeEdit();
+
+  // Autocomplete insumo: ao digitar o nome, preenche categoria, técnico e tipo
+  if(edit && (edit.kind==="insumo" || edit.kind==="novo-insumo")){
+    const nomeEl=document.getElementById("e-nome");
+    const catEl=document.getElementById("e-cat");
+    const tecEl=document.getElementById("e-tec");
+    const tipoEl=document.getElementById("e-tipodef");
+    const unEl=document.getElementById("e-un");
+    const normTxt=v=>String(v||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
+    const sugerirInsumo=()=>{
+      if(!nomeEl) return;
+      const q=normTxt(nomeEl.value);
+      if(q.length<2) return;
+      // 1) match em produto já cadastrado
+      const lista=state.insumos||[];
+      let hit=lista.find(i=>normTxt(i.nome)===q);
+      if(!hit) hit=lista.find(i=>normTxt(i.nome).includes(q) || q.includes(normTxt(i.nome)));
+      if(hit){
+        if(catEl && hit.categoria) catEl.value=hit.categoria;
+        if(tecEl && hit.tecnico && (!tecEl.value || edit.kind==="novo-insumo")) tecEl.value=hit.tecnico;
+        if(tipoEl && hit.tipoDef && (!tipoEl.value || edit.kind==="novo-insumo")) tipoEl.value=hit.tipoDef;
+        if(unEl && hit.unidade && (!unEl.value || edit.kind==="novo-insumo")) unEl.value=hit.unidade;
+        return;
+      }
+      // 2) heurística simples por palavra-chave
+      if(edit.kind!=="novo-insumo" && (tecEl?.value || tipoEl?.value)) return;
+      if(/diesel|oleo|óleo|combust/.test(q)){
+        if(catEl) catEl.value="combustivel";
+        if(tipoEl && !tipoEl.value) tipoEl.value="Combustível";
+        if(unEl && (!unEl.value || unEl.value==="L" || unEl.value==="un")) unEl.value="L";
+      } else if(/semente|soja|milho|trigo|feijao|feijão/.test(q)){
+        if(catEl) catEl.value="semente";
+        if(tipoEl && !tipoEl.value) tipoEl.value="Semente";
+        if(unEl && (!unEl.value || unEl.value==="L")) unEl.value="KG";
+      } else if(/ureia|map|kcl|npk|fertiliz|adubo|calcario|calcário/.test(q)){
+        if(catEl) catEl.value="fertilizante";
+        if(tipoEl && !tipoEl.value) tipoEl.value="Fertilizante";
+        if(unEl && (!unEl.value || unEl.value==="L")) unEl.value="KG";
+      } else if(/herbic|insetic|fungic|defens|glifos|2,4-d|2.4-d/.test(q)){
+        if(catEl) catEl.value="defensivo";
+        if(tipoEl && !tipoEl.value){
+          if(/herbic/.test(q)) tipoEl.value="Herbicida";
+          else if(/insetic/.test(q)) tipoEl.value="Inseticida";
+          else if(/fungic/.test(q)) tipoEl.value="Fungicida";
+          else tipoEl.value="Defensivo";
+        }
+        if(unEl && !unEl.value) unEl.value="L";
+      }
+    };
+    if(nomeEl){
+      nomeEl.addEventListener("input",()=>{ clearTimeout(nomeEl._ac); nomeEl._ac=setTimeout(sugerirInsumo,180); });
+      nomeEl.addEventListener("change",sugerirInsumo);
+      nomeEl.addEventListener("blur",sugerirInsumo);
+    }
+  }
+
   const es=document.getElementById("e-save");
   if(es) es.onclick=()=>{
     if(edit.kind==="insumo"||edit.kind==="novo-insumo"){
@@ -1357,9 +1456,11 @@ function bind(){
         contratoFim:document.getElementById("e-fim")? (document.getElementById("e-fim").value||null):null };
       if(!row.nome){ toast("Informe o nome"); return; }
       if(row.tipo==="encerrado" && !row.contratoFim) row.contratoFim=hojeISO();
+      // Pessoa nova: se não informou admissão, usa hoje para já entrar em Folgas no mês atual
+      if(edit.kind==="novo-pessoa" && !row.admissao && row.tipo!=="encerrado") row.admissao=hojeISO();
       if(edit.kind==="pessoa") state.pessoas=state.pessoas.map(x=>x.id===edit.id?{...x,...row}:x);
       else state.pessoas.push({id:uid(),...row});
-      save(); toast(row.tipo==="encerrado"?"Encerrado: some das telas, fica no CSV":"Pessoa salva"); closeEdit(); return;
+      save(); toast(row.tipo==="encerrado"?"Encerrado: some das telas, fica no CSV":"Pessoa salva · já aparece em Folgas"); closeEdit(); return;
     }
     if(edit.kind==="chuva"||edit.kind==="novo-chuva"){
       if(!state.chuva) state.chuva=[];

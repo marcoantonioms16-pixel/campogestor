@@ -21,34 +21,21 @@ window.CampoGestorTelas.frota = function() {
       };
       return map[n]||n||"outros";
     };
-    const fazendaDe=m=>{
-      const f=norm(m.fazenda).replace(/[()]/g," ").replace(/\s+/g," ").trim();
-      if(f.includes("santa rita")||f.includes("sta rita")||f.includes("s rita")) return "SANTA RITA";
-      if(f.includes("segredo")) return "SEGREDO";
-      return f ? String(m.fazenda).trim().toUpperCase() : "SEM FAZENDA";
-    };
-    const fazendas=["SANTA RITA","SEGREDO"];
     const presentes=new Set((state.maquinas||[]).map(m=>canonTipo(m.tipo)));
     const q=norm(qMaq);
+    // catFaz não é mais usado na UI; mantém filtro neutro
+    if(typeof catFaz!=="undefined") catFaz="todos";
     const lista=state.maquinas.filter(m=>{
       const okT=catMaq==="todos" || canonTipo(m.tipo)===catMaq;
-      const fz=fazendaDe(m);
-      const okF=catFaz==="todos" || fz===catFaz;
       const blob=norm([m.nome,m.modelo,m.codigo,m.placa,m.fazenda,m.tipo,m.descricao,TIPO_MAQ[canonTipo(m.tipo)]].join(" "));
       const okQ=!q || blob.includes(q);
-      return okT && okF && okQ;
+      return okT && okQ;
     });
     html +=headerBar(`Máquinas · ${lista.length}/${state.maquinas.length}`,"Frota");
     html +=`<div class="chips-row sticky-chips">
       <div class="chips-groups">
-        <div class="chips chips-fazenda">
-          <button type="button" class="chip ${catMaq==="todos"&&catFaz==="todos"?"on":""}" data-cat-maq="todos" data-cat-faz="todos">Todos</button>`;
-    fazendas.forEach(f=>{
-      const nome=f==="SANTA RITA"?"Santa Rita":f==="SEGREDO"?"Segredo":f;
-      html +=`<button type="button" class="chip ${catFaz===f?"on":""}" data-cat-faz="${esc(f)}">${esc(nome)}</button>`;
-    });
-    html +=`</div>
-        <div class="chips chips-tipo">`;
+        <div class="chips chips-tipo">
+          <button type="button" class="chip ${catMaq==="todos"?"on":""}" data-cat-maq="todos" data-cat-faz="todos">Todos</button>`;
     ordem.filter(t=>presentes.has(t)).forEach(t=>{
       html +=`<button type="button" class="chip ${catMaq===t?"on":""}" data-cat-maq="${t}">${TIPO_MAQ[t]||t}</button>`;
     });
