@@ -233,9 +233,10 @@ async function pullCloud() {
 function load(){
   try{
     const raw = localStorage.getItem(KEY);
+    let out;
     if(raw){
       const d = JSON.parse(raw);
-      return {
+      out = {
         ...JSON.parse(JSON.stringify(SEED)),
         ...d,
         farm:{...SEED.farm, ...(d.farm||{})},
@@ -256,9 +257,28 @@ function load(){
         ordensCampo: Array.isArray(d.ordensCampo) ? d.ordensCampo : [],
         aplicacoes: Array.isArray(d.aplicacoes) ? d.aplicacoes : [],
       };
+    } else {
+      out = JSON.parse(JSON.stringify(SEED));
+      out.ordensCampo = out.ordensCampo || [];
+      out.aplicacoes = out.aplicacoes || [];
     }
+    // Importa ordens CATA (Dessecação Pré-Plantio) se ainda não existirem
+    if (typeof ORDENS_CATA_SEED !== "undefined" && Array.isArray(ORDENS_CATA_SEED)) {
+      if (!Array.isArray(out.ordensCampo)) out.ordensCampo = [];
+      const existing = new Set(out.ordensCampo.map(o => o.id));
+      ORDENS_CATA_SEED.forEach(o => {
+        if (!existing.has(o.id)) out.ordensCampo.push(JSON.parse(JSON.stringify(o)));
+      });
+    }
+    return out;
   }catch(e){}
-  return JSON.parse(JSON.stringify(SEED));
+  const fallback = JSON.parse(JSON.stringify(SEED));
+  fallback.ordensCampo = fallback.ordensCampo || [];
+  fallback.aplicacoes = fallback.aplicacoes || [];
+  if (typeof ORDENS_CATA_SEED !== "undefined" && Array.isArray(ORDENS_CATA_SEED)) {
+    fallback.ordensCampo = JSON.parse(JSON.stringify(ORDENS_CATA_SEED));
+  }
+  return fallback;
 }
 function save(){
   sincronizaDieselInventario();

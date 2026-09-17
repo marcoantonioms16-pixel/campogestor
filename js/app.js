@@ -123,7 +123,8 @@ let menuOpen = false;
 let talhaoDetalhe = null;       // id do talhão em detalhe
 let safraSelecionada = null;    // safra escolhida no centro histórico
 let aplicacaoView = "lista";    // lista | nova | editar | detalhe
-let aplicacaoId = null;         // id da ordem em edição/detalhe
+let aplicacaoId = null;
+let aplicacaoFiltro = "todos"; // todos | id do tipo         // id da ordem em edição/detalhe
 let qInsumo = "";
 let estoqueBuscaAberta = false;
 let qMaq = "";
@@ -1025,15 +1026,17 @@ function bind(){
   });
   document.querySelectorAll("[data-safra-st]").forEach(b=>{
     b.onclick=()=>{
+      if(isVisitante()){ toast("O perfil Visitante é somente para consulta"); return; }
       if(!state.safraStatus) state.safraStatus={};
       const sec=b.getAttribute("data-safra-st");
       const i=b.getAttribute("data-i");
       const key=sec+"-"+i;
       const cur=(state.safraStatus[key]||{}).status||"pendente";
-      const next=cur==="pendente"?"andamento":cur==="andamento"?"concluido":"pendente";
+      // Concluído fica travado — não volta para pendente
+      if(cur==="concluido"){ toast("Já concluído — sem alteração"); return; }
+      const next=cur==="pendente"?"andamento":"concluido";
       const entry={status:next};
       if(next==="concluido") entry.data=hojeISO();
-      // histórico simples
       if(!state.safraStatus[key]) state.safraStatus[key]={};
       if(!state.safraStatus[key].hist) state.safraStatus[key].hist=[];
       state.safraStatus[key].hist.push({de:cur, para:next, em:hojeISO()});
@@ -1069,6 +1072,9 @@ function bind(){
 
   document.querySelectorAll("[data-ordem-id]").forEach(b=>{
     b.onclick=()=>{ aplicacaoView="detalhe"; aplicacaoId=b.getAttribute("data-ordem-id"); render(); };
+  });
+  document.querySelectorAll("[data-aplicacao-filtro]").forEach(b=>{
+    b.onclick=()=>{ aplicacaoFiltro=b.getAttribute("data-aplicacao-filtro")||"todos"; render(); };
   });
 
   const btnEditarOrd = document.getElementById("btn-editar-ordem");
@@ -1130,9 +1136,10 @@ function bind(){
     const payload={
       id: aplicacaoView==="editar" && aplicacaoId ? aplicacaoId : uid(),
       titulo:(document.getElementById("ord-titulo")||{}).value||"",
-      tipo:(document.getElementById("ord-tipo")||{}).value||"herbicida",
+      tipo:(document.getElementById("ord-tipo")||{}).value||"dessecacao-pre-plantio",
       data:(document.getElementById("ord-data")||{}).value||hojeISO(),
       status:(document.getElementById("ord-status")||{}).value||"aberta",
+      oc:(document.getElementById("ord-oc")||{}).value||"",
       talhaoIds,
       produtos,
       obs:(document.getElementById("ord-obs")||{}).value||"",
