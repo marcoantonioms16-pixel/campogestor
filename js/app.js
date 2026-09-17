@@ -116,6 +116,27 @@ function perfilCloudResumo(){
 }
 
 let state = load();
+// Garante ordens CATA no aparelho (APK / localStorage antigo)
+(function garantirOrdensCata(){
+  if (typeof ORDENS_CATA_SEED === "undefined" || !Array.isArray(ORDENS_CATA_SEED)) {
+    console.warn("ORDENS_CATA_SEED não carregou");
+    return;
+  }
+  if (!state.ordensCampo) state.ordensCampo = [];
+  const existing = new Set(state.ordensCampo.map(o => o && o.id));
+  let added = 0;
+  ORDENS_CATA_SEED.forEach(o => {
+    if (o && o.id && !existing.has(o.id)) {
+      state.ordensCampo.push(JSON.parse(JSON.stringify(o)));
+      existing.add(o.id);
+      added++;
+    }
+  });
+  if (added > 0) {
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e) {}
+    console.log("Ordens CATA importadas:", added);
+  }
+})();
 sincronizaDieselInventario();
 
 let page = "hoje";
@@ -543,7 +564,40 @@ function closeEdit(){ edit=null; render(); }
 function renderDrawer(){
   if(!edit) return "";
   let body="";
-  if(edit.kind==="insumo" || edit.kind==="novo-insumo"){
+  if(edit.kind==="safra-progresso"){
+    if (!state.safraStatus) state.safraStatus = {};
+    const nCor = (typeof SAFRA !== "undefined" && SAFRA.corretivo) ? SAFRA.corretivo.length : 0;
+    const nFer = (typeof SAFRA !== "undefined" && SAFRA.fertilizante) ? SAFRA.fertilizante.length : 0;
+    const nPla = (state.talhoes || []).length;
+    const nSul = (typeof SAFRA !== "undefined" && SAFRA.sulco) ? SAFRA.sulco.length : 0;
+    const countSt = (sec, total) => {
+      let c = 0;
+      for (let i = 0; i < total; i++) {
+        if (((state.safraStatus[sec + "-" + i] || {}).status || "pendente") === "concluido") c++;
+      }
+      return c;
+    };
+    const rows = [
+      ["Preparo de solo", countSt("cor", nCor), nCor],
+      ["Adubação", countSt("fer", nFer), nFer],
+      ["Plantio", countSt("pla", nPla), nPla],
+      ["Sulco", countSt("sul", nSul), nSul],
+    ];
+    const totalOk = rows.reduce((s,r)=>s+r[1],0);
+    const total = rows.reduce((s,r)=>s+r[2],0);
+    const pct = total ? Math.round(totalOk/total*100) : 0;
+    body = `<h2>Progresso da safra</h2>
+      <p class="muted">${esc((state.farm&&state.farm.safra)||"")} · ${pct}% concluído (${totalOk}/${total})</p>
+      ${rows.map(([nome,ok,tot])=>{
+        const p = tot ? Math.round(ok/tot*100) : 0;
+        return `<div class="field"><label>${esc(nome)} — ${ok}/${tot} (${p}%)</label>
+          <div style="height:8px;background:rgba(0,0,0,.08);border-radius:99px;overflow:hidden">
+            <div style="height:100%;width:${p}%;background:#176b4b;border-radius:99px"></div>
+          </div></div>`;
+      }).join("")}
+      <button type="button" class="btn primary block" data-go="safra" style="margin-top:.8rem">Abrir centro histórico</button>`;
+  }
+  else if(edit.kind==="insumo" || edit.kind==="novo-insumo"){
     const i = edit.kind==="insumo" ? state.insumos.find(x=>x.id===edit.id) : {nome:"",categoria:"defensivo",unidade:"L",quantidade:0,minimo:0};
     body=`<h2>${edit.kind==="insumo"?"Editar insumo":"Novo insumo"}</h2>
       <div class="field"><label>Nome</label><input id="e-nome" value="${esc(i.nome||"")}"/></div>
@@ -1048,6 +1102,9 @@ function bind(){
   document.querySelectorAll("[data-edit-plantio]").forEach(b=>{
     b.onclick=()=>{ edit={kind:"edit-plantio", id:b.getAttribute("data-edit-plantio")}; render(); };
   });
+
+  const btnPizza = document.getElementById("btn-safra-pizza");
+  if(btnPizza) btnPizza.onclick=()=>{ edit={kind:"safra-progresso"}; render(); };
 
   /* === Talhões === */
   document.querySelectorAll("[data-talhao-id]").forEach(b=>{

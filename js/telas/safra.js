@@ -54,9 +54,7 @@ window.CampoGestorTelas.safra = function() {
       html += `<div class="card safra-item">
         <div class="safra-item-top">
           <p class="card-title">${esc(r.talhoes)}</p>
-          ${st === "concluido"
-            ? `<span class="badge ok">Concluído</span>`
-            : `<button type="button" class="badge ${stBadge[st]}" data-safra-st="cor" data-i="${i}">${stLabel[st]}</button>`}
+          ${st === "concluido" ? `<span class="badge ok">Concluído</span>` : `<span class="badge ${stBadge[st]}">${stLabel[st]}</span>`}
         </div>
         <p class="muted">${n(r.ha, 2)} ha · ${esc(r.cultivar)}</p>
         <p class="muted">${esc(r.dose)} · ${esc(r.volume)}</p>
@@ -79,9 +77,7 @@ window.CampoGestorTelas.safra = function() {
       html += `<div class="card safra-item">
         <div class="safra-item-top">
           <p class="card-title">${esc(g.talhoes)}</p>
-          ${st === "concluido"
-            ? `<span class="badge ok">Concluído</span>`
-            : `<button type="button" class="badge ${stBadge[st]}" data-safra-st="fer" data-i="${i}">${stLabel[st]}</button>`}
+          ${st === "concluido" ? `<span class="badge ok">Concluído</span>` : `<span class="badge ${stBadge[st]}">${stLabel[st]}</span>`}
         </div>
         <p class="muted">${n(g.ha, 2)} ha · ${esc(g.cultivar)}</p>
         <ul class="safra-insumos">`;
@@ -110,9 +106,7 @@ window.CampoGestorTelas.safra = function() {
       html += `<div class="card safra-item">
         <div class="safra-item-top">
           <p class="card-title">${esc(t.nome || t.codigo)}</p>
-          ${st === "concluido"
-            ? `<span class="badge ok">Concluído</span>`
-            : `<button type="button" class="badge ${stBadge[st]}" data-safra-st="pla" data-i="${i}">${stLabel[st]}</button>`}
+          ${st === "concluido" ? `<span class="badge ok">Concluído</span>` : `<span class="badge ${stBadge[st]}">${stLabel[st]}</span>`}
         </div>
         <p class="muted">${n(t.area, 2)} ha · ${t.fazenda === "campo-alegre" ? "Campo Alegre" : "Santa Rita"}</p>
         ${seeds.map(s => `<p class="muted">${esc(s.cultivar || "—")}${s.qtd ? ` · ${esc(s.qtd)} ${esc(s.un || "")}` : ""}</p>`).join("")}
@@ -130,9 +124,7 @@ window.CampoGestorTelas.safra = function() {
       html += `<div class="card safra-item">
         <div class="safra-item-top">
           <p class="card-title">${esc(s.insumo)}</p>
-          ${st === "concluido"
-            ? `<span class="badge ok">Concluído</span>`
-            : `<button type="button" class="badge ${stBadge[st]}" data-safra-st="sul" data-i="${i}">${stLabel[st]}</button>`}
+          ${st === "concluido" ? `<span class="badge ok">Concluído</span>` : `<span class="badge ${stBadge[st]}">${stLabel[st]}</span>`}
         </div>
         <p class="muted">${esc(s.tipo)} · ${esc(s.fabricante)} · ${esc(s.dose)}</p>
         ${st === "concluido" && stDate ? `<p class="muted">Concluído em ${stDate.split("-").reverse().join("/")}</p>` : ""}

@@ -265,10 +265,18 @@ function load(){
     // Importa ordens CATA (Dessecação Pré-Plantio) se ainda não existirem
     if (typeof ORDENS_CATA_SEED !== "undefined" && Array.isArray(ORDENS_CATA_SEED)) {
       if (!Array.isArray(out.ordensCampo)) out.ordensCampo = [];
-      const existing = new Set(out.ordensCampo.map(o => o.id));
+      const existing = new Set(out.ordensCampo.map(o => o && o.id));
+      let added = 0;
       ORDENS_CATA_SEED.forEach(o => {
-        if (!existing.has(o.id)) out.ordensCampo.push(JSON.parse(JSON.stringify(o)));
+        if (o && o.id && !existing.has(o.id)) {
+          out.ordensCampo.push(JSON.parse(JSON.stringify(o)));
+          existing.add(o.id);
+          added++;
+        }
       });
+      if (added > 0) {
+        try { localStorage.setItem(KEY, JSON.stringify(out)); } catch(e) {}
+      }
     }
     return out;
   }catch(e){}

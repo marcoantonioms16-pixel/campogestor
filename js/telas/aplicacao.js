@@ -72,12 +72,14 @@ window.CampoGestorTelas.aplicacao = function() {
             return t ? (t.nome || t.codigo) : "1 talhão";
           })()
         : nTal + " talhões";
+      const prodsShort = (o.produtos||[]).map(p=>p.nome).filter(Boolean).slice(0,3).join(", ");
       html += `<button type="button" class="card safra-item" data-ordem-id="${esc(o.id)}" style="text-align:left;width:100%;cursor:pointer;margin-bottom:.45rem">
         <div class="safra-item-top">
           <p class="card-title" style="margin:0;font-size:.92rem">${esc(o.titulo || labelTipoAplicacao(o.tipo))}</p>
           <span class="badge ${stBadge[st] || "muted"}">${esc(stLabel[st] || st)}</span>
         </div>
-        <p class="muted" style="margin:.2rem 0 0">${esc(o.data ? o.data.split("-").reverse().join("/") : "—")} · ${esc(talNome)} · ${nProd} produto(s)${o.oc ? " · OC " + esc(o.oc) : ""}</p>
+        <p class="muted" style="margin:.2rem 0 0">${esc(o.data ? o.data.split("-").reverse().join("/") : "—")} · ${esc(talNome)}${o.oc ? " · OC " + esc(o.oc) : ""}</p>
+        ${prodsShort ? `<p class="muted" style="margin:.15rem 0 0;font-size:.8rem">${esc(prodsShort)}${nProd>3?"…":""}</p>` : ""}
       </button>`;
     });
   }

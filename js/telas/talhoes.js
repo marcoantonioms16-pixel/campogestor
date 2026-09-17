@@ -26,31 +26,13 @@ window.CampoGestorTelas.talhoes = function() {
     return html;
   }
 
-  // Agrupa por fazenda
-  const grupos = {};
+  // Lista simples: nome destacado + área
   talhoes.forEach(t => {
-    const faz = t.fazenda === "campo-alegre" ? "Campo Alegre" : (t.fazenda === "santa-rita" || !t.fazenda ? "Santa Rita" : String(t.fazenda));
-    if (!grupos[faz]) grupos[faz] = [];
-    grupos[faz].push(t);
-  });
-
-  Object.keys(grupos).sort().forEach(faz => {
-    html += `<p class="sec">${esc(faz)}</p>`;
-    grupos[faz].forEach(t => {
-      const area = Number(t.area) || 0;
-      const cult = t.variedade || t.cultura || "—";
-      const estagio = t.estagio || "planejado";
-      const estLabel = { planejado: "Planejado", plantado: "Plantado", andamento: "Em andamento", colhido: "Colhido" };
-      html += `<button type="button" class="card talhao-card" data-talhao-id="${esc(t.id)}" style="text-align:left;width:100%;cursor:pointer;margin-bottom:.5rem">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem">
-          <div style="flex:1;min-width:0">
-            <p class="card-title" style="margin:0">${esc(t.nome || t.codigo)}</p>
-            <p class="muted" style="margin:.2rem 0 0">${n(area, 2)} ha · ${esc(cult)}</p>
-          </div>
-          <span class="badge muted">${esc(estLabel[estagio] || estagio)}</span>
-        </div>
-      </button>`;
-    });
+    const area = Number(t.area) || 0;
+    html += `<button type="button" class="card talhao-card" data-talhao-id="${esc(t.id)}" style="text-align:left;width:100%;cursor:pointer;margin-bottom:.45rem">
+      <p class="card-title" style="margin:0;font-size:1.05rem;font-weight:600">${esc(t.nome || t.codigo)}</p>
+      <p class="muted" style="margin:.25rem 0 0">${n(area, 2)} ha</p>
+    </button>`;
   });
 
   return html;
@@ -64,19 +46,13 @@ function renderTalhaoDetalhe(tid) {
   }
 
   const safraAtual = (state.farm && state.farm.safra) || "2026/27";
-  const faz = t.fazenda === "campo-alegre" ? "Campo Alegre" : "Santa Rita";
-
   let html = headerBar(t.nome || t.codigo, "Histórico do talhão");
 
   html += `<button type="button" class="btn sm" id="btn-voltar-talhoes" style="margin-bottom:.7rem">← Voltar para lista</button>`;
 
-  // Dados básicos
   html += `<div class="card">
-    <p class="card-title">${esc(t.nome || t.codigo)}</p>
-    <p class="muted">${n(t.area, 2)} ha · ${esc(faz)}</p>
-    <p class="muted">Cultura: ${esc(t.cultura || "soja")} · Variedade: ${esc(t.variedade || "—")}</p>
-    <p class="muted">Estágio: ${esc(t.estagio || "planejado")}</p>
-    <p class="muted">Safra filtrada: <b>${esc(safraAtual)}</b></p>
+    <p class="card-title" style="font-size:1.1rem">${esc(t.nome || t.codigo)}</p>
+    <p class="muted">${n(t.area, 2)} ha · Safra <b>${esc(safraAtual)}</b></p>
   </div>`;
 
   // Histórico — monta a partir dos dados existentes + futuros registros
