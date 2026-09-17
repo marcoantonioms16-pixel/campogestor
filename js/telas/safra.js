@@ -1,115 +1,172 @@
-/* Tela: safra. Somente renderização; eventos continuam centralizados no app. */
-
+/* Tela: Safra — Centro Histórico por safra.
+ * Ao abrir, escolhe a safra e vê as seções: Preparo de solo, Adubação, Plantio+Sulco, Aplicações.
+ */
 window.CampoGestorTelas = window.CampoGestorTelas || {};
+
 window.CampoGestorTelas.safra = function() {
-  let html = "";
-    if(!state.safraStatus) state.safraStatus={};
-    if(!state.safraPlantio) state.safraPlantio={};
-    const stKey = (sec, i) => sec+"-"+i;
-    const getSt = (sec, i) => (state.safraStatus[stKey(sec,i)]||{}).status || "pendente";
-    const getStDate = (sec, i) => (state.safraStatus[stKey(sec,i)]||{}).data || "";
-    const stLabel = {pendente:"Pendente", andamento:"Em andamento", concluido:"Concluído"};
-    const stBadge = {pendente:"muted", andamento:"warn", concluido:"ok"};
-    const matchFiltro = (sec, i) => safraFiltro==="todos" || getSt(sec,i)===safraFiltro;
+  const safrasDisponiveis = getSafrasDisponiveis();
+  const safraAtual = safraSelecionada || (state.farm && state.farm.safra) || "2026/27";
+
+  let html = headerBar("Safra", "Centro histórico");
+
+  // Seletor de safra
+  html += `<div class="card">
+    <p class="card-title">Escolha a safra</p>
+    <div class="chips" style="margin-top:.4rem">
+      ${safrasDisponiveis.map(s => `
+        <button type="button" class="chip ${safraAtual === s ? "on" : ""}" data-safra-sel="${esc(s)}">${esc(s)}</button>
+      `).join("")}
+    </div>
+  </div>`;
+
+  // Progresso resumido (só para a safra atual dos dados SEED)
+  if (safraAtual === ((state.farm && state.farm.safra) || "2026/27")) {
+    if (!state.safraStatus) state.safraStatus = {};
+    const nCor = (SAFRA.corretivo || []).length;
+    const nFer = (SAFRA.fertilizante || []).length;
+    const nPla = (state.talhoes || []).length;
+    const nSul = (SAFRA.sulco || []).length;
     const countSt = (sec, total) => {
-      let c=0; for(let i=0;i<total;i++) if(getSt(sec,i)==="concluido") c++; return c;
+      let c = 0;
+      for (let i = 0; i < total; i++) {
+        const st = (state.safraStatus[sec + "-" + i] || {}).status || "pendente";
+        if (st === "concluido") c++;
+      }
+      return c;
     };
-    const nCor = SAFRA.corretivo.length, nFer = SAFRA.fertilizante.length, nPla = SAFRA.plantio.length, nSul = SAFRA.sulco.length;
-    html +=headerBar("Caderno de campo","Safra 2026/27");
-    {
-      const j=janelaMapa();
-      const st=statusJanela(hojeISO());
-      const fmt=iso=>(iso||"").split("-").reverse().join("/");
-      html +=`<div class="card safra-card">
-        <p class="card-title">Janela oficial de plantio</p>
-        <p><span class="badge ${st.cls}">${esc(st.label)}</span></p>
-        <div class="safra-timeline">
-          <div><b>${fmt(j.vazioIni)} → ${fmt(j.vazioFim)}</b><small>Vazio sanitário</small></div>
-          <div><b>${fmt(j.semeaduraIni)} → ${fmt(j.semeaduraFim)}</b><small>Semeadura permitida</small></div>
-        </div>
-        <p class="muted" style="margin-top:.55rem;font-size:.68rem">${esc(j.portaria||"")}</p>
-        <div class="safra-actions">
-          <button type="button" class="btn sm" data-edit="janela">Editar janela</button>
-          <a class="btn sm" href="${esc(j.fonte)}" target="_blank" rel="noopener">Consulta oficial</a>
-        </div>
-      </div>`;
-    }
-    html +=`<div class="card"><p class="card-title">Progresso da safra</p>
-      <p class="muted">Corretivo ${countSt("cor",nCor)}/${nCor} · Fertilizante ${countSt("fer",nFer)}/${nFer} · Plantio ${countSt("pla",nPla)}/${nPla} · Sulco ${countSt("sul",nSul)}/${nSul}</p></div>`;
-    html +=`<div class="chips">
-      <button type="button" class="chip ${safraFiltro==="todos"?"on":""}" data-safra-filtro="todos">Todos</button>
-      <button type="button" class="chip ${safraFiltro==="pendente"?"on":""}" data-safra-filtro="pendente">Pendente</button>
-      <button type="button" class="chip ${safraFiltro==="andamento"?"on":""}" data-safra-filtro="andamento">Em andamento</button>
-      <button type="button" class="chip ${safraFiltro==="concluido"?"on":""}" data-safra-filtro="concluido">Concluído</button>
+    html += `<div class="card">
+      <p class="card-title">Progresso · ${esc(safraAtual)}</p>
+      <p class="muted">Preparo ${countSt("cor", nCor)}/${nCor} · Adubação ${countSt("fer", nFer)}/${nFer} · Plantio ${countSt("pla", nPla)}/${nPla} · Sulco ${countSt("sul", nSul)}/${nSul}</p>
     </div>`;
-    // Corretivo
-    html +=`<p class="sec">Corretivo (calcário)</p>`;
-    SAFRA.corretivo.forEach((r,i)=>{
-      if(!matchFiltro("cor",i)) return;
-      const st=getSt("cor",i);
-      html +=`<div class="card safra-item"><div class="safra-item-top">
-        <p class="card-title">${esc(r.talhoes)}</p>
-        <button type="button" class="badge ${stBadge[st]}" data-safra-st="cor" data-i="${i}">${stLabel[st]}</button>
-      </div>
-        <p class="muted">${n(r.ha,2)} ha · ${esc(r.cultivar)}</p>
-        <p class="muted">${esc(r.dose)} · ${esc(r.volume)}</p>
-        ${st==="concluido"&&getStDate("cor",i)?`<p class="muted">Concluído em ${getStDate("cor",i).split("-").reverse().join("/")}</p>`:""}
-      </div>`;
-    });
-    // Fertilizante
-    html +=`<p class="sec">Fertilizante</p>`;
-    SAFRA.fertilizante.forEach((g,i)=>{
-      if(!matchFiltro("fer",i)) return;
-      const st=getSt("fer",i);
-      html +=`<div class="card safra-item"><div class="safra-item-top">
-        <p class="card-title">${esc(g.talhoes)}</p>
-        <button type="button" class="badge ${stBadge[st]}" data-safra-st="fer" data-i="${i}">${stLabel[st]}</button>
-      </div>
-        <p class="muted">${n(g.ha,2)} ha · ${esc(g.cultivar)}</p>
-        <ul class="safra-insumos">`;
-      g.itens.forEach(it=>{ html +=`<li><b>${esc(it.insumo)}</b><span>${esc(it.dose)} · ${esc(it.volume)}</span></li>`; });
-      html +=`</ul>
-        ${st==="concluido"&&getStDate("fer",i)?`<p class="muted">Concluído em ${getStDate("fer",i).split("-").reverse().join("/")}</p>`:""}
-      </div>`;
-    });
-    // Plantio — um card por talhão
-    html +=`<p class="sec">Plantio soja</p>`;
-    (state.talhoes||[]).forEach((t,i)=>{
-      if(!matchFiltro("pla",i)) return;
-      const st=getSt("pla",i);
-      const ov = (state.safraPlantio||{})[t.id] || {};
-      const seeds = (ov.sementes && ov.sementes.length) ? ov.sementes : [{cultivar: ov.cultivar || t.variedade || "—", qtd:"", un:"kg"}];
-      html +=`<div class="card safra-item"><div class="safra-item-top">
-        <p class="card-title">${esc(t.nome||t.codigo)}</p>
-        <div class="safra-item-actions">
-          <button type="button" class="badge ${stBadge[st]}" data-safra-st="pla" data-i="${i}">${stLabel[st]}</button>
-          <button type="button" class="btn sm" data-edit-plantio="${t.id}">✎</button>
+  }
+
+  // ========== SEÇÃO: Preparo de solo ==========
+  html += `<p class="sec">Preparo de solo (corretivo)</p>`;
+  if (!(SAFRA.corretivo || []).length || safraAtual !== ((state.farm && state.farm.safra) || "2026/27")) {
+    html += `<div class="card"><p class="muted">Sem registros de preparo para esta safra.</p></div>`;
+  } else {
+    SAFRA.corretivo.forEach((r, i) => {
+      const stKey = "cor-" + i;
+      const st = (state.safraStatus[stKey] || {}).status || "pendente";
+      const stDate = (state.safraStatus[stKey] || {}).data || "";
+      const stLabel = { pendente: "Pendente", andamento: "Em andamento", concluido: "Concluído" };
+      const stBadge = { pendente: "muted", andamento: "warn", concluido: "ok" };
+      html += `<div class="card safra-item">
+        <div class="safra-item-top">
+          <p class="card-title">${esc(r.talhoes)}</p>
+          <button type="button" class="badge ${stBadge[st]}" data-safra-st="cor" data-i="${i}">${stLabel[st]}</button>
         </div>
-      </div>
-        <p class="muted">${n(t.area,2)} ha · ${t.fazenda==="campo-alegre"?"Campo Alegre":"Santa Rita"}</p>
-        ${seeds.map(s=>`<p class="muted">${esc(s.cultivar||"—")}${s.qtd?` · ${esc(s.qtd)} ${esc(s.un||"")}`:""}</p>`).join("")}
-        ${st==="concluido"&&getStDate("pla",i)?`<p class="muted">Concluído em ${getStDate("pla",i).split("-").reverse().join("/")}</p>`:""}
+        <p class="muted">${n(r.ha, 2)} ha · ${esc(r.cultivar)}</p>
+        <p class="muted">${esc(r.dose)} · ${esc(r.volume)}</p>
+        ${st === "concluido" && stDate ? `<p class="muted">Concluído em ${stDate.split("-").reverse().join("/")}</p>` : ""}
       </div>`;
     });
-    // Sulco
-    html +=`<p class="sec">Manejo de sulco (todos os talhões)</p>`;
-    SAFRA.sulco.forEach((s,i)=>{
-      if(!matchFiltro("sul",i)) return;
-      const st=getSt("sul",i);
-      html +=`<div class="card safra-item"><div class="safra-item-top">
-        <p class="card-title">${esc(s.insumo)}</p>
-        <button type="button" class="badge ${stBadge[st]}" data-safra-st="sul" data-i="${i}">${stLabel[st]}</button>
-      </div>
+  }
+
+  // ========== SEÇÃO: Adubação ==========
+  html += `<p class="sec">Adubação</p>`;
+  if (!(SAFRA.fertilizante || []).length || safraAtual !== ((state.farm && state.farm.safra) || "2026/27")) {
+    html += `<div class="card"><p class="muted">Sem registros de adubação para esta safra.</p></div>`;
+  } else {
+    SAFRA.fertilizante.forEach((g, i) => {
+      const stKey = "fer-" + i;
+      const st = (state.safraStatus[stKey] || {}).status || "pendente";
+      const stDate = (state.safraStatus[stKey] || {}).data || "";
+      const stLabel = { pendente: "Pendente", andamento: "Em andamento", concluido: "Concluído" };
+      const stBadge = { pendente: "muted", andamento: "warn", concluido: "ok" };
+      html += `<div class="card safra-item">
+        <div class="safra-item-top">
+          <p class="card-title">${esc(g.talhoes)}</p>
+          <button type="button" class="badge ${stBadge[st]}" data-safra-st="fer" data-i="${i}">${stLabel[st]}</button>
+        </div>
+        <p class="muted">${n(g.ha, 2)} ha · ${esc(g.cultivar)}</p>
+        <ul class="safra-insumos">`;
+      (g.itens || []).forEach(it => {
+        html += `<li><b>${esc(it.insumo)}</b><span>${esc(it.dose)} · ${esc(it.volume)}</span></li>`;
+      });
+      html += `</ul>
+        ${st === "concluido" && stDate ? `<p class="muted">Concluído em ${stDate.split("-").reverse().join("/")}</p>` : ""}
+      </div>`;
+    });
+  }
+
+  // ========== SEÇÃO: Plantio + Sulco ==========
+  html += `<p class="sec">Plantio + Sulco</p>`;
+  if (safraAtual !== ((state.farm && state.farm.safra) || "2026/27")) {
+    html += `<div class="card"><p class="muted">Sem registros de plantio para esta safra.</p></div>`;
+  } else {
+    (state.talhoes || []).forEach((t, i) => {
+      const stKey = "pla-" + i;
+      const st = (state.safraStatus[stKey] || {}).status || "pendente";
+      const stDate = (state.safraStatus[stKey] || {}).data || "";
+      const stLabel = { pendente: "Pendente", andamento: "Em andamento", concluido: "Concluído" };
+      const stBadge = { pendente: "muted", andamento: "warn", concluido: "ok" };
+      const ov = (state.safraPlantio || {})[t.id] || {};
+      const seeds = (ov.sementes && ov.sementes.length) ? ov.sementes : [{ cultivar: ov.cultivar || t.variedade || "—", qtd: "", un: "kg" }];
+      html += `<div class="card safra-item">
+        <div class="safra-item-top">
+          <p class="card-title">${esc(t.nome || t.codigo)}</p>
+          <div class="safra-item-actions">
+            <button type="button" class="badge ${stBadge[st]}" data-safra-st="pla" data-i="${i}">${stLabel[st]}</button>
+            <button type="button" class="btn sm" data-edit-plantio="${t.id}">✎</button>
+          </div>
+        </div>
+        <p class="muted">${n(t.area, 2)} ha · ${t.fazenda === "campo-alegre" ? "Campo Alegre" : "Santa Rita"}</p>
+        ${seeds.map(s => `<p class="muted">${esc(s.cultivar || "—")}${s.qtd ? ` · ${esc(s.qtd)} ${esc(s.un || "")}` : ""}</p>`).join("")}
+        ${st === "concluido" && stDate ? `<p class="muted">Concluído em ${stDate.split("-").reverse().join("/")}</p>` : ""}
+      </div>`;
+    });
+
+    html += `<p class="sec" style="margin-top:1rem">Manejo de sulco</p>`;
+    (SAFRA.sulco || []).forEach((s, i) => {
+      const stKey = "sul-" + i;
+      const st = (state.safraStatus[stKey] || {}).status || "pendente";
+      const stDate = (state.safraStatus[stKey] || {}).data || "";
+      const stLabel = { pendente: "Pendente", andamento: "Em andamento", concluido: "Concluído" };
+      const stBadge = { pendente: "muted", andamento: "warn", concluido: "ok" };
+      html += `<div class="card safra-item">
+        <div class="safra-item-top">
+          <p class="card-title">${esc(s.insumo)}</p>
+          <button type="button" class="badge ${stBadge[st]}" data-safra-st="sul" data-i="${i}">${stLabel[st]}</button>
+        </div>
         <p class="muted">${esc(s.tipo)} · ${esc(s.fabricante)} · ${esc(s.dose)}</p>
-        ${st==="concluido"&&getStDate("sul",i)?`<p class="muted">Concluído em ${getStDate("sul",i).split("-").reverse().join("/")}</p>`:""}
+        ${st === "concluido" && stDate ? `<p class="muted">Concluído em ${stDate.split("-").reverse().join("/")}</p>` : ""}
       </div>`;
     });
-    // Talhões
-    html +=`<p class="sec">Talhões cadastrados</p><ul class="list card" style="padding:.25rem 1rem">`;
-    state.talhoes.forEach(t=>{
-      const tag=t.fazenda==="campo-alegre"?"Campo Alegre":"Santa Rita";
-      html +=`<li><div style="flex:1;min-width:0"><div class="list-title">${esc(t.nome||t.codigo)}</div><div class="list-sub muted">${ha(t.area)} · ${tag}</div></div></li>`;
+  }
+
+  // ========== SEÇÃO: Aplicações (resumo) ==========
+  html += `<p class="sec">Aplicações</p>`;
+  const apps = (state.aplicacoes || []).filter(a => !a.safra || a.safra === safraAtual)
+    .sort((a, b) => (b.data || "").localeCompare(a.data || ""));
+  if (!apps.length) {
+    html += `<div class="card"><p class="muted">Nenhuma aplicação registrada nesta safra.</p>
+    <p class="muted">Use a tela <b>Aplicação</b> para registrar ordens de campo.</p></div>`;
+  } else {
+    apps.forEach(a => {
+      const prods = (a.produtos || []).map(p => {
+        const q = p.quantidade != null ? p.quantidade : (p.qtd || "");
+        return `${p.nome || p.insumo}${q ? " · " + q + " " + (p.unidade || "") : ""}`;
+      }).join("; ");
+      html += `<div class="card safra-item">
+        <div class="safra-item-top">
+          <p class="card-title">${esc(a.titulo || a.tipo || "Aplicação")}</p>
+          <span class="badge ok">${esc(a.data ? a.data.split("-").reverse().join("/") : "—")}</span>
+        </div>
+        <p class="muted">${esc(prods || "Sem produtos")}</p>
+      </div>`;
     });
-    html +=`</ul>`;
+  }
+
   return html;
 };
+
+function getSafrasDisponiveis() {
+  const set = new Set();
+  const atual = (state.farm && state.farm.safra) || "2026/27";
+  set.add(atual);
+  (state.aplicacoes || []).forEach(a => { if (a.safra) set.add(a.safra); });
+  (state.ordensCampo || []).forEach(o => { if (o.safra) set.add(o.safra); });
+  if (!set.has("Safrinha 2027")) set.add("Safrinha 2027");
+  return Array.from(set);
+}

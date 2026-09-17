@@ -12,7 +12,9 @@ window.CampoGestorTelas.mais = function() {
     <button type="button" class="btn" data-edit="farm" style="margin-top:.8rem">Editar fazenda</button>
   </div>`;
   html += `<div class="more-list">
-    <button type="button" class="more-row" data-go="safra"><span>🌾</span><div><b>Safra</b><small>Programação e plantio</small></div></button>
+    <button type="button" class="more-row" data-go="talhoes"><span>🗺️</span><div><b>Talhões</b><small>Lista e histórico por talhão</small></div></button>
+    <button type="button" class="more-row" data-go="aplicacao"><span>💧</span><div><b>Aplicação</b><small>Ordens de campo e produtos</small></div></button>
+    <button type="button" class="more-row" data-go="safra"><span>🌾</span><div><b>Safra</b><small>Centro histórico por safra</small></div></button>
     <button type="button" class="more-row" data-go="equatorial"><span>⚡</span><div><b>Energia</b><small>Equatorial / UCs</small></div></button>
     <button type="button" class="more-row" data-go="extintores"><span>🧯</span><div><b>Extintores</b><small>Controle e recarga</small></div></button>
     <button type="button" class="more-row" data-go="folgas"><span>📅</span><div><b>Folgas</b><small>Plantão e faltas</small></div></button>

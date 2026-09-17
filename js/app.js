@@ -120,6 +120,10 @@ sincronizaDieselInventario();
 
 let page = "hoje";
 let menuOpen = false;
+let talhaoDetalhe = null;       // id do talhão em detalhe
+let safraSelecionada = null;    // safra escolhida no centro histórico
+let aplicacaoView = "lista";    // lista | nova | editar | detalhe
+let aplicacaoId = null;         // id da ordem em edição/detalhe
 let qInsumo = "";
 let estoqueBuscaAberta = false;
 let qMaq = "";
@@ -906,9 +910,10 @@ function render(){
     {id:"frota",ic:"🚜",label:"Frota"},
     {id:"estoque",ic:"📦",label:"Estoque"},
     {id:"pessoas",ic:"👥",label:"Pessoas"},
+    {id:"talhoes",ic:"🗺️",label:"Talhões"},
+    {id:"aplicacao",ic:"💧",label:"Aplicação"},
     {id:"safra",ic:"🌾",label:"Safra"},
     {id:"chuva",ic:"🌧️",label:"Chuva"},
-
     {id:"folgas",ic:"📅",label:"Folgas"},
     {id:"equatorial",ic:"⚡",label:"Energia"},
     {id:"extintores",ic:"🧯",label:"Extintores"},
@@ -948,7 +953,13 @@ function bind(){
   if(pov) pov.onclick=(e)=>{ if(e.target===pov) pov.classList.remove("open"); };
   document.querySelectorAll("[data-profile-id]").forEach(b=>{ b.onclick=()=>{ const id=b.getAttribute("data-profile-id"); setPerfil(id); render(); }; });
 
-  document.querySelectorAll("[data-go]").forEach(btn=>{ btn.onclick=()=>{ page=btn.getAttribute("data-go"); edit=null; menuOpen=false; render(); }; });
+  document.querySelectorAll("[data-go]").forEach(btn=>{ btn.onclick=()=>{
+    page=btn.getAttribute("data-go");
+    edit=null; menuOpen=false;
+    talhaoDetalhe=null;
+    aplicacaoView="lista"; aplicacaoId=null;
+    render();
+  }; });
   document.querySelectorAll("[data-hoje]").forEach(b=>{
     b.onclick=(ev)=>{
       ev.preventDefault();
@@ -1030,9 +1041,141 @@ function bind(){
       save(); render();
     };
   });
+  
   document.querySelectorAll("[data-edit-plantio]").forEach(b=>{
     b.onclick=()=>{ edit={kind:"edit-plantio", id:b.getAttribute("data-edit-plantio")}; render(); };
   });
+
+  /* === Talhões === */
+  document.querySelectorAll("[data-talhao-id]").forEach(b=>{
+    b.onclick=()=>{ talhaoDetalhe=b.getAttribute("data-talhao-id"); render(); };
+  });
+  const btnVoltarTal = document.getElementById("btn-voltar-talhoes");
+  if(btnVoltarTal) btnVoltarTal.onclick=()=>{ talhaoDetalhe=null; render(); };
+
+  /* === Safra seletor === */
+  document.querySelectorAll("[data-safra-sel]").forEach(b=>{
+    b.onclick=()=>{ safraSelecionada=b.getAttribute("data-safra-sel"); render(); };
+  });
+
+  /* === Aplicação === */
+  const btnNovaOrd = document.getElementById("btn-nova-ordem");
+  if(btnNovaOrd) btnNovaOrd.onclick=()=>{
+    if(isVisitante()){ toast("O perfil Visitante é somente para consulta"); return; }
+    aplicacaoView="nova"; aplicacaoId=null; render();
+  };
+  const btnVoltarApp = document.getElementById("btn-voltar-aplicacao");
+  if(btnVoltarApp) btnVoltarApp.onclick=()=>{ aplicacaoView="lista"; aplicacaoId=null; render(); };
+
+  document.querySelectorAll("[data-ordem-id]").forEach(b=>{
+    b.onclick=()=>{ aplicacaoView="detalhe"; aplicacaoId=b.getAttribute("data-ordem-id"); render(); };
+  });
+
+  const btnEditarOrd = document.getElementById("btn-editar-ordem");
+  if(btnEditarOrd) btnEditarOrd.onclick=()=>{
+    if(isVisitante()){ toast("O perfil Visitante é somente para consulta"); return; }
+    aplicacaoView="editar"; render();
+  };
+
+  // Add produto line
+  const btnAddProd = document.getElementById("ord-add-prod");
+  if(btnAddProd) btnAddProd.onclick=()=>{
+    const box=document.getElementById("ord-produtos");
+    if(!box) return;
+    const div=document.createElement("div");
+    div.className="ord-prod-linha";
+    div.style.cssText="display:grid;grid-template-columns:1fr 90px 70px;gap:6px;margin-bottom:8px";
+    div.innerHTML=`<input class="ord-prod-nome" placeholder="Nome do produto" value=""/>
+      <input class="ord-prod-dose" type="number" step="0.01" placeholder="Dose/ha" value=""/>
+      <select class="ord-prod-un"><option value="L">L</option><option value="kg">kg</option><option value="g">g</option><option value="ml">ml</option></select>`;
+    box.insertBefore(div, btnAddProd);
+    atualizarCalculoOrdem();
+  };
+
+  // Live calc on change
+  function atualizarCalculoOrdem(){
+    const txt=document.getElementById("ord-calculo-txt");
+    if(!txt) return;
+    const produtos=[...document.querySelectorAll(".ord-prod-linha")].map(ln=>({
+      nome:(ln.querySelector(".ord-prod-nome")||{}).value||"",
+      doseHa:(ln.querySelector(".ord-prod-dose")||{}).value||"",
+      unidade:(ln.querySelector(".ord-prod-un")||{}).value||"L"
+    }));
+    const talhaoIds=[...document.querySelectorAll(".ord-talhao:checked")].map(c=>c.value);
+    const calc = typeof calcularProdutosOrdem==="function" ? calcularProdutosOrdem(produtos, talhaoIds) : [];
+    const area = calc[0] ? calc[0].area : 0;
+    if(!talhaoIds.length || !produtos.some(p=>p.nome && p.doseHa)){
+      txt.textContent="Selecione talhões e informe as doses para ver o cálculo.";
+      return;
+    }
+    txt.innerHTML = calc.filter(c=>c.nome).map(c=>`<div><b>${esc(c.nome)}</b>: ${c.doseHa} ${c.unidade}/ha × ${n(c.area,1)} ha = <b>${n(c.quantidade,2)} ${c.unidade}</b></div>`).join("") || "—";
+  }
+  document.querySelectorAll(".ord-prod-nome, .ord-prod-dose, .ord-prod-un, .ord-talhao").forEach(el=>{
+    el.addEventListener("input", atualizarCalculoOrdem);
+    el.addEventListener("change", atualizarCalculoOrdem);
+  });
+  atualizarCalculoOrdem();
+
+  // Salvar ordem
+  const btnSalvarOrd = document.getElementById("ord-salvar");
+  if(btnSalvarOrd) btnSalvarOrd.onclick=()=>{
+    if(isVisitante()){ toast("O perfil Visitante é somente para consulta"); return; }
+    if(!state.ordensCampo) state.ordensCampo=[];
+    const produtos=[...document.querySelectorAll(".ord-prod-linha")].map(ln=>({
+      nome:(ln.querySelector(".ord-prod-nome")||{}).value||"",
+      doseHa:Number((ln.querySelector(".ord-prod-dose")||{}).value)||0,
+      unidade:(ln.querySelector(".ord-prod-un")||{}).value||"L"
+    })).filter(p=>p.nome);
+    const talhaoIds=[...document.querySelectorAll(".ord-talhao:checked")].map(c=>c.value);
+    const payload={
+      id: aplicacaoView==="editar" && aplicacaoId ? aplicacaoId : uid(),
+      titulo:(document.getElementById("ord-titulo")||{}).value||"",
+      tipo:(document.getElementById("ord-tipo")||{}).value||"herbicida",
+      data:(document.getElementById("ord-data")||{}).value||hojeISO(),
+      status:(document.getElementById("ord-status")||{}).value||"aberta",
+      talhaoIds,
+      produtos,
+      obs:(document.getElementById("ord-obs")||{}).value||"",
+      safra:(state.farm&&state.farm.safra)||"2026/27"
+    };
+    if(aplicacaoView==="editar" && aplicacaoId){
+      const idx=state.ordensCampo.findIndex(x=>x.id===aplicacaoId);
+      if(idx>=0) state.ordensCampo[idx]=payload;
+      else state.ordensCampo.push(payload);
+    } else {
+      state.ordensCampo.push(payload);
+    }
+    save();
+    toast("Ordem salva");
+    aplicacaoView="detalhe"; aplicacaoId=payload.id; render();
+  };
+
+  // Executar ordem → gera histórico em aplicacoes
+  const btnExec = document.getElementById("ord-executar");
+  if(btnExec) btnExec.onclick=()=>{
+    if(isVisitante()){ toast("O perfil Visitante é somente para consulta"); return; }
+    const o=(state.ordensCampo||[]).find(x=>x.id===aplicacaoId);
+    if(!o) return;
+    o.status="executado";
+    if(!state.aplicacoes) state.aplicacoes=[];
+    const calc = typeof calcularProdutosOrdem==="function" ? calcularProdutosOrdem(o.produtos, o.talhaoIds) : (o.produtos||[]);
+    state.aplicacoes.push({
+      id: uid(),
+      ordemId: o.id,
+      titulo: o.titulo || o.tipo,
+      tipo: o.tipo,
+      data: o.data || hojeISO(),
+      status: "executado",
+      talhaoIds: o.talhaoIds || [],
+      produtos: calc.map(c=>({ nome:c.nome, quantidade:c.quantidade, unidade:c.unidade, doseHa:c.doseHa })),
+      safra: o.safra || (state.farm&&state.farm.safra) || "2026/27",
+      obs: o.obs || ""
+    });
+    save();
+    toast("Aplicação registrada no histórico");
+    aplicacaoView="lista"; aplicacaoId=null; render();
+  };
+
 
   const bm=document.getElementById("btn-menu");
   if(bm) {

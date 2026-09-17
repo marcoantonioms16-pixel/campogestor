@@ -66,3 +66,14 @@ Abertura total sem internet ainda depende de cache/PWA — evolução futura.
 ## Backup
 
 Cópias antigas em `backup/`. Não edite esses arquivos no fluxo normal.
+
+## Atualização — Talhões, Aplicação e Centro Histórico (Safra)
+
+Nova estrutura:
+
+- **Hoje**: agora inclui a janela oficial de plantio e o progresso da safra.
+- **Talhões**: lista de todos os talhões. Ao clicar, mostra o histórico filtrado pela safra atual.
+- **Aplicação**: ordens de campo, seleção de talhões, cálculo automático de produto e histórico de aplicações.
+- **Safra**: virou o centro histórico. Escolha a safra e veja as seções Preparo de solo, Adubação, Plantio+Sulco e Aplicações.
+
+Arquivos novos: `js/telas/talhoes.js`, `js/telas/aplicacao.js`.

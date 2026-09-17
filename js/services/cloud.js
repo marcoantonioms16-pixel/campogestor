@@ -253,6 +253,8 @@ function load(){
         safraPlantio: d.safraPlantio || {},
         equatorial: d.equatorial || SEED.equatorial,
         rotinaFeita: d.rotinaFeita || {},
+        ordensCampo: Array.isArray(d.ordensCampo) ? d.ordensCampo : [],
+        aplicacoes: Array.isArray(d.aplicacoes) ? d.aplicacoes : [],
       };
     }
   }catch(e){}

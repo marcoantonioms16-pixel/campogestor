@@ -36,6 +36,51 @@ window.CampoGestorTelas.hoje = function() {
     <button type="button" class="today-metric" data-hoje="chuva"><span class="metric-symbol">🌧</span><strong>${ultima?n(ultima.mm,1)+" mm":"—"}</strong><small>${ultima?(diasAtras(ultima.data,hoje)===0?"Hoje":"há "+diasAtras(ultima.data,hoje)+" dias"):"Chuva registrada"}</small></button>
   </div>`;
 
+  /* Janela oficial de plantio + progresso da safra (movidos da tela Safra) */
+  {
+    const j = janelaMapa();
+    const st = statusJanela(hoje);
+    const fmt = iso => (iso||"").split("-").reverse().join("/");
+    html += `<section class="today-panel">
+      <div class="panel-title"><div><h3>Janela oficial de plantio</h3><span>${esc(st.label)}</span></div></div>
+      <div class="card safra-card" style="margin:0;box-shadow:none;border:0;padding:0">
+        <p><span class="badge ${st.cls}">${esc(st.label)}</span></p>
+        <div class="safra-timeline">
+          <div><b>${fmt(j.vazioIni)} → ${fmt(j.vazioFim)}</b><small>Vazio sanitário</small></div>
+          <div><b>${fmt(j.semeaduraIni)} → ${fmt(j.semeaduraFim)}</b><small>Semeadura permitida</small></div>
+        </div>
+        <p class="muted" style="margin-top:.45rem;font-size:.68rem">${esc(j.portaria||"")}</p>
+      </div>
+    </section>`;
+
+    if (!state.safraStatus) state.safraStatus = {};
+    const nCor = (typeof SAFRA !== "undefined" && SAFRA.corretivo) ? SAFRA.corretivo.length : 0;
+    const nFer = (typeof SAFRA !== "undefined" && SAFRA.fertilizante) ? SAFRA.fertilizante.length : 0;
+    const nPla = (state.talhoes || []).length;
+    const nSul = (typeof SAFRA !== "undefined" && SAFRA.sulco) ? SAFRA.sulco.length : 0;
+    const countSt = (sec, total) => {
+      let c = 0;
+      for (let i = 0; i < total; i++) {
+        const s = (state.safraStatus[sec + "-" + i] || {}).status || "pendente";
+        if (s === "concluido") c++;
+      }
+      return c;
+    };
+    html += `<section class="today-panel">
+      <div class="panel-title"><div><h3>Progresso da safra</h3><span>${esc(state.farm?.safra||"")}</span></div>
+        <button type="button" class="today-link" data-go="safra">Ver histórico ›</button>
+      </div>
+      <div class="today-rows">
+        <div class="today-row"><div><b>Preparo de solo</b><small>${countSt("cor", nCor)}/${nCor} concluídos</small></div></div>
+        <div class="today-row"><div><b>Adubação</b><small>${countSt("fer", nFer)}/${nFer} concluídos</small></div></div>
+        <div class="today-row"><div><b>Plantio</b><small>${countSt("pla", nPla)}/${nPla} concluídos</small></div></div>
+        <div class="today-row"><div><b>Sulco</b><small>${countSt("sul", nSul)}/${nSul} concluídos</small></div></div>
+      </div>
+    </section>`;
+  }
+
+
+
   /* Substitui "Fazenda em movimento" por previsão real, carregada da API pública. */
   html += `<section class="today-weather" id="today-weather">
     <div class="today-weather-head"><div><span class="today-eyebrow dark">CLIMA</span><h3>Previsão de chuva</h3><p>Próximos dias · ${esc(state.farm?.municipio||"local da fazenda")}</p></div><span class="weather-live">● Atualização automática</span></div>
