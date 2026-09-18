@@ -122,9 +122,10 @@ let page = "hoje";
 let menuOpen = false;
 let talhaoDetalhe = null;       // id do talhão em detalhe
 let safraSelecionada = null;    // safra escolhida no centro histórico
-let aplicacaoView = "lista";    // lista | nova | editar | detalhe
+let aplicacaoView = "lista";    // lista | tipo | nova | editar | detalhe
 let aplicacaoId = null;
-let aplicacaoFiltro = "todos"; // todos | id do tipo         // id da ordem em edição/detalhe
+let aplicacaoFiltro = "todos"; // todos | id do tipo
+let aplicacaoSel = [];         // ids das ordens selecionadas para soma
 let qInsumo = "";
 let estoqueBuscaAberta = false;
 let qMaq = "";
@@ -978,7 +979,7 @@ function bind(){
     page=btn.getAttribute("data-go");
     edit=null; menuOpen=false;
     talhaoDetalhe=null;
-    aplicacaoView="lista"; aplicacaoId=null;
+    aplicacaoView="lista"; aplicacaoId=null; aplicacaoSel=[];
     render();
   }; });
   document.querySelectorAll("[data-hoje]").forEach(b=>{
@@ -1088,13 +1089,42 @@ function bind(){
     aplicacaoView="nova"; aplicacaoId=null; render();
   };
   const btnVoltarApp = document.getElementById("btn-voltar-aplicacao");
-  if(btnVoltarApp) btnVoltarApp.onclick=()=>{ aplicacaoView="lista"; aplicacaoId=null; render(); };
+  if(btnVoltarApp) btnVoltarApp.onclick=()=>{
+    if(aplicacaoView==="tipo"){ aplicacaoView="lista"; aplicacaoId=null; aplicacaoSel=[]; }
+    else { aplicacaoView="tipo"; aplicacaoId=null; }
+    render();
+  };
+
+  document.querySelectorAll("[data-aplicacao-tipo]").forEach(b=>{
+    b.onclick=()=>{
+      aplicacaoFiltro=b.getAttribute("data-aplicacao-tipo")||"todos";
+      aplicacaoView="tipo";
+      aplicacaoId=null;
+      aplicacaoSel=[];
+      render();
+    };
+  });
 
   document.querySelectorAll("[data-ordem-id]").forEach(b=>{
-    b.onclick=()=>{ aplicacaoView="detalhe"; aplicacaoId=b.getAttribute("data-ordem-id"); render(); };
+    b.onclick=(e)=>{ e.stopPropagation(); aplicacaoView="detalhe"; aplicacaoId=b.getAttribute("data-ordem-id"); render(); };
   });
-  document.querySelectorAll("[data-aplicacao-filtro]").forEach(b=>{
-    b.onclick=()=>{ aplicacaoFiltro=b.getAttribute("data-aplicacao-filtro")||"todos"; render(); };
+  document.querySelectorAll("[data-editar-ordem]").forEach(b=>{
+    b.onclick=(e)=>{
+      e.stopPropagation();
+      if(isVisitante()){ toast("O perfil Visitante é somente para consulta"); return; }
+      aplicacaoId=b.getAttribute("data-editar-ordem");
+      aplicacaoView="editar";
+      render();
+    };
+  });
+  document.querySelectorAll("[data-sel-ordem]").forEach(cb=>{
+    cb.onchange=()=>{
+      const id=cb.getAttribute("data-sel-ordem");
+      const set=new Set(aplicacaoSel||[]);
+      if(cb.checked) set.add(id); else set.delete(id);
+      aplicacaoSel=[...set];
+      render();
+    };
   });
 
   const btnEditarOrd = document.getElementById("btn-editar-ordem");
