@@ -1,0 +1,20 @@
+CampoGestor — correções de segurança (itens 2 a 6)
+
+COMO ENVIAR (pelo site do GitHub, como você já faz):
+1. Abra o repositório campogestor.
+2. Apague estes dois arquivos (cada um: ícone ⋯ → Delete file → Commit):
+   - index.original-backup.html   (está na raiz)
+   - backup/index.original-backup.html
+3. Em cada pasta, use Add file → Upload files e substitua:
+   - index.html, sw.js, vercel.json, robots.txt, .vercelignore  (raiz)
+   - css/app.css
+   - js/app.js
+   - js/core/data.js
+   - js/services/cloud.js
+   - js/telas/pessoas.js
+   - js/telas/mais.js
+4. Espere o Vercel republicar (~1 minuto).
+5. No Supabase: Authentication → Providers → Email → desligue "Allow new sign ups".
+6. DEIXE O GITHUB PRIVADO de novo.
+
+Depois, entre no app com a conta da fazenda pelo CELULAR que já tinha os dados.

@@ -1,5 +1,5 @@
 /* CampoGestor — service worker (Onda A: offline básico) */
-const CACHE_NAME = 'campogestor-cache-v3';
+const CACHE_NAME = 'campogestor-cache-v4';
 const PRECACHE = [
   './',
   './index.html',
@@ -7,6 +7,7 @@ const PRECACHE = [
   './css/app.css',
   './js/core/data.js',
   './js/core/config.js',
+  './js/core/ordens-cata.js',
   './js/services/cloud.js',
   './js/gestos.js',
   './js/app.js',
@@ -15,6 +16,8 @@ const PRECACHE = [
   './js/telas/estoque.js',
   './js/telas/pessoas.js',
   './js/telas/safra.js',
+  './js/telas/talhoes.js',
+  './js/telas/aplicacao.js',
   './js/telas/sementes.js',
   './js/telas/chuva.js',
   './js/telas/folgas.js',
