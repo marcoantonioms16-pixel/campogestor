@@ -1,4 +1,4 @@
-/* Tela: Aplicação — ordens de campo, chips por tipo, cálculo e histórico. */
+/* Tela: Aplicação — janelas por tipo, lista de ordens, seleção e soma de insumos. */
 window.CampoGestorTelas = window.CampoGestorTelas || {};
 
 const TIPOS_APLICACAO = [
@@ -25,62 +25,26 @@ window.CampoGestorTelas.aplicacao = function() {
   if (aplicacaoView === "detalhe" && aplicacaoId) {
     return renderDetalheOrdem(aplicacaoId);
   }
+  if (aplicacaoView === "tipo") {
+    return renderListaOrdensTipo();
+  }
 
-  let html = headerBar("Aplicação", "Ordens de campo");
+  let html = headerBar("Aplicação", "Tipos de aplicação");
 
-  // Chips em lista vertical (melhor no celular)
-  const filtro = aplicacaoFiltro || "todos";
-  html += `<p class="sec">Tipo de aplicação</p>`;
+  html += `<p class="sec">Janelas de aplicação</p>`;
   html += `<div class="aplicacao-chips">`;
-  html += `<button type="button" class="chip-row ${filtro === "todos" ? "on" : ""}" data-aplicacao-filtro="todos">
-    <span>Todas</span>
+  html += `<button type="button" class="chip-row" data-aplicacao-tipo="todos">
+    <span>Todas as ordens</span>
     <small>${(state.ordensCampo || []).length}</small>
   </button>`;
   TIPOS_APLICACAO.forEach(t => {
     const qtd = (state.ordensCampo || []).filter(o => o.tipo === t.id).length;
-    html += `<button type="button" class="chip-row ${filtro === t.id ? "on" : ""}" data-aplicacao-filtro="${esc(t.id)}">
+    html += `<button type="button" class="chip-row" data-aplicacao-tipo="${esc(t.id)}">
       <span>${esc(t.label)}</span>
       <small>${qtd}</small>
     </button>`;
   });
   html += `</div>`;
-
-  // Ações
-  html += `<div style="margin:.7rem 0">
-    <button type="button" class="btn primary block" id="btn-nova-ordem">+ Nova ordem de campo</button>
-  </div>`;
-
-  // Lista filtrada
-  let ordens = (state.ordensCampo || []).slice().sort((a, b) => (b.data || "").localeCompare(a.data || ""));
-  if (filtro !== "todos") {
-    ordens = ordens.filter(o => o.tipo === filtro);
-  }
-
-  html += `<p class="sec">${filtro === "todos" ? "Ordens de campo" : labelTipoAplicacao(filtro)}</p>`;
-  if (!ordens.length) {
-    html += `<div class="card"><p class="muted">Nenhuma ordem neste tipo ainda.</p></div>`;
-  } else {
-    ordens.forEach(o => {
-      const nTal = (o.talhaoIds || []).length;
-      const nProd = (o.produtos || []).length;
-      const st = o.status || "aberta";
-      const stLabel = { aberta: "Aberta", hoje: "Para hoje", executado: "Executado", cancelado: "Cancelado" };
-      const stBadge = { aberta: "warn", hoje: "ok", executado: "ok", cancelado: "muted" };
-      const talNome = nTal === 1
-        ? (() => {
-            const t = (state.talhoes || []).find(x => x.id === (o.talhaoIds || [])[0]);
-            return t ? (t.nome || t.codigo) : "1 talhão";
-          })()
-        : nTal + " talhões";
-      html += `<button type="button" class="card safra-item" data-ordem-id="${esc(o.id)}" style="text-align:left;width:100%;cursor:pointer;margin-bottom:.45rem">
-        <div class="safra-item-top">
-          <p class="card-title" style="margin:0;font-size:.92rem">${esc(o.titulo || labelTipoAplicacao(o.tipo))}</p>
-          <span class="badge ${stBadge[st] || "muted"}">${esc(stLabel[st] || st)}</span>
-        </div>
-        <p class="muted" style="margin:.2rem 0 0">${esc(o.data ? o.data.split("-").reverse().join("/") : "—")} · ${esc(talNome)} · ${nProd} produto(s)${o.oc ? " · OC " + esc(o.oc) : ""}</p>
-      </button>`;
-    });
-  }
 
   // Histórico recente (só executadas)
   const apps = (state.aplicacoes || []).slice().sort((a, b) => (b.data || "").localeCompare(a.data || ""));
@@ -100,6 +64,100 @@ window.CampoGestorTelas.aplicacao = function() {
 
   return html;
 };
+
+
+function insumosDaOrdem(o) {
+  const talhoesSel = (state.talhoes || []).filter(t => (o.talhaoIds || []).includes(t.id));
+  const areaTotal = talhoesSel.reduce((s, t) => s + (Number(t.area) || 0), 0);
+  return (o.produtos || []).map(p => {
+    const dose = Number(p.doseHa != null ? p.doseHa : p.dose) || 0;
+    const un = p.unidade || "L";
+    const qtd = p.quantidade != null && p.quantidade !== ""
+      ? Number(p.quantidade)
+      : dose * areaTotal;
+    return { nome: p.nome || "", doseHa: dose, unidade: un, area: areaTotal, quantidade: Number(qtd) || 0 };
+  }).filter(p => p.nome);
+}
+
+function somarInsumosOrdens(ordens) {
+  const map = {};
+  let area = 0;
+  (ordens || []).forEach(o => {
+    const itens = insumosDaOrdem(o);
+    if (itens[0]) area += Number(itens[0].area) || 0;
+    itens.forEach(c => {
+      const key = c.nome.trim().toLowerCase() + "|" + c.unidade;
+      if (!map[key]) map[key] = { nome: c.nome, unidade: c.unidade, quantidade: 0 };
+      map[key].quantidade += Number(c.quantidade) || 0;
+    });
+  });
+  return { itens: Object.values(map), area };
+}
+
+function renderListaOrdensTipo() {
+  const filtro = aplicacaoFiltro || "todos";
+  const titulo = filtro === "todos" ? "Todas as ordens" : labelTipoAplicacao(filtro);
+  let html = headerBar("Aplicação", titulo);
+  html += `<button type="button" class="btn sm" id="btn-voltar-aplicacao" style="margin-bottom:.7rem">← Voltar</button>`;
+
+  let ordens = (state.ordensCampo || []).slice().sort((a, b) => (b.data || "").localeCompare(a.data || ""));
+  if (filtro !== "todos") ordens = ordens.filter(o => o.tipo === filtro);
+
+  html += `<div style="margin:0 0 .7rem">
+    <button type="button" class="btn primary block" id="btn-nova-ordem">+ Nova ordem neste tipo</button>
+  </div>`;
+
+  const sel = new Set(aplicacaoSel || []);
+  const selecionadas = ordens.filter(o => sel.has(o.id));
+  const soma = somarInsumosOrdens(selecionadas);
+
+  html += `<div class="card" id="aplicacao-soma" style="margin-bottom:.7rem">
+    <p class="card-title">Insumos das ordens selecionadas</p>
+    ${!selecionadas.length
+      ? `<p class="muted" style="margin:.25rem 0 0">Marque 1 ou mais ordens para somar as quantidades.</p>`
+      : `<p class="muted" style="margin:.2rem 0 .35rem">${selecionadas.length} ordem(ns) · ${n(soma.area, 2)} ha</p>
+         <ul class="safra-insumos">${soma.itens.map(i =>
+           `<li><b>${esc(i.nome)}</b><span><b>${n(i.quantidade, 2)} ${esc(i.unidade)}</b></span></li>`
+         ).join("") || "<li class=\"muted\">Sem produtos nas ordens selecionadas.</li>"}</ul>`}
+  </div>`;
+
+  html += `<p class="sec">${ordens.length} ordem(ns)</p>`;
+  if (!ordens.length) {
+    html += `<div class="card"><p class="muted">Nenhuma ordem neste tipo ainda.</p></div>`;
+  } else {
+    ordens.forEach(o => {
+      const nTal = (o.talhaoIds || []).length;
+      const nProd = (o.produtos || []).length;
+      const st = o.status || "aberta";
+      const stLabel = { aberta: "Aberta", hoje: "Para hoje", executado: "Executado", cancelado: "Cancelado" };
+      const stBadge = { aberta: "warn", hoje: "ok", executado: "ok", cancelado: "muted" };
+      const talNome = nTal === 1
+        ? (() => {
+            const t = (state.talhoes || []).find(x => x.id === (o.talhaoIds || [])[0]);
+            return t ? (t.nome || t.codigo) : "1 talhão";
+          })()
+        : nTal + " talhões";
+      const checked = sel.has(o.id) ? "checked" : "";
+      html += `<div class="card safra-item ordem-sel-card" style="margin-bottom:.45rem">
+        <div class="safra-item-top" style="align-items:flex-start;gap:8px">
+          <label style="display:flex;align-items:flex-start;gap:10px;flex:1;min-width:0;cursor:pointer">
+            <input type="checkbox" class="ord-sel" data-sel-ordem="${esc(o.id)}" ${checked} style="margin-top:4px;width:18px;height:18px;flex-shrink:0"/>
+            <span style="min-width:0">
+              <span class="card-title" style="display:block;font-size:.92rem">${esc(o.titulo || labelTipoAplicacao(o.tipo))}</span>
+              <span class="muted" style="display:block;margin-top:.2rem">${esc(o.data ? o.data.split("-").reverse().join("/") : "—")} · ${esc(talNome)} · ${nProd} produto(s)${o.oc ? " · OC " + esc(o.oc) : ""}</span>
+            </span>
+          </label>
+          <span class="badge ${stBadge[st] || "muted"}">${esc(stLabel[st] || st)}</span>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:.55rem;flex-wrap:wrap">
+          <button type="button" class="btn sm" data-ordem-id="${esc(o.id)}">Ver</button>
+          <button type="button" class="btn sm" data-editar-ordem="${esc(o.id)}">Editar</button>
+        </div>
+      </div>`;
+    });
+  }
+  return html;
+}
 
 function renderFormOrdem() {
   const isEdit = aplicacaoView === "editar" && aplicacaoId;
@@ -187,7 +245,7 @@ function renderFormOrdem() {
 function renderDetalheOrdem(id) {
   const o = (state.ordensCampo || []).find(x => x.id === id);
   if (!o) {
-    aplicacaoView = "lista";
+    aplicacaoView = "tipo";
     aplicacaoId = null;
     return window.CampoGestorTelas.aplicacao();
   }
