@@ -1,5 +1,5 @@
 /* CampoGestor — service worker (Onda A: offline básico) */
-const CACHE_NAME = 'campogestor-cache-v4';
+const CACHE_NAME = 'campogestor-cache-v16';
 const PRECACHE = [
   './',
   './index.html',
