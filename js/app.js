@@ -437,7 +437,14 @@ function detalheSaldo(nome){
   return {s, mensal, domingoX, domingoTrab};
 }
 
-function esc(s){ return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;"); }
+function esc(s){
+  return String(s??"")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#39;");
+}
 function exportCSV(filename, rows){
   const csv = rows.map(r=>r.map(c=>{
     const s=String(c??"");
