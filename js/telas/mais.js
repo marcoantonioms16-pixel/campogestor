@@ -23,7 +23,6 @@ window.CampoGestorTelas.mais = function() {
     <p class="card-title">Manutenção</p>
     <p class="mais-line">Troque o usuário pelo perfil no topo.</p>
     <p class="mais-line">Visitante é somente consulta.</p>
-    <button type="button" class="btn block" id="btn-reset" style="margin-top:.7rem">Restaurar cadastro oficial</button>
   </div>`;
   return html;
 };
