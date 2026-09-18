@@ -214,9 +214,16 @@ async function pullCloud() {
         diesel: { ...SEED.diesel, ...(data.diesel || {}) },
       };
       sincronizaDieselInventario();
-      if (!state.sementes) state.sementes = [];
+            if (!state.sementes) state.sementes = [];
       if (!state.folgas) state.folgas = [];
       if (!state.equatorial) state.equatorial = SEED.equatorial;
+            if (!Array.isArray(state.ordensCampo)) state.ordensCampo = [];
+      if (typeof ORDENS_CATA_SEED !== "undefined" && Array.isArray(ORDENS_CATA_SEED)) {
+        const existing = new Set(state.ordensCampo.map(o => o.id));
+        ORDENS_CATA_SEED.forEach(o => {
+          if (!existing.has(o.id)) state.ordensCampo.push(JSON.parse(JSON.stringify(o)));
+        });
+      }
       localStorage.setItem(KEY, JSON.stringify(state));
       cloudStatus = "synced";
       return true;
