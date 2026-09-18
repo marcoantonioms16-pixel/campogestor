@@ -103,10 +103,6 @@ function renderListaOrdensTipo() {
   let ordens = (state.ordensCampo || []).slice().sort((a, b) => (b.data || "").localeCompare(a.data || ""));
   if (filtro !== "todos") ordens = ordens.filter(o => o.tipo === filtro);
 
-  html += `<div style="margin:0 0 .7rem">
-    <button type="button" class="btn primary block" id="btn-nova-ordem">+ Nova ordem neste tipo</button>
-  </div>`;
-
   const sel = new Set(aplicacaoSel || []);
   const selecionadas = ordens.filter(o => sel.has(o.id));
   const soma = somarInsumosOrdens(selecionadas);
