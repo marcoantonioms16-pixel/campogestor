@@ -896,6 +896,19 @@ function renderProfileModal(){
 
 function render(){
   const root=document.getElementById("app");
+    if(!sbUser){
+    root.innerHTML=`<div class="card" style="margin:2rem 1rem;max-width:22rem">
+      <p class="kicker">CAMPOGESTOR</p>
+      <h1 style="margin:.2rem 0 .6rem">Fazenda Santa Rita</h1>
+      <p class="muted">Entre com o e-mail da fazenda para ver os dados.</p>
+      <div class="field"><label>E-mail</label><input id="auth-email" type="email" autocomplete="username"/></div>
+      <div class="field"><label>Senha</label><input id="auth-pass" type="password" autocomplete="current-password"/></div>
+      <button type="button" class="btn primary block" id="btn-login">Entrar</button>
+      <p class="muted" style="margin-top:.8rem;font-size:.8rem">Não há cadastro público.</p>
+    </div>`;
+    bind();
+    return;
+  }
   const hoje=hojeISO();
   let html="";
   const offline = (typeof isAppOnline === "function" && !isAppOnline()) || cloudStatus === "offline";
