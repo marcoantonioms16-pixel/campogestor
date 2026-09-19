@@ -1,16 +1,18 @@
-/* CampoGestor — service worker (Onda A: offline básico) */
-const CACHE_NAME = 'campogestor-cache-v17';
+/* CampoGestor — service worker */
+const CACHE_NAME = 'campogestor-cache-v18';
 const PRECACHE = [
   './',
   './index.html',
   './manifest.json',
   './css/app.css',
+  './css/theme-sol-capo.css',
   './js/core/data.js',
   './js/core/ordens-cata.js',
   './js/core/config.js',
   './js/services/cloud.js',
   './js/gestos.js',
   './js/app.js',
+  './js/nav-v1.js',
   './js/telas/hoje.js',
   './js/telas/frota.js',
   './js/telas/estoque.js',
@@ -18,6 +20,8 @@ const PRECACHE = [
   './js/telas/safra.js',
   './js/telas/talhoes.js',
   './js/telas/aplicacao.js',
+  './js/telas/atividades.js',
+  './js/telas/gestao.js',
   './js/telas/sementes.js',
   './js/telas/chuva.js',
   './js/telas/folgas.js',
@@ -51,7 +55,6 @@ self.addEventListener('fetch', (event) => {
   if (req.method !== 'GET') return;
 
   const url = new URL(req.url);
-  // APIs externas: só rede (não cachear Supabase/clima como app shell)
   if (url.origin !== self.location.origin) {
     event.respondWith(
       fetch(req).catch(() => new Response('{"offline":true}', {
@@ -62,7 +65,6 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Navegação / HTML: rede primeiro, fallback cache (abre offline)
   if (req.mode === 'navigate' || (req.headers.get('accept') || '').includes('text/html')) {
     event.respondWith(
       fetch(req)
@@ -78,19 +80,15 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Assets locais: cache primeiro, depois rede
   event.respondWith(
-    caches.match(req).then((cached) => {
-      const fetched = fetch(req)
-        .then((res) => {
-          if (res && res.ok) {
-            const copy = res.clone();
-            caches.open(CACHE_NAME).then((c) => c.put(req, copy)).catch(() => {});
-          }
-          return res;
-        })
-        .catch(() => cached);
-      return cached || fetched;
-    })
+    fetch(req)
+      .then((res) => {
+        if (res && res.ok) {
+          const copy = res.clone();
+          caches.open(CACHE_NAME).then((c) => c.put(req, copy)).catch(() => {});
+        }
+        return res;
+      })
+      .catch(() => caches.match(req))
   );
 });
