@@ -1,17 +1,49 @@
 const ADMIN_EMAIL = "campogestor@gmail.com";
-const REQ_KEY = "campogestor-admin-requests";
 
-function loadReqs() {
-  try { return JSON.parse(localStorage.getItem(REQ_KEY) || "[]"); } catch (e) { return []; }
-}
-function saveReqs(list) {
-  localStorage.setItem(REQ_KEY, JSON.stringify(list));
-}
 function session() {
   try { return JSON.parse(localStorage.getItem(SB_AUTH_KEY) || "null"); } catch (e) { return null; }
 }
 function emailFromSess(sess) {
   return String((sess && sess.user && sess.user.email) || "").trim().toLowerCase();
+}
+function headers(token) {
+  return {
+    apikey: SB_KEY,
+    Authorization: "Bearer " + token,
+    "Content-Type": "application/json",
+    Prefer: "return=representation"
+  };
+}
+async function listReqs(token) {
+  const res = await fetch(SB_URL + "/rest/v1/account_requests?select=*&order=created_at.desc", {
+    headers: headers(token)
+  });
+  const data = await res.json().catch(function () { return {}; });
+  if (!res.ok) {
+    const msg = data.message || data.hint || data.error || ("HTTP " + res.status);
+    throw new Error(msg);
+  }
+  return data;
+}
+async function addReq(token, email, farm) {
+  const res = await fetch(SB_URL + "/rest/v1/account_requests", {
+    method: "POST",
+    headers: headers(token),
+    body: JSON.stringify({ email: email, farm_name: farm || null, status: "pendente" })
+  });
+  const data = await res.json().catch(function () { return {}; });
+  if (!res.ok) throw new Error(data.message || data.hint || ("HTTP " + res.status));
+}
+async function setStatus(token, id, status) {
+  const res = await fetch(SB_URL + "/rest/v1/account_requests?id=eq." + encodeURIComponent(id), {
+    method: "PATCH",
+    headers: headers(token),
+    body: JSON.stringify({ status: status, decided_at: new Date().toISOString() })
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(function () { return {}; });
+    throw new Error(data.message || data.hint || ("HTTP " + res.status));
+  }
 }
 function rowHtml(x) {
   const acoes = x.status === "pendente"
@@ -22,11 +54,11 @@ function rowHtml(x) {
     : "";
   return `<div class="admin-row">
     <b>${x.email}</b>
-    <small>${x.farm} · ${x.status} · ${(x.em || "").slice(0, 10)}</small>
+    <small>${x.farm_name || "—"} · ${x.status} · ${String(x.created_at || "").slice(0, 10)}</small>
     ${acoes}
   </div>`;
 }
-function render() {
+async function render() {
   const root = document.getElementById("admin-root");
   const sess = session();
   const email = emailFromSess(sess);
@@ -35,20 +67,30 @@ function render() {
     return;
   }
   if (email !== ADMIN_EMAIL) {
-    root.innerHTML = `<p class="kicker">CAMPOGESTOR</p><h1>Sem permissão</h1><p>Logado como <b>${email || "—"}</b>.</p><p class="muted">Só ${ADMIN_EMAIL} acessa o admin.</p><p><a href="./index.html">Voltar ao app</a></p>`;
+    root.innerHTML = `<p class="kicker">CAMPOGESTOR</p><h1>Sem permissão</h1><p>Logado como <b>${email || "—"}</b>.</p><p><a href="./index.html">Voltar ao app</a></p>`;
     return;
   }
-  const list = loadReqs();
-  const pend = list.filter((x) => x.status === "pendente");
-  const outros = list.filter((x) => x.status !== "pendente");
+  root.innerHTML = `<p class="muted">Carregando pedidos da nuvem…</p>`;
+  let list = [];
+  let err = "";
+  try {
+    list = await listReqs(sess.access_token);
+  } catch (e) {
+    err = String(e.message || e);
+  }
+  const pend = list.filter(function (x) { return x.status === "pendente"; });
+  const outros = list.filter(function (x) { return x.status !== "pendente"; });
+  const aviso = err
+    ? `<div class="card" style="margin:12px 0"><p class="card-title">Tabela ainda não existe ou RLS bloqueou</p><p class="muted">${err}</p><p class="muted">No Supabase: SQL Editor → cole docs/etapa4-account-requests.sql → Run.</p></div>`
+    : "";
   root.innerHTML = `
     <p class="kicker">CAMPOGESTOR</p>
     <h1>Admin</h1>
-    <p class="muted">${email} · pedidos neste aparelho (ainda não é tabela do Supabase)</p>
+    <p class="muted">${email} · pedidos no Supabase</p>
     <p><a href="./index.html">← Voltar ao app</a></p>
+    ${aviso}
     <div class="card" style="margin:16px 0">
       <p class="card-title">Pré-aprovar e-mail</p>
-      <p class="muted">Anote o vizinho. A conta no Auth do Supabase você confirma lá no painel.</p>
       <div class="field"><label>E-mail</label><input id="adm-email" type="email" placeholder="vizinho01@gmail.com"/></div>
       <div class="field"><label>Nome da fazenda</label><input id="adm-farm" type="text" placeholder="Fazenda do vizinho"/></div>
       <button type="button" class="btn primary" id="adm-add">Registrar pedido</button>
@@ -59,21 +101,21 @@ function render() {
     <div class="admin-list" id="adm-hist"></div>`;
   document.getElementById("adm-pend").innerHTML = pend.length ? pend.map(rowHtml).join("") : `<p class="muted">Nenhum pedido.</p>`;
   document.getElementById("adm-hist").innerHTML = outros.length ? outros.map(rowHtml).join("") : `<p class="muted">Vazio.</p>`;
-  document.getElementById("adm-add").onclick = function () {
+  document.getElementById("adm-add").onclick = async function () {
     const em = String(document.getElementById("adm-email").value || "").trim().toLowerCase();
     const farm = String(document.getElementById("adm-farm").value || "").trim();
     if (!em || em.indexOf("@") < 0) { alert("E-mail inválido"); return; }
-    const cur = loadReqs();
-    cur.unshift({ id: "r-" + Date.now(), email: em, farm: farm || "—", status: "pendente", em: new Date().toISOString() });
-    saveReqs(cur);
-    render();
+    try {
+      await addReq(sess.access_token, em, farm);
+      render();
+    } catch (e) { alert(e.message || e); }
   };
   document.querySelectorAll("[data-adm]").forEach(function (btn) {
-    btn.onclick = function () {
-      const id = btn.getAttribute("data-id");
-      const ac = btn.getAttribute("data-adm");
-      saveReqs(loadReqs().map(function (x) { if (x.id === id) x.status = ac; return x; }));
-      render();
+    btn.onclick = async function () {
+      try {
+        await setStatus(sess.access_token, btn.getAttribute("data-id"), btn.getAttribute("data-adm"));
+        render();
+      } catch (e) { alert(e.message || e); }
     };
   });
 }
