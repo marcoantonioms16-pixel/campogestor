@@ -11,5 +11,9 @@ window.CampoGestorTelas.gestao = function () {
     <button type="button" class="more-row" data-go="pessoas"><span>👥</span><div><b>Equipe</b><small>Todos registrados na fazenda</small></div></button>
     <button type="button" class="more-row" data-go="mais"><span>🏡</span><div><b>Fazenda</b><small>Dados da propriedade</small></div></button>
   </div>`;
+  const mail = String((typeof sbUser !== "undefined" && sbUser && sbUser.email) || "").toLowerCase();
+  if (mail === "campogestor@gmail.com") {
+    html += `<p style="padding:16px"><a href="./admin.html">Painel admin →</a></p>`;
+  }
   return html;
 };
