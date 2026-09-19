@@ -1,0 +1,18 @@
+/* ETAPA 1 — Tema Sol no capô (padrão V1)
+   Só tokens. Não mexe em tela, menu nem dado da Santa Rita. */
+:root {
+  --color-bg: #F4EFE4;
+  --color-card-bg: #FFFAF5;
+  --color-text-primary: #1C1914;
+  --color-text-secondary: #6B6458;
+  --color-primary-green: #3D4A2E;
+  --color-green-accent: #5B7A4A;
+  --color-green-light: #E7EDE0;
+  --color-alert-bg: #F8EBD8;
+  --color-alert-border: #E8C48A;
+  --color-alert-red: #C4842A;
+  --color-alert-icon-bg: #F3D7A8;
+  --color-status-bg: #E7EDE0;
+  --color-status-text: #3D4A2E;
+  --color-border: rgba(61, 74, 46, 0.15);
+}
